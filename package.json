@@ -1,0 +1,46 @@
+{
+  "name": "eye-clinic",
+  "version": "1.0.0",
+  "description": "Visual Field Test Management System for Eye Clinics",
+  "main": "main.js",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
+    "build": "vite build && electron-builder",
+    "build-renderer": "vite build",
+    "start": "vite preview && electron .",
+    "electron": "electron .",
+    "electron-dev": "cross-env NODE_ENV=development electron .",
+    "dist": "vite build && electron-builder --publish=never",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "desktop",
+    "eye-clinic",
+    "medical",
+    "visual-field-test"
+  ],
+  "author": "Eye Clinic Management Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/postcss7-compat": "^2.2.17",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "^38.1.2",
+    "wait-on": "^9.0.1"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.0.3",
+    "autoprefixer": "^10.4.21",
+    "bcryptjs": "^3.0.2",
+    "postcss": "^8.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sqlite3": "^5.1.7",
+    "tailwindcss": "^4.1.13",
+    "vite": "^7.1.7"
+  }
+}
