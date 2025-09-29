@@ -27,42 +27,42 @@ const SetupScreen = ({ onComplete, onBack }) => {
 
   const validateStep1 = () => {
     const newErrors = {}
-    
+
     if (!formData.clinicName.trim()) {
       newErrors.clinicName = 'Clinic name is required'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const validateStep2 = () => {
     const newErrors = {}
-    
+
     if (!formData.adminName.trim()) {
       newErrors.adminName = 'Name is required'
     }
-    
+
     if (!formData.adminEmail.trim()) {
       newErrors.adminEmail = 'Email is required'
     } else if (!/\S+@\S+\.\S+/.test(formData.adminEmail)) {
       newErrors.adminEmail = 'Email is invalid'
     }
-    
+
     if (!formData.adminPassword) {
       newErrors.adminPassword = 'Password is required'
     } else if (formData.adminPassword.length < 6) {
       newErrors.adminPassword = 'Password must be at least 6 characters'
     }
-    
+
     if (formData.adminPassword !== formData.adminPasswordConfirm) {
       newErrors.adminPasswordConfirm = 'Passwords do not match'
     }
-    
+
     if (!formData.adminRole) {
       newErrors.adminRole = 'Role is required'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -84,14 +84,14 @@ const SetupScreen = ({ onComplete, onBack }) => {
         address: formData.clinicAddress,
         phone: formData.clinicPhone
       }
-      
+
       const adminData = {
         name: formData.adminName,
         email: formData.adminEmail,
         password: formData.adminPassword,
         role: formData.adminRole
       }
-      
+
       onComplete(clinicData, adminData)
     }
   }
@@ -121,14 +121,14 @@ const SetupScreen = ({ onComplete, onBack }) => {
                 </div>
                 <span className="ml-3 text-sm font-medium text-gray-700">Clinic Info</span>
               </div>
-              
+
               {/* Connector */}
               <div className="w-16 h-1 bg-gray-200 rounded">
                 <div className={`h-full bg-blue-600 rounded transition-all duration-500 ${
                   currentStep > 1 ? 'w-full' : 'w-0'
                 }`}></div>
               </div>
-              
+
               {/* Step 2 */}
               <div className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -147,7 +147,7 @@ const SetupScreen = ({ onComplete, onBack }) => {
           {currentStep === 1 && (
             <div className="animate-slide-in">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">Clinic Information</h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label htmlFor="clinicName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -217,7 +217,7 @@ const SetupScreen = ({ onComplete, onBack }) => {
           {currentStep === 2 && (
             <div className="animate-slide-in">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">Create Administrator Account</h2>
-              
+
               <div className="space-y-6">
                 <div>
                   <label htmlFor="adminName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -300,6 +300,7 @@ const SetupScreen = ({ onComplete, onBack }) => {
                     <option value="">Select your role</option>
                     <option value="doctor">Doctor</option>
                     <option value="assistant">Clinic Assistant</option>
+                    <option value="admin">Admin</option>
                   </select>
                   {errors.adminRole && (
                     <p className="mt-1 text-sm text-red-600">{errors.adminRole}</p>

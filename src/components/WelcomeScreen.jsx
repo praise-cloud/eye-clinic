@@ -75,7 +75,7 @@ const WelcomeScreen = ({ onGetStarted }) => {
             onClick={onGetStarted}
             className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg"
           >
-            <span>Get Started now</span>
+            <span>Get Started</span>
             <ArrowRightIcon className="ml-3 w-6 h-6" />
           </button>
 
