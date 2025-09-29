@@ -18,15 +18,23 @@ class IPCHandlers {
     }
 
     registerAuthHandlers() {
+
+        // Always clear any existing handler first
+        ipcMain.removeHandler('auth:isFirstRun');
+
         // Check if this is first run
         ipcMain.handle('auth:isFirstRun', async () => {
             try {
-                return await DatabaseService.isFirstRun();
+                // return await DatabaseService.isFirstRun();
+                const db = await this.getDatabase();
+                const result = await db.get('SELECT COUNT(*) as count FROM users');
+                return { success: true, isFirstRun: result.count === 0 };
             } catch (error) {
                 console.error('Error checking first run:', error);
                 return { error: error.message };
             }
         });
+
 
         // Login user
         ipcMain.handle('auth:login', async (event, { email, password }) => {
@@ -34,7 +42,7 @@ class IPCHandlers {
                 if (!email || !password) {
                     return { error: 'Email and password are required' };
                 }
-                
+
                 const user = await DatabaseService.authenticateUser(email, password);
                 if (user) {
                     return { success: true, user };
@@ -159,8 +167,8 @@ class IPCHandlers {
         // Search patients
         ipcMain.handle('patients:search', async (event, searchTerm) => {
             try {
-                const patients = await DatabaseService.getAllPatients({ 
-                    search: searchTerm 
+                const patients = await DatabaseService.getAllPatients({
+                    search: searchTerm
                 });
                 return { success: true, patients };
             } catch (error) {
@@ -345,8 +353,8 @@ class IPCHandlers {
                 };
 
                 const report = await DatabaseService.createReport(reportData);
-                return { 
-                    success: true, 
+                return {
+                    success: true,
                     report,
                     fileName: pdfResult.fileName
                 };
@@ -675,7 +683,7 @@ class IPCHandlers {
                 }
 
                 const user = await DatabaseService.createUser(userData);
-                
+
                 // Log the activity
                 if (createdBy) {
                     await DatabaseService.logActivity(
@@ -773,7 +781,7 @@ class IPCHandlers {
             try {
                 const requiredFields = ['senderId', 'receiverId', 'messageText'];
                 const data = { senderId, receiverId, messageText };
-                
+
                 for (const field of requiredFields) {
                     if (!data[field]) {
                         return { error: `${field} is required` };
@@ -890,15 +898,15 @@ class IPCHandlers {
             try {
                 // Simple health check - try to query database
                 await DatabaseService.getDashboardStats();
-                return { 
-                    success: true, 
+                return {
+                    success: true,
                     status: 'healthy',
                     timestamp: new Date().toISOString()
                 };
             } catch (error) {
                 console.error('Health check error:', error);
-                return { 
-                    success: false, 
+                return {
+                    success: false,
                     status: 'unhealthy',
                     error: error.message,
                     timestamp: new Date().toISOString()

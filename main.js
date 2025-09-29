@@ -3,6 +3,16 @@ const path = require('path');
 const Database = require('./database');
 const IPCHandlers = require('./services/IPCHandlers');
 
+
+// ✅ Add this right after imports
+try {
+  require('electron-reload')(__dirname, {
+    electron: require(`${__dirname}/node_modules/electron`)
+  });
+} catch (e) {
+  console.warn("Electron reload not enabled in production.");
+}
+
 let mainWindow = null;
 let authWindow = null;
 let database = null;
@@ -21,10 +31,49 @@ async function initializeDatabase() {
   }
 }
 
-function createAuthWindow() {
+// function createAuthWindow() {
+//   authWindow = new BrowserWindow({
+//     width: 1200,
+//     height: 900,
+//     webPreferences: {
+//       nodeIntegration: false,
+//       contextIsolation: true,
+//       preload: path.join(__dirname, 'preload.js')
+//     },
+//     show: false,
+//     resizable: false,
+//     titleBarStyle: 'hidden',
+//     frame: true
+//   });
+
+//   // Load from Vite dev server in development, dist in production
+//   if (process.env.NODE_ENV === 'development') {
+//     authWindow.loadURL('http://localhost:3000/auth.html');
+//   } else {
+//     authWindow.loadFile(path.join(__dirname, 'dist/auth.html'));
+//   }
+
+//   authWindow.once('ready-to-show', () => {
+//     authWindow.show();
+//   });
+
+//   // Open DevTools in development
+//   if (process.env.NODE_ENV === 'development') {
+//     authWindow.webContents.openDevTools();
+//   }
+
+//   authWindow.on('closed', () => {
+//     authWindow = null;
+//     if (!mainWindow) {
+//       app.quit();
+//     }
+//   });
+// }
+
+function createSignupWindow() {
   authWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 1500,
+    height: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -36,9 +85,8 @@ function createAuthWindow() {
     frame: true
   });
 
-  // Load from Vite dev server in development, dist in production
   if (process.env.NODE_ENV === 'development') {
-    authWindow.loadURL('http://localhost:3000/auth.html');
+    authWindow.loadURL('http://localhost:3000/auth.html'); // 🔑 new signup page
   } else {
     authWindow.loadFile(path.join(__dirname, 'dist/auth.html'));
   }
@@ -47,7 +95,6 @@ function createAuthWindow() {
     authWindow.show();
   });
 
-  // Open DevTools in development
   if (process.env.NODE_ENV === 'development') {
     authWindow.webContents.openDevTools();
   }
@@ -59,6 +106,44 @@ function createAuthWindow() {
     }
   });
 }
+
+function createLoginWindow() {
+  authWindow = new BrowserWindow({
+    width: 1500,
+    height: 900,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    show: false,
+    resizable: false,
+    titleBarStyle: 'hidden',
+    frame: true
+  });
+
+  if (process.env.NODE_ENV === 'development') {
+    authWindow.loadURL('http://localhost:3000/auth.html'); // 🔑 new login page
+  } else {
+    authWindow.loadFile(path.join(__dirname, 'dist/auth.html'));
+  }
+
+  authWindow.once('ready-to-show', () => {
+    authWindow.show();
+  });
+
+  if (process.env.NODE_ENV === 'development') {
+    authWindow.webContents.openDevTools();
+  }
+
+  authWindow.on('closed', () => {
+    authWindow = null;
+    if (!mainWindow) {
+      app.quit();
+    }
+  });
+}
+
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
@@ -101,19 +186,19 @@ function createMainWindow() {
 // Initialize app when ready
 app.whenReady().then(async () => {
   await initializeDatabase();
-  
+
   // Initialize comprehensive IPC handlers
   new IPCHandlers();
-  
+
   // Also keep essential window management handlers
-  setupWindowHandlers();
-  
+  // setupWindowHandlers();
+
   // Check if first run to determine which window to show
   const isFirstRun = await database.isFirstRun();
   if (isFirstRun) {
-    createAuthWindow();
+    createSignupWindow();
   } else {
-    createAuthWindow(); // Always show auth first for security
+    createLoginWindow();
   }
 });
 
@@ -192,11 +277,11 @@ function setupWindowHandlers() {
       await database.setSetting('clinic_address', clinicData.address);
       await database.setSetting('clinic_phone', clinicData.phone);
       await database.setSetting('setup_completed', 'true');
-      
+
       // Create admin user
       const user = await database.createUser(adminData);
       currentUser = user;
-      
+
       return { success: true, user };
     } catch (error) {
       console.error('Setup error:', error);

@@ -29,6 +29,23 @@ class DatabaseService {
         return await db.isFirstRun();
     }
 
+// class DatabaseService {
+//   constructor(db) {
+//     this.db = db;
+//   }
+
+//   async isFirstRun() {
+//     // Check if "users" table has any data
+//     const row = await this.db.get("SELECT COUNT(*) as count FROM users");
+//     return row.count === 0;  // true = no users, so first run
+//   }
+
+//   async getUserByUsername(username) {
+//     return await this.db.get("SELECT * FROM users WHERE username = ?", [username]);
+//   }
+// }
+
+
     async authenticateUser(email, password) {
         const db = await this.getDatabase();
         return await db.authenticateUser(email, password);
@@ -48,7 +65,7 @@ class DatabaseService {
     async getAllPatients(filters = {}) {
         const db = await this.getDatabase();
         let query = `
-            SELECT * FROM patients 
+            SELECT * FROM patients
             WHERE 1=1
         `;
         const params = [];
@@ -72,7 +89,7 @@ class DatabaseService {
         if (filters.limit) {
             query += ` LIMIT ?`;
             params.push(parseInt(filters.limit));
-            
+
             if (filters.offset) {
                 query += ` OFFSET ?`;
                 params.push(parseInt(filters.offset));
@@ -90,14 +107,14 @@ class DatabaseService {
     async createPatient(patientData) {
         const db = await this.getDatabase();
         const { patient_id, first_name, last_name, dob, gender, contact } = patientData;
-        
+
         const query = `
             INSERT INTO patients (patient_id, first_name, last_name, dob, gender, contact, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        
+
         const result = await db.run(query, [patient_id, first_name, last_name, dob, gender, contact]);
-        
+
         // Return the created patient
         return await this.getPatientById(result.lastID);
     }
@@ -105,16 +122,16 @@ class DatabaseService {
     async updatePatient(id, patientData) {
         const db = await this.getDatabase();
         const { patient_id, first_name, last_name, dob, gender, contact } = patientData;
-        
+
         const query = `
-            UPDATE patients 
-            SET patient_id = ?, first_name = ?, last_name = ?, dob = ?, 
+            UPDATE patients
+            SET patient_id = ?, first_name = ?, last_name = ?, dob = ?,
                 gender = ?, contact = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [patient_id, first_name, last_name, dob, gender, contact, id]);
-        
+
         // Return the updated patient
         return await this.getPatientById(id);
     }
@@ -179,33 +196,33 @@ class DatabaseService {
     async createTest(testData) {
         const db = await this.getDatabase();
         const { patient_id, eye, machine_type, raw_data, test_date } = testData;
-        
+
         const query = `
             INSERT INTO tests (patient_id, eye, machine_type, raw_data, test_date, updated_at)
             VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        
+
         const result = await db.run(query, [
-            patient_id, 
-            eye, 
-            machine_type, 
+            patient_id,
+            eye,
+            machine_type,
             JSON.stringify(raw_data),
             test_date || new Date().toISOString()
         ]);
-        
+
         return await this.getTestById(result.lastID);
     }
 
     async updateTest(id, testData) {
         const db = await this.getDatabase();
         const { eye, machine_type, raw_data, test_date } = testData;
-        
+
         const query = `
-            UPDATE tests 
+            UPDATE tests
             SET eye = ?, machine_type = ?, raw_data = ?, test_date = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [eye, machine_type, JSON.stringify(raw_data), test_date, id]);
         return await this.getTestById(id);
     }
@@ -220,7 +237,7 @@ class DatabaseService {
     async getMessages(userId, otherUserId = null) {
         const db = await this.getDatabase();
         let query = `
-            SELECT c.*, 
+            SELECT c.*,
                    s.name as sender_name, s.role as sender_role,
                    r.name as receiver_name, r.role as receiver_role
             FROM chat c
@@ -246,12 +263,12 @@ class DatabaseService {
             INSERT INTO chat (sender_id, receiver_id, message_text)
             VALUES (?, ?, ?)
         `;
-        
+
         const result = await db.run(query, [senderId, receiverId, messageText]);
-        
+
         // Return the created message with user details
         return await db.get(`
-            SELECT c.*, 
+            SELECT c.*,
                    s.name as sender_name, s.role as sender_role,
                    r.name as receiver_name, r.role as receiver_role
             FROM chat c
@@ -264,11 +281,11 @@ class DatabaseService {
     async markMessageAsRead(messageId, userId) {
         const db = await this.getDatabase();
         const query = `
-            UPDATE chat 
-            SET status = 'read' 
+            UPDATE chat
+            SET status = 'read'
             WHERE id = ? AND receiver_id = ?
         `;
-        
+
         const result = await db.run(query, [messageId, userId]);
         return { success: result.changes > 0 };
     }
@@ -276,11 +293,11 @@ class DatabaseService {
     async getUnreadMessageCount(userId) {
         const db = await this.getDatabase();
         const result = await db.get(`
-            SELECT COUNT(*) as count 
-            FROM chat 
+            SELECT COUNT(*) as count
+            FROM chat
             WHERE receiver_id = ? AND status = 'unread'
         `, [userId]);
-        
+
         return result.count || 0;
     }
 
@@ -298,20 +315,20 @@ class DatabaseService {
     async getAllSettings() {
         const db = await this.getDatabase();
         const settings = await db.all('SELECT * FROM settings ORDER BY key');
-        
+
         // Convert to key-value object
         const settingsObj = {};
         settings.forEach(setting => {
             settingsObj[setting.key] = setting.value;
         });
-        
+
         return settingsObj;
     }
 
     // Statistics and Analytics
     async getDashboardStats() {
         const db = await this.getDatabase();
-        
+
         const [patients, tests, reports, messages] = await Promise.all([
             db.get('SELECT COUNT(*) as count FROM patients'),
             db.get('SELECT COUNT(*) as count FROM tests WHERE date(test_date) = date("now")'),
@@ -376,12 +393,12 @@ class DatabaseService {
     async createReport(reportData) {
         const db = await this.getDatabase();
         const { patient_id, report_file, report_date, report_type, title } = reportData;
-        
+
         const query = `
             INSERT INTO reports (patient_id, report_file, report_date, report_type, title, created_at)
             VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        
+
         const result = await db.run(query, [
             patient_id,
             report_file, // This will be binary PDF data
@@ -389,20 +406,20 @@ class DatabaseService {
             report_type || 'visual_field_report',
             title
         ]);
-        
+
         return await this.getReportById(result.lastID);
     }
 
     async updateReport(id, reportData) {
         const db = await this.getDatabase();
         const { report_file, report_type, title } = reportData;
-        
+
         const query = `
-            UPDATE reports 
+            UPDATE reports
             SET report_file = ?, report_type = ?, title = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [report_file, report_type, title, id]);
         return await this.getReportById(id);
     }
@@ -468,7 +485,7 @@ class DatabaseService {
         if (filters.limit) {
             query += ` LIMIT ?`;
             params.push(parseInt(filters.limit));
-            
+
             if (filters.offset) {
                 query += ` OFFSET ?`;
                 params.push(parseInt(filters.offset));
@@ -507,7 +524,7 @@ class DatabaseService {
             supplier_contact, purchase_date, expiry_date, location,
             status, last_updated_by, notes
         } = itemData;
-        
+
         const query = `
             INSERT INTO inventory (
                 item_code, item_name, category, description, manufacturer,
@@ -518,7 +535,7 @@ class DatabaseService {
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        
+
         const result = await db.run(query, [
             item_code, item_name, category, description, manufacturer,
             model_number, serial_number, current_quantity || 0, minimum_quantity || 0,
@@ -526,7 +543,7 @@ class DatabaseService {
             supplier_name, supplier_contact, purchase_date, expiry_date, location,
             status || 'active', last_updated_by, notes
         ]);
-        
+
         return await this.getInventoryItemById(result.lastID);
     }
 
@@ -538,7 +555,7 @@ class DatabaseService {
             unit_of_measure, unit_cost, supplier_name, supplier_contact,
             purchase_date, expiry_date, location, status, last_updated_by, notes
         } = itemData;
-        
+
         const query = `
             UPDATE inventory SET
                 item_name = ?, category = ?, description = ?, manufacturer = ?,
@@ -549,20 +566,20 @@ class DatabaseService {
                 last_updated_by = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [
             item_name, category, description, manufacturer, model_number,
             serial_number, current_quantity, minimum_quantity, maximum_quantity,
             unit_of_measure, unit_cost, supplier_name, supplier_contact,
             purchase_date, expiry_date, location, status, last_updated_by, notes, id
         ]);
-        
+
         return await this.getInventoryItemById(id);
     }
 
     async updateInventoryQuantity(id, newQuantity, userId, notes = null) {
         const db = await this.getDatabase();
-        
+
         const query = `
             UPDATE inventory SET
                 current_quantity = ?,
@@ -571,7 +588,7 @@ class DatabaseService {
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [newQuantity, userId, notes, notes, id]);
         return await this.getInventoryItemById(id);
     }
@@ -584,7 +601,7 @@ class DatabaseService {
 
     async getInventoryStatistics() {
         const db = await this.getDatabase();
-        
+
         const [totalItems, lowStockItems, expiringSoon, totalValue, categories] = await Promise.all([
             db.get('SELECT COUNT(*) as count FROM inventory WHERE status = "active"'),
             db.get('SELECT COUNT(*) as count FROM inventory WHERE status = "active" AND current_quantity <= minimum_quantity'),
@@ -619,8 +636,8 @@ class DatabaseService {
             SELECT i.*, u.name as last_updated_by_name
             FROM inventory i
             LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE i.status = 'active' 
-                AND i.expiry_date IS NOT NULL 
+            WHERE i.status = 'active'
+                AND i.expiry_date IS NOT NULL
                 AND i.expiry_date <= date('now', '+' || ? || ' days')
             ORDER BY i.expiry_date ASC
         `, [days]);
@@ -629,15 +646,15 @@ class DatabaseService {
     // Activity Logging
     async logActivity(userId, actionType, entityType, entityId, description, ipAddress = null, userAgent = null) {
         const db = await this.getDatabase();
-        
+
         const query = `
             INSERT INTO activity_logs (
-                user_id, action_type, entity_type, entity_id, 
+                user_id, action_type, entity_type, entity_id,
                 description, ip_address, user_agent
             )
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-        
+
         try {
             await db.run(query, [userId, actionType, entityType, entityId, description, ipAddress, userAgent]);
         } catch (error) {
@@ -693,7 +710,7 @@ class DatabaseService {
 
     async getActivityStatistics() {
         const db = await this.getDatabase();
-        
+
         const [totalActivities, todayActivities, userActivity, entityActivity] = await Promise.all([
             db.get('SELECT COUNT(*) as count FROM activity_logs'),
             db.get('SELECT COUNT(*) as count FROM activity_logs WHERE DATE(timestamp) = DATE("now")'),
@@ -713,7 +730,7 @@ class DatabaseService {
     async getAllUsersDetailed() {
         const db = await this.getDatabase();
         return await db.all(`
-            SELECT 
+            SELECT
                 u.*,
                 COUNT(DISTINCT p.id) as patients_managed,
                 COUNT(DISTINCT t.id) as tests_conducted,
@@ -732,7 +749,7 @@ class DatabaseService {
 
     async getUserStatistics(userId) {
         const db = await this.getDatabase();
-        
+
         const [userInfo, activities, recentActivity] = await Promise.all([
             db.get('SELECT * FROM users WHERE id = ?', [userId]),
             db.all('SELECT action_type, COUNT(*) as count FROM activity_logs WHERE user_id = ? GROUP BY action_type', [userId]),
@@ -748,16 +765,16 @@ class DatabaseService {
 
     async updateUserStatus(userId, isActive, updatedBy) {
         const db = await this.getDatabase();
-        
+
         const status = isActive ? 'active' : 'inactive';
         const query = `
-            UPDATE users 
+            UPDATE users
             SET status = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
-        
+
         await db.run(query, [status, userId]);
-        
+
         // Log the activity
         await this.logActivity(
             updatedBy,
@@ -766,16 +783,16 @@ class DatabaseService {
             userId,
             `User status changed to ${status}`
         );
-        
+
         return await db.get('SELECT id, name, email, role, status FROM users WHERE id = ?', [userId]);
     }
 
     async deleteUser(userId, deletedBy) {
         const db = await this.getDatabase();
-        
+
         // Get user info before deletion
         const user = await db.get('SELECT * FROM users WHERE id = ?', [userId]);
-        
+
         if (!user) {
             throw new Error('User not found');
         }
@@ -788,7 +805,7 @@ class DatabaseService {
             userId,
             `Deleted user: ${user.name} (${user.email})`
         );
-        
+
         const result = await db.run('DELETE FROM users WHERE id = ?', [userId]);
         return { success: result.changes > 0, deletedUser: user.name };
     }
@@ -798,31 +815,31 @@ class DatabaseService {
         const fs = require('fs-extra');
         const path = require('path');
         const { app } = require('electron');
-        
+
         try {
             const db = await this.getDatabase();
             const sourceDb = db.dbPath || path.join(app.getPath('userData'), 'eye_clinic.db');
             const backupDir = path.join(app.getPath('userData'), 'backups');
-            
+
             // Ensure backup directory exists
             await fs.ensureDir(backupDir);
-            
+
             // Create backup filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const backupPath = path.join(backupDir, `eye_clinic_backup_${timestamp}.db`);
-            
+
             // Copy database file
             await fs.copy(sourceDb, backupPath);
-            
-            return { 
-                success: true, 
+
+            return {
+                success: true,
                 message: 'Database backup created successfully',
                 backupPath: backupPath
             };
         } catch (error) {
             console.error('Backup error:', error);
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: `Backup failed: ${error.message}`
             };
         }
