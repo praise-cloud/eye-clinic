@@ -22,8 +22,8 @@ async function initializeDatabase() {
 
 function createAuthWindow() {
   authWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

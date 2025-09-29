@@ -92,7 +92,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
+    background-color: #764ba2;
     color: white;
     overflow-y: auto;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -119,13 +119,13 @@ body {
 }
 
 .nav-link:hover {
-    background-color: #34495e;
+    background-color: #3742fa;
     color: white;
-    border-left-color: #3742fa;
+    border-left-color: #ffd700;
 }
 
 .nav-item.active .nav-link {
-    background-color: #34495e;
+    background-color: #3742fa;
     color: white;
     border-left-color: #ffd700;
 }
