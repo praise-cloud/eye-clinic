@@ -45,7 +45,8 @@ class Database {
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
-                role TEXT NOT NULL CHECK (role IN ('doctor', 'assistant')),
+                role TEXT NOT NULL CHECK (role IN ('admin', 'doctor', 'assistant')),
+                status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
@@ -81,8 +82,11 @@ class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 patient_id INTEGER NOT NULL,
                 report_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                report_type TEXT DEFAULT 'visual_field_report',
+                title TEXT,
                 report_file BLOB, -- PDF file data
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
             )`,
             
@@ -98,6 +102,49 @@ class Database {
                 FOREIGN KEY (receiver_id) REFERENCES users (id)
             )`,
 
+            // Inventory table for medical supplies and equipment
+            `CREATE TABLE IF NOT EXISTS inventory (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_code TEXT UNIQUE NOT NULL,
+                item_name TEXT NOT NULL,
+                category TEXT NOT NULL CHECK (category IN ('equipment', 'supplies', 'medication', 'consumables', 'other')),
+                description TEXT,
+                manufacturer TEXT,
+                model_number TEXT,
+                serial_number TEXT,
+                current_quantity INTEGER DEFAULT 0,
+                minimum_quantity INTEGER DEFAULT 0,
+                maximum_quantity INTEGER DEFAULT 100,
+                unit_of_measure TEXT DEFAULT 'pieces',
+                unit_cost DECIMAL(10, 2) DEFAULT 0.00,
+                total_value DECIMAL(10, 2) GENERATED ALWAYS AS (current_quantity * unit_cost) STORED,
+                supplier_name TEXT,
+                supplier_contact TEXT,
+                purchase_date DATE,
+                expiry_date DATE,
+                location TEXT,
+                status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'maintenance', 'disposed')),
+                last_updated_by INTEGER,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (last_updated_by) REFERENCES users (id)
+            )`,
+            
+            // Activity logs table for tracking user actions
+            `CREATE TABLE IF NOT EXISTS activity_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                action_type TEXT NOT NULL, -- 'create', 'update', 'delete', 'view', 'login', 'logout'
+                entity_type TEXT NOT NULL, -- 'patient', 'test', 'report', 'inventory', 'user', 'system'
+                entity_id INTEGER,
+                description TEXT NOT NULL,
+                ip_address TEXT,
+                user_agent TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )`,
+            
             // Settings table for application configuration
             `CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

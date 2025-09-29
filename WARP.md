@@ -68,6 +68,8 @@ This is an **Electron desktop application** for ophthalmology clinics with the f
 - **patients** - patient records with search/filter capabilities
 - **tests** - visual field test data (JSON storage)
 - **reports** - PDF report generation
+- **inventory** - medical supplies and equipment management
+- **activity_logs** - system activity tracking and audit trails
 - **chat** - internal team messaging
 - **settings** - application configuration
 
@@ -97,6 +99,10 @@ All IPC handlers follow consistent patterns:
 - **Auth APIs**: `auth:*` (login, createUser, logout, etc.)
 - **Patient APIs**: `patients:*` (CRUD operations)
 - **Test APIs**: `tests:*` (visual field test management)
+- **Report APIs**: `reports:*` (PDF generation and export)
+- **Inventory APIs**: `inventory:*` (medical supplies and equipment)
+- **Admin APIs**: `admin:*` (user management and activity logs)
+- **File APIs**: `file:*` (file selection, upload, PDF generation)
 - **Chat APIs**: `chat:*` (messaging system)
 - **Settings APIs**: `settings:*` and `db:*`
 
@@ -104,7 +110,10 @@ All IPC handlers follow consistent patterns:
 1. First run shows welcome screen and setup wizard
 2. Creates admin user and clinic configuration
 3. Main app requires authentication for all subsequent launches
-4. Role-based UI (doctor vs assistant permissions)
+4. Role-based UI with three permission levels:
+   - **Admin**: Full system access, user management, activity monitoring
+   - **Doctor**: Patient care, reports, clinical data
+   - **Assistant**: Patient registration, inventory, data entry
 
 ### Configuration Files
 - `vite.config.js` - Multi-entry build (auth + main)

@@ -31,6 +31,29 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateTest: (id, testData) => ipcRenderer.invoke('tests:update', { id, testData }),
     deleteTest: (id) => ipcRenderer.invoke('tests:delete', id),
     
+    // Inventory APIs
+    getInventoryItems: (filters) => ipcRenderer.invoke('inventory:getAll', filters),
+    getInventoryItem: (id) => ipcRenderer.invoke('inventory:getById', id),
+    getInventoryItemByCode: (itemCode) => ipcRenderer.invoke('inventory:getByCode', itemCode),
+    createInventoryItem: (itemData) => ipcRenderer.invoke('inventory:create', itemData),
+    updateInventoryItem: (id, itemData) => ipcRenderer.invoke('inventory:update', { id, itemData }),
+    updateInventoryQuantity: (id, quantity, userId, notes) => ipcRenderer.invoke('inventory:updateQuantity', { id, quantity, userId, notes }),
+    deleteInventoryItem: (id) => ipcRenderer.invoke('inventory:delete', id),
+    getInventoryStatistics: () => ipcRenderer.invoke('inventory:getStatistics'),
+    getLowStockItems: () => ipcRenderer.invoke('inventory:getLowStock'),
+    getExpiringItems: (days) => ipcRenderer.invoke('inventory:getExpiring', days),
+    searchInventory: (searchTerm) => ipcRenderer.invoke('inventory:search', searchTerm),
+    
+    // Admin APIs
+    getAllUsersDetailed: () => ipcRenderer.invoke('admin:getAllUsers'),
+    getUserStatistics: (userId) => ipcRenderer.invoke('admin:getUserStats', userId),
+    updateUserStatus: (userId, isActive, updatedBy) => ipcRenderer.invoke('admin:updateUserStatus', { userId, isActive, updatedBy }),
+    deleteUser: (userId, deletedBy) => ipcRenderer.invoke('admin:deleteUser', { userId, deletedBy }),
+    getActivityLogs: (filters) => ipcRenderer.invoke('admin:getActivityLogs', filters),
+    getActivityStatistics: () => ipcRenderer.invoke('admin:getActivityStats'),
+    logActivity: (userId, actionType, entityType, entityId, description, ipAddress, userAgent) => ipcRenderer.invoke('admin:logActivity', { userId, actionType, entityType, entityId, description, ipAddress, userAgent }),
+    createUserAdmin: (userData, createdBy) => ipcRenderer.invoke('admin:createUser', { userData, createdBy }),
+    
     // Report APIs
     getReports: (filters) => ipcRenderer.invoke('reports:getAll', filters),
     generateReport: (patientId, testIds) => ipcRenderer.invoke('reports:generate', { patientId, testIds }),

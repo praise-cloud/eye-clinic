@@ -327,12 +327,505 @@ class DatabaseService {
         };
     }
 
+    // Report Operations
+    async getAllReports(filters = {}) {
+        const db = await this.getDatabase();
+        let query = `
+            SELECT r.*, p.first_name, p.last_name, p.patient_id as patient_identifier
+            FROM reports r
+            LEFT JOIN patients p ON r.patient_id = p.id
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (filters.patientId) {
+            query += ` AND r.patient_id = ?`;
+            params.push(filters.patientId);
+        }
+
+        if (filters.dateFrom) {
+            query += ` AND r.report_date >= ?`;
+            params.push(filters.dateFrom);
+        }
+
+        if (filters.dateTo) {
+            query += ` AND r.report_date <= ?`;
+            params.push(filters.dateTo);
+        }
+
+        query += ` ORDER BY r.report_date DESC`;
+
+        if (filters.limit) {
+            query += ` LIMIT ?`;
+            params.push(parseInt(filters.limit));
+        }
+
+        return await db.all(query, params);
+    }
+
+    async getReportById(id) {
+        const db = await this.getDatabase();
+        return await db.get(`
+            SELECT r.*, p.first_name, p.last_name, p.patient_id as patient_identifier
+            FROM reports r
+            LEFT JOIN patients p ON r.patient_id = p.id
+            WHERE r.id = ?
+        `, [id]);
+    }
+
+    async createReport(reportData) {
+        const db = await this.getDatabase();
+        const { patient_id, report_file, report_date, report_type, title } = reportData;
+        
+        const query = `
+            INSERT INTO reports (patient_id, report_file, report_date, report_type, title, created_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
+        
+        const result = await db.run(query, [
+            patient_id,
+            report_file, // This will be binary PDF data
+            report_date || new Date().toISOString(),
+            report_type || 'visual_field_report',
+            title
+        ]);
+        
+        return await this.getReportById(result.lastID);
+    }
+
+    async updateReport(id, reportData) {
+        const db = await this.getDatabase();
+        const { report_file, report_type, title } = reportData;
+        
+        const query = `
+            UPDATE reports 
+            SET report_file = ?, report_type = ?, title = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        
+        await db.run(query, [report_file, report_type, title, id]);
+        return await this.getReportById(id);
+    }
+
+    async deleteReport(id) {
+        const db = await this.getDatabase();
+        const result = await db.run('DELETE FROM reports WHERE id = ?', [id]);
+        return { success: result.changes > 0, deletedCount: result.changes };
+    }
+
+    // Inventory Operations
+    async getAllInventoryItems(filters = {}) {
+        const db = await this.getDatabase();
+        let query = `
+            SELECT i.*, u.name as last_updated_by_name
+            FROM inventory i
+            LEFT JOIN users u ON i.last_updated_by = u.id
+            WHERE 1=1
+        `;
+        const params = [];
+
+        // Search filter
+        if (filters.search) {
+            query += ` AND (i.item_name LIKE ? OR i.item_code LIKE ? OR i.description LIKE ?)`;
+            const searchTerm = `%${filters.search}%`;
+            params.push(searchTerm, searchTerm, searchTerm);
+        }
+
+        // Category filter
+        if (filters.category) {
+            query += ` AND i.category = ?`;
+            params.push(filters.category);
+        }
+
+        // Status filter
+        if (filters.status) {
+            query += ` AND i.status = ?`;
+            params.push(filters.status);
+        }
+
+        // Low stock filter
+        if (filters.lowStock) {
+            query += ` AND i.current_quantity <= i.minimum_quantity`;
+        }
+
+        // Expiring soon filter (within 30 days)
+        if (filters.expiringSoon) {
+            query += ` AND i.expiry_date IS NOT NULL AND i.expiry_date <= date('now', '+30 days')`;
+        }
+
+        // Location filter
+        if (filters.location) {
+            query += ` AND i.location LIKE ?`;
+            params.push(`%${filters.location}%`);
+        }
+
+        // Sorting
+        const sortBy = filters.sortBy || 'item_name';
+        const sortOrder = filters.sortOrder || 'ASC';
+        query += ` ORDER BY i.${sortBy} ${sortOrder}`;
+
+        // Pagination
+        if (filters.limit) {
+            query += ` LIMIT ?`;
+            params.push(parseInt(filters.limit));
+            
+            if (filters.offset) {
+                query += ` OFFSET ?`;
+                params.push(parseInt(filters.offset));
+            }
+        }
+
+        return await db.all(query, params);
+    }
+
+    async getInventoryItemById(id) {
+        const db = await this.getDatabase();
+        return await db.get(`
+            SELECT i.*, u.name as last_updated_by_name
+            FROM inventory i
+            LEFT JOIN users u ON i.last_updated_by = u.id
+            WHERE i.id = ?
+        `, [id]);
+    }
+
+    async getInventoryItemByCode(itemCode) {
+        const db = await this.getDatabase();
+        return await db.get(`
+            SELECT i.*, u.name as last_updated_by_name
+            FROM inventory i
+            LEFT JOIN users u ON i.last_updated_by = u.id
+            WHERE i.item_code = ?
+        `, [itemCode]);
+    }
+
+    async createInventoryItem(itemData) {
+        const db = await this.getDatabase();
+        const {
+            item_code, item_name, category, description, manufacturer,
+            model_number, serial_number, current_quantity, minimum_quantity,
+            maximum_quantity, unit_of_measure, unit_cost, supplier_name,
+            supplier_contact, purchase_date, expiry_date, location,
+            status, last_updated_by, notes
+        } = itemData;
+        
+        const query = `
+            INSERT INTO inventory (
+                item_code, item_name, category, description, manufacturer,
+                model_number, serial_number, current_quantity, minimum_quantity,
+                maximum_quantity, unit_of_measure, unit_cost, supplier_name,
+                supplier_contact, purchase_date, expiry_date, location,
+                status, last_updated_by, notes, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
+        
+        const result = await db.run(query, [
+            item_code, item_name, category, description, manufacturer,
+            model_number, serial_number, current_quantity || 0, minimum_quantity || 0,
+            maximum_quantity || 100, unit_of_measure || 'pieces', unit_cost || 0,
+            supplier_name, supplier_contact, purchase_date, expiry_date, location,
+            status || 'active', last_updated_by, notes
+        ]);
+        
+        return await this.getInventoryItemById(result.lastID);
+    }
+
+    async updateInventoryItem(id, itemData) {
+        const db = await this.getDatabase();
+        const {
+            item_name, category, description, manufacturer, model_number,
+            serial_number, current_quantity, minimum_quantity, maximum_quantity,
+            unit_of_measure, unit_cost, supplier_name, supplier_contact,
+            purchase_date, expiry_date, location, status, last_updated_by, notes
+        } = itemData;
+        
+        const query = `
+            UPDATE inventory SET
+                item_name = ?, category = ?, description = ?, manufacturer = ?,
+                model_number = ?, serial_number = ?, current_quantity = ?,
+                minimum_quantity = ?, maximum_quantity = ?, unit_of_measure = ?,
+                unit_cost = ?, supplier_name = ?, supplier_contact = ?,
+                purchase_date = ?, expiry_date = ?, location = ?, status = ?,
+                last_updated_by = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        
+        await db.run(query, [
+            item_name, category, description, manufacturer, model_number,
+            serial_number, current_quantity, minimum_quantity, maximum_quantity,
+            unit_of_measure, unit_cost, supplier_name, supplier_contact,
+            purchase_date, expiry_date, location, status, last_updated_by, notes, id
+        ]);
+        
+        return await this.getInventoryItemById(id);
+    }
+
+    async updateInventoryQuantity(id, newQuantity, userId, notes = null) {
+        const db = await this.getDatabase();
+        
+        const query = `
+            UPDATE inventory SET
+                current_quantity = ?,
+                last_updated_by = ?,
+                notes = CASE WHEN ? IS NOT NULL THEN ? ELSE notes END,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        
+        await db.run(query, [newQuantity, userId, notes, notes, id]);
+        return await this.getInventoryItemById(id);
+    }
+
+    async deleteInventoryItem(id) {
+        const db = await this.getDatabase();
+        const result = await db.run('DELETE FROM inventory WHERE id = ?', [id]);
+        return { success: result.changes > 0, deletedCount: result.changes };
+    }
+
+    async getInventoryStatistics() {
+        const db = await this.getDatabase();
+        
+        const [totalItems, lowStockItems, expiringSoon, totalValue, categories] = await Promise.all([
+            db.get('SELECT COUNT(*) as count FROM inventory WHERE status = "active"'),
+            db.get('SELECT COUNT(*) as count FROM inventory WHERE status = "active" AND current_quantity <= minimum_quantity'),
+            db.get('SELECT COUNT(*) as count FROM inventory WHERE status = "active" AND expiry_date IS NOT NULL AND expiry_date <= date("now", "+30 days")'),
+            db.get('SELECT SUM(current_quantity * unit_cost) as total FROM inventory WHERE status = "active"'),
+            db.all('SELECT category, COUNT(*) as count FROM inventory WHERE status = "active" GROUP BY category')
+        ]);
+
+        return {
+            totalItems: totalItems.count || 0,
+            lowStockItems: lowStockItems.count || 0,
+            expiringSoon: expiringSoon.count || 0,
+            totalValue: totalValue.total || 0,
+            categoryCounts: categories
+        };
+    }
+
+    async getLowStockItems() {
+        const db = await this.getDatabase();
+        return await db.all(`
+            SELECT i.*, u.name as last_updated_by_name
+            FROM inventory i
+            LEFT JOIN users u ON i.last_updated_by = u.id
+            WHERE i.status = 'active' AND i.current_quantity <= i.minimum_quantity
+            ORDER BY (i.current_quantity - i.minimum_quantity) ASC
+        `);
+    }
+
+    async getExpiringItems(days = 30) {
+        const db = await this.getDatabase();
+        return await db.all(`
+            SELECT i.*, u.name as last_updated_by_name
+            FROM inventory i
+            LEFT JOIN users u ON i.last_updated_by = u.id
+            WHERE i.status = 'active' 
+                AND i.expiry_date IS NOT NULL 
+                AND i.expiry_date <= date('now', '+' || ? || ' days')
+            ORDER BY i.expiry_date ASC
+        `, [days]);
+    }
+
+    // Activity Logging
+    async logActivity(userId, actionType, entityType, entityId, description, ipAddress = null, userAgent = null) {
+        const db = await this.getDatabase();
+        
+        const query = `
+            INSERT INTO activity_logs (
+                user_id, action_type, entity_type, entity_id, 
+                description, ip_address, user_agent
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        try {
+            await db.run(query, [userId, actionType, entityType, entityId, description, ipAddress, userAgent]);
+        } catch (error) {
+            console.error('Error logging activity:', error);
+            // Don't throw error to avoid breaking main operations
+        }
+    }
+
+    async getActivityLogs(filters = {}) {
+        const db = await this.getDatabase();
+        let query = `
+            SELECT a.*, u.name as user_name, u.role as user_role
+            FROM activity_logs a
+            LEFT JOIN users u ON a.user_id = u.id
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (filters.userId) {
+            query += ` AND a.user_id = ?`;
+            params.push(filters.userId);
+        }
+
+        if (filters.actionType) {
+            query += ` AND a.action_type = ?`;
+            params.push(filters.actionType);
+        }
+
+        if (filters.entityType) {
+            query += ` AND a.entity_type = ?`;
+            params.push(filters.entityType);
+        }
+
+        if (filters.dateFrom) {
+            query += ` AND DATE(a.timestamp) >= DATE(?)`;
+            params.push(filters.dateFrom);
+        }
+
+        if (filters.dateTo) {
+            query += ` AND DATE(a.timestamp) <= DATE(?)`;
+            params.push(filters.dateTo);
+        }
+
+        query += ` ORDER BY a.timestamp DESC`;
+
+        if (filters.limit) {
+            query += ` LIMIT ?`;
+            params.push(parseInt(filters.limit));
+        }
+
+        return await db.all(query, params);
+    }
+
+    async getActivityStatistics() {
+        const db = await this.getDatabase();
+        
+        const [totalActivities, todayActivities, userActivity, entityActivity] = await Promise.all([
+            db.get('SELECT COUNT(*) as count FROM activity_logs'),
+            db.get('SELECT COUNT(*) as count FROM activity_logs WHERE DATE(timestamp) = DATE("now")'),
+            db.all('SELECT u.name, u.role, COUNT(*) as activity_count FROM activity_logs a LEFT JOIN users u ON a.user_id = u.id GROUP BY a.user_id ORDER BY activity_count DESC LIMIT 5'),
+            db.all('SELECT entity_type, COUNT(*) as count FROM activity_logs GROUP BY entity_type ORDER BY count DESC')
+        ]);
+
+        return {
+            totalActivities: totalActivities.count || 0,
+            todayActivities: todayActivities.count || 0,
+            topUsers: userActivity,
+            entityBreakdown: entityActivity
+        };
+    }
+
+    // User Management (Admin functions)
+    async getAllUsersDetailed() {
+        const db = await this.getDatabase();
+        return await db.all(`
+            SELECT 
+                u.*,
+                COUNT(DISTINCT p.id) as patients_managed,
+                COUNT(DISTINCT t.id) as tests_conducted,
+                COUNT(DISTINCT r.id) as reports_generated,
+                COUNT(DISTINCT a.id) as total_activities,
+                MAX(a.timestamp) as last_activity
+            FROM users u
+            LEFT JOIN patients p ON (u.role = 'assistant' AND p.id IS NOT NULL)
+            LEFT JOIN tests t ON (u.role IN ('doctor', 'assistant') AND t.id IS NOT NULL)
+            LEFT JOIN reports r ON (u.role = 'doctor' AND r.id IS NOT NULL)
+            LEFT JOIN activity_logs a ON u.id = a.user_id
+            GROUP BY u.id
+            ORDER BY u.created_at DESC
+        `);
+    }
+
+    async getUserStatistics(userId) {
+        const db = await this.getDatabase();
+        
+        const [userInfo, activities, recentActivity] = await Promise.all([
+            db.get('SELECT * FROM users WHERE id = ?', [userId]),
+            db.all('SELECT action_type, COUNT(*) as count FROM activity_logs WHERE user_id = ? GROUP BY action_type', [userId]),
+            db.all('SELECT * FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 10', [userId])
+        ]);
+
+        return {
+            user: userInfo,
+            activityBreakdown: activities,
+            recentActivities: recentActivity
+        };
+    }
+
+    async updateUserStatus(userId, isActive, updatedBy) {
+        const db = await this.getDatabase();
+        
+        const status = isActive ? 'active' : 'inactive';
+        const query = `
+            UPDATE users 
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        
+        await db.run(query, [status, userId]);
+        
+        // Log the activity
+        await this.logActivity(
+            updatedBy,
+            'update',
+            'user',
+            userId,
+            `User status changed to ${status}`
+        );
+        
+        return await db.get('SELECT id, name, email, role, status FROM users WHERE id = ?', [userId]);
+    }
+
+    async deleteUser(userId, deletedBy) {
+        const db = await this.getDatabase();
+        
+        // Get user info before deletion
+        const user = await db.get('SELECT * FROM users WHERE id = ?', [userId]);
+        
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Log the activity before deletion
+        await this.logActivity(
+            deletedBy,
+            'delete',
+            'user',
+            userId,
+            `Deleted user: ${user.name} (${user.email})`
+        );
+        
+        const result = await db.run('DELETE FROM users WHERE id = ?', [userId]);
+        return { success: result.changes > 0, deletedUser: user.name };
+    }
+
     // Database Management
     async backupDatabase() {
-        // This would implement database backup functionality
-        const db = await this.getDatabase();
-        // Implementation depends on requirements - could copy file or export data
-        return { success: true, message: 'Backup functionality to be implemented' };
+        const fs = require('fs-extra');
+        const path = require('path');
+        const { app } = require('electron');
+        
+        try {
+            const db = await this.getDatabase();
+            const sourceDb = db.dbPath || path.join(app.getPath('userData'), 'eye_clinic.db');
+            const backupDir = path.join(app.getPath('userData'), 'backups');
+            
+            // Ensure backup directory exists
+            await fs.ensureDir(backupDir);
+            
+            // Create backup filename with timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const backupPath = path.join(backupDir, `eye_clinic_backup_${timestamp}.db`);
+            
+            // Copy database file
+            await fs.copy(sourceDb, backupPath);
+            
+            return { 
+                success: true, 
+                message: 'Database backup created successfully',
+                backupPath: backupPath
+            };
+        } catch (error) {
+            console.error('Backup error:', error);
+            return { 
+                success: false, 
+                message: `Backup failed: ${error.message}`
+            };
+        }
     }
 
     async closeDatabase() {

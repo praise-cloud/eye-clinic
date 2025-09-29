@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
 const path = require('path');
 const Database = require('./database');
+const IPCHandlers = require('./services/IPCHandlers');
 
 let mainWindow = null;
 let authWindow = null;
@@ -100,7 +101,12 @@ function createMainWindow() {
 // Initialize app when ready
 app.whenReady().then(async () => {
   await initializeDatabase();
-  setupIpcHandlers();
+  
+  // Initialize comprehensive IPC handlers
+  new IPCHandlers();
+  
+  // Also keep essential window management handlers
+  setupWindowHandlers();
   
   // Check if first run to determine which window to show
   const isFirstRun = await database.isFirstRun();
@@ -133,9 +139,9 @@ app.on('before-quit', () => {
   }
 });
 
-// Setup IPC handlers
-function setupIpcHandlers() {
-  // Authentication handlers
+// Setup Window Management and Auth handlers (for current user state)
+function setupWindowHandlers() {
+  // Authentication handlers that manage currentUser state
   ipcMain.handle('auth:isFirstRun', async () => {
     try {
       return await database.isFirstRun();
