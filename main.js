@@ -101,7 +101,7 @@ function createMainWindow() {
 app.whenReady().then(async () => {
   await initializeDatabase();
   setupIpcHandlers();
-  
+
   // Check if first run to determine which window to show
   const isFirstRun = await database.isFirstRun();
   if (isFirstRun) {
@@ -186,11 +186,11 @@ function setupIpcHandlers() {
       await database.setSetting('clinic_address', clinicData.address);
       await database.setSetting('clinic_phone', clinicData.phone);
       await database.setSetting('setup_completed', 'true');
-      
+
       // Create admin user
       const user = await database.createUser(adminData);
       currentUser = user;
-      
+
       return { success: true, user };
     } catch (error) {
       console.error('Setup error:', error);
