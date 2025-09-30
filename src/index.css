@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -110,5 +111,3 @@
   background: #a8a8a8;
 }
 
-/* Font import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
