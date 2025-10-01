@@ -1,269 +1,388 @@
-/* Base Styles and Layout */
+/* -----------------------------------------------------
+ * Global Styles, Root Variables, and Typography
+ * ----------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 :root {
-    --primary-blue: #3498db; /* A bright, standard blue */
-    --light-blue: #e9f5ff; /* Very light background for active state */
-    --text-dark: #333;
-    --text-medium: #666;
-    --text-light: #aaa;
-    --bg-light: #f4f6f9; /* Main background color */
-    --border-color: #eee;
+    /* Primary Colors (from new sample) */
+    --primary-color: #3742fa;
+    --secondary-color: #6c757d;
+    --text-color: #2c3e50;
+    --border-color: #dee2e6;
+    --bg-light: #f5f6fa;
+    --bg-white: #ffffff;
+    
+    /* Sidebar Specific */
+    --sidebar-bg: #764ba2;
+    --sidebar-text: #bdc3c7;
+    --sidebar-active-bg: #3742fa;
+    --accent-color: #ffd700; /* Yellow accent for logo/active indicator */
+    
+    /* Header Specific */
+    --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    /* Card/Shadows */
+    --card-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    
+    /* Status Colors */
+    --danger-color: #dc3545;
 }
 
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 body {
+    font-family: 'Poppins', sans-serif;
     background-color: var(--bg-light);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
 }
 
 .app-container {
+    height: 100vh;
     display: flex;
-    width: 100%;
-    max-width: 1200px; /* Limit overall size */
-    height: 90vh; /* Set a fixed height for the dashboard look */
-    background-color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
+    flex-direction: column; 
 }
 
-/* --- Sidebar Styling --- */
-.sidebar {
-    width: 250px;
-    background-color: #fff;
-    border-right: 1px solid var(--border-color);
-    padding: 20px 0;
-    flex-shrink: 0;
-}
-
-.clinic-logo {
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: var(--text-dark);
-    line-height: 1.4;
-    padding: 0 20px 30px;
-    opacity: 0.8;
-}
-
-.sidebar-nav ul {
-    list-style: none;
-}
-
-.sidebar-nav li a {
+.main-content-wrapper {
     display: flex;
+    flex: 1; 
+    overflow: hidden; 
+}
+
+/* -----------------------------------------------------
+ * Header Styling
+ * ----------------------------------------------------- */
+.app-header {
+    background: var(--header-bg);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
-    color: var(--text-medium);
-    text-decoration: none;
-    font-size: 15px;
-    transition: background-color 0.2s, color 0.2s;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.sidebar-nav li a i {
-    margin-right: 10px;
-    width: 20px;
-    text-align: center;
+.logo {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
 }
 
-.sidebar-nav li.active a {
-    background-color: var(--primary-blue);
-    color: #fff;
-    border-radius: 0 50px 50px 0; /* Creates the pill shape on the right */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+.logo i {
+    font-size: 2rem;
+    color: var(--accent-color);
 }
 
-.sidebar-nav li:not(.active) a:hover {
-    background-color: var(--bg-light);
-    color: var(--text-dark);
-}
-
-/* --- Main Content and Header --- */
-.main-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.header {
-    height: 60px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--border-color);
-    background-color: #fff;
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    color: var(--text-medium);
-    font-size: 15px;
-    cursor: pointer;
+    gap: 10px;
+    color: white; 
+    font-weight: 500;
 }
 
-.user-info i {
-    margin-left: 10px;
-    font-size: 16px;
+.user-info .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.user-info .fa-user-circle {
-    font-size: 24px;
-    color: var(--primary-blue);
-    margin-right: 5px;
+
+/* -----------------------------------------------------
+ * Sidebar Styling
+ * ----------------------------------------------------- */
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    height: 100%; 
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
-/* --- Chat Container --- */
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+/* Specific logout hover style */
+.nav-link:has(i.fa-sign-out-alt):hover {
+    color: white !important;
+    background-color: var(--danger-color);
+}
+
+.nav-item.active .nav-link {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+/* -----------------------------------------------------
+ * Main Content Area and Chat Styles
+ * ----------------------------------------------------- */
+.content-area {
+    flex: 1; 
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
+}
+
 .chat-container {
-    flex-grow: 1;
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-light); /* Lighter background for the chat area */
+    width: 100%;
+    max-width: 1000px; /* Increased from 800px to 1000px to fill more horizontal space */
+    height: 90vh; /* Increased from 80vh to 90vh for more space */
+    min-height: 450px;
+    overflow: hidden;
 }
 
-/* Chat Header */
 .chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background-color: #fff;
     border-bottom: 1px solid var(--border-color);
+    background-color: #f7f9fc;
 }
 
 .assistant-profile {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .assistant-avatar {
-    font-size: 36px;
-    color: var(--primary-blue);
-    margin-right: 10px;
+    font-size: 2.2rem;
+    color: var(--primary-color);
 }
 
-.chat-header h2 {
-    font-size: 18px;
-    color: var(--text-dark);
-    margin-bottom: 2px;
+.details h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-.chat-header .online {
-    font-size: 13px;
-    color: #27ae60; /* Green dot/text for online status */
+.details .online {
+    font-size: 0.8rem;
+    color: #27ae60; /* Green for online status */
+    margin: 0;
 }
 
-.chat-header .search-icon {
-    color: var(--text-medium);
-    font-size: 18px;
+.search-icon {
+    color: var(--secondary-color);
     cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.2s;
 }
 
-/* Chat Body (The messages feed) */
+.search-icon:hover {
+    color: var(--primary-color);
+}
+
 .chat-body {
     flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    /* Subtle background texture restored for better visual appeal */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" opacity=".05"><circle cx="10" cy="10" r="10" fill="%23764ba2"/></svg>');
+    background-size: 50px 50px;
 }
 
-/* Message Bubble Styles */
 .message {
-    max-width: 60%;
-    padding: 10px 15px;
-    border-radius: 18px;
-    display: flex;
-    flex-direction: column;
+    max-width: 70%;
+    margin-bottom: 15px;
+    padding: 10px 15px; 
+    border-radius: 7px; 
+    line-height: 1.4;
     position: relative;
-    /* This makes the timestamp sit next to the bubble */
-    align-self: flex-start;
+    font-size: 0.95rem;
+    /* --- FIX: Set to block to allow auto margins, and use fit-content to shrink width --- */
+    display: block;
+    width: fit-content;
 }
 
 .message p {
-    margin-bottom: 5px;
-    font-size: 15px;
-    line-height: 1.4;
+    margin: 0;
 }
 
-.timestamp {
-    font-size: 10px;
-    color: var(--text-light);
-    align-self: flex-end;
-}
-
-/* Styles for Received Messages (Left/Blue) */
-.message.received {
-    background-color: var(--primary-blue);
-    color: #fff;
-    border-bottom-left-radius: 4px; /* Flatter edge towards the sender */
-    align-self: flex-start;
-}
-.message.received .timestamp {
+.message .timestamp {
+    display: block;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+    text-align: right; /* Default timestamp alignment */
 }
 
-/* Styles for Sent Messages (Right/White) */
+/* Received Message (Assistant) */
+.message.received {
+    background-color: #e9ecef; 
+    color: var(--text-color);
+    text-align: left; /* Text alignment within the received bubble */
+    /* Ensure it sticks to the left */
+    margin-left: 0;
+    margin-right: auto; 
+}
+
+.message.received .timestamp {
+    color: var(--secondary-color);
+    text-align: left;
+}
+
+/* Sent Message (User/Admin) */
 .message.sent {
-    background-color: #fff;
-    color: var(--text-dark);
-    border: 1px solid var(--border-color);
-    border-bottom-right-radius: 4px; /* Flatter edge towards the sender */
-    align-self: flex-end; /* Pushes the message to the right */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-.message.sent .timestamp {
-    color: var(--text-light);
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+    /* --- FIX: margin-left: auto now works to push the block to the right --- */
+    margin-left: auto; 
+    margin-right: 0;
+    text-align: left; /* Keep text left-aligned inside the bubble for readability */
 }
 
-
-/* --- Chat Input Area --- */
 .chat-input {
     display: flex;
     align-items: center;
-    padding: 10px 20px;
+    padding: 15px 20px;
     border-top: 1px solid var(--border-color);
-    background-color: #fff;
+    background-color: var(--bg-white);
 }
 
 .chat-input input[type="text"] {
     flex-grow: 1;
     padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 7px; 
+    font-size: 1rem;
     margin-right: 15px;
     outline: none;
     transition: border-color 0.2s;
 }
 
 .chat-input input[type="text"]:focus {
-    border-color: var(--primary-blue);
+    border-color: var(--primary-color);
+}
+
+.input-icons {
+    display: flex;
+    gap: 15px;
 }
 
 .input-icons i {
-    color: var(--text-medium);
-    font-size: 18px;
-    margin-left: 15px;
+    color: var(--primary-color);
     cursor: pointer;
+    font-size: 1.2rem;
     transition: color 0.2s;
 }
 
 .input-icons i:hover {
-    color: var(--primary-blue);
+    color: #2b35c0;
 }
 
-.input-icons i:last-child {
-    color: var(--primary-blue); /* The send/plane icon is blue in the image */
-    font-size: 20px;
+
+/* -----------------------------------------------------
+ * Responsive Adjustments
+ * ----------------------------------------------------- */
+@media (max-width: 992px) {
+    /* Sidebar collapse */
+    .sidebar {
+        width: 80px;
+        padding: 15px 0;
+    }
+    .nav-link {
+        justify-content: center;
+        padding: 10px 0;
+    }
+    .nav-link span { 
+        display: none; 
+    } 
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        border-left: none;
+        border-right: 3px solid var(--accent-color);
+        background-color: var(--sidebar-active-bg);
+    }
+    .chat-container {
+        height: 90vh; /* Increased from 85vh to 90vh */
+    }
+}
+
+@media (max-width: 768px) {
+    .app-header .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .user-info {
+        padding-top: 5px;
+    }
+    .sidebar {
+        /* Mobile menu hidden by default */
+        position: absolute;
+        left: -80px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    .main-content-wrapper { 
+        flex-grow: 1; 
+        width: 100%;
+    }
+    .content-area {
+        padding: 1rem;
+    }
+    .chat-container {
+        height: 95vh; /* Increased from 90vh to 95vh for max mobile space */
+        border-radius: 0;
+    }
 }
