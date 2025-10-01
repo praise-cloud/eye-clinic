@@ -25,15 +25,14 @@ class IPCHandlers {
         // Check if this is first run
         ipcMain.handle('auth:isFirstRun', async () => {
             try {
-                // return await DatabaseService.isFirstRun();
-                const db = await this.getDatabase();
-                const result = await db.get('SELECT COUNT(*) as count FROM users');
+                // Use DatabaseService singleton instead of this.getDatabase()
+                const result = await DatabaseService.getDatabase().then(db => db.get('SELECT COUNT(*) as count FROM users'));
                 return { success: true, isFirstRun: result.count === 0 };
             } catch (error) {
                 console.error('Error checking first run:', error);
                 return { error: error.message };
             }
-        });
+            });
 
 
         // Login user
@@ -54,6 +53,52 @@ class IPCHandlers {
                 return { error: error.message };
             }
         });
+
+        ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
+            try {
+                // Validate required fields
+                if (!clinicData?.clinicName || !adminData?.name || !adminData?.email || !adminData?.password || !adminData?.role) {
+                return { error: 'Missing required fields for setup (clinic name, admin name/email/password/role)' };
+                }
+
+                // Step 1: Create the first admin user
+                const userResult = await DatabaseService.createUser({
+                name: `${adminData.firstName || ''} ${adminData.lastName || ''}`.trim() || adminData.name,
+                email: adminData.email,
+                password: adminData.password,  // Assume hashed in DatabaseService.createUser
+                role: adminData.role.toLowerCase() === 'clinic assistant' ? 'assistant' : adminData.role.toLowerCase(),
+                // Add other fields like phone, gender, etc., if your users table supports them
+                phoneNumber: adminData.phoneNumber || '',
+                gender: adminData.gender || '',
+                ...(adminData.specialization && { specialization: adminData.specialization }),
+                ...(adminData.licenseNumber && { licenseNumber: adminData.licenseNumber }),
+                ...(adminData.yearsOfExperience && { yearsOfExperience: adminData.yearsOfExperience }),
+                ...(adminData.permissions && { permissions: adminData.permissions }),
+                });
+
+                if (!userResult) {
+                return { error: 'Failed to create admin user—check DatabaseService.createUser' };
+                }
+
+                // Step 2: Set initial clinic settings
+                await DatabaseService.setSetting('clinic_name', clinicData.clinicName);
+                await DatabaseService.setSetting('clinic_address', clinicData.address || '');
+                await DatabaseService.setSetting('setup_complete', 'true');
+                await DatabaseService.setSetting('created_at', new Date().toISOString());
+
+                // Step 3: Log the setup activity (if logActivity exists)
+                try {
+                await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Initial clinic setup by ${userResult.name}`);
+                } catch (logErr) {
+                console.warn('Activity log failed during setup:', logErr);  // Non-blocking
+                }
+
+                return { success: true, message: 'Setup completed! User created and settings saved.' };
+            } catch (error) {
+                console.error('Setup handler error:', error);
+                return { error: error.message || 'Setup failed internally' };
+            }
+            });
 
         // Create user (setup)
         ipcMain.handle('auth:createUser', async (event, userData) => {

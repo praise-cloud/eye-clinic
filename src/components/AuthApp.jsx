@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import WelcomeScreen from './WelcomeScreen'
-import SetupScreen from './SetupScreen'
-import LoginScreen from './LoginScreen'
+import WelcomeScreen from '../screens/WelcomeScreen'
+import SetupScreen from '../screens/SetupScreen'
+import LoginScreen from '../screens/LoginScreen'
 import LoadingScreen from './LoadingScreen'
-import { EyeIcon } from './Icons'
+import SignupScreen from '../screens/SigupScreen'
 
 const AuthApp = () => {
   const [currentScreen, setCurrentScreen] = useState('loading')
   const [isFirstRun, setIsFirstRun] = useState(true)
   const [loading, setLoading] = useState(true)
   const [loadingMessage, setLoadingMessage] = useState('Initializing...')
+  const [selectedRole, setSelectedRole] = useState(null)
 
   useEffect(() => {
     initializeApp()
@@ -18,11 +19,11 @@ const AuthApp = () => {
   const initializeApp = async () => {
     try {
       setLoadingMessage('Checking system status...')
-      
+
       // Check if this is first run
       const firstRun = await window.electronAPI?.isFirstRun()
       setIsFirstRun(firstRun)
-      
+
       setTimeout(() => {
         setLoading(false)
         if (firstRun) {
@@ -31,7 +32,7 @@ const AuthApp = () => {
           setCurrentScreen('login')
         }
       }, 1500)
-      
+
     } catch (error) {
       console.error('Error initializing app:', error)
       setLoading(false)
@@ -50,33 +51,47 @@ const AuthApp = () => {
     }
   }
 
-  const handleSetupComplete = async (clinicData, adminData) => {
-    try {
-      handleScreenChange('loading', 'Setting up your clinic...')
-      
-      const result = await window.electronAPI?.completeSetup(clinicData, adminData)
-      
-      if (result?.success) {
-        setLoadingMessage('Setup completed successfully!')
-        setTimeout(() => {
-          window.electronAPI?.openMainWindow()
-        }, 1500)
-      } else {
-        throw new Error(result?.message || 'Setup failed')
-      }
-    } catch (error) {
-      console.error('Setup error:', error)
-      alert(error.message || 'Setup failed. Please try again.')
-      setCurrentScreen('setup')
-    }
+ const handleSetupComplete = async (clinicData, adminData) => {
+  if (!window.electronAPI) {
+    console.error('Electron API not available');
+    return;
   }
 
+  // Add the selected role to adminData (already there)
+  adminData.role = selectedRole;
+
+  try {
+    handleScreenChange('loading', 'Setting up your clinic...')
+
+    const result = await window.electronAPI.completeSetup(clinicData, adminData);  // Now uses new handler
+
+    if (result?.success) {
+      setLoadingMessage('Setup completed successfully!')
+      setTimeout(() => {
+        window.electronAPI?.openMainWindow()
+      }, 1500)
+    } else {
+      throw new Error(result?.message || 'Setup failed')
+    }
+  } catch (error) {
+    console.error('Setup error:', error)
+    alert(error.message || 'Setup failed. Please try again.')
+    setCurrentScreen('setup')
+  }
+}
+
   const handleLogin = async (email, password) => {
+    //API check
+    if (!window.electronAPI) {
+    console.error('Electron API not available');
+    return;
+  }
+
     try {
       handleScreenChange('loading', 'Signing you in...')
-      
+
       const result = await window.electronAPI?.login(email, password)
-      
+
       if (result?.success) {
         setLoadingMessage('Login successful!')
         setTimeout(() => {
@@ -101,16 +116,25 @@ const AuthApp = () => {
       {currentScreen === 'welcome' && (
         <WelcomeScreen onGetStarted={() => setCurrentScreen('setup')} />
       )}
-      
-      {currentScreen === 'setup' && (
-        <SetupScreen 
-          onComplete={handleSetupComplete}
+
+      {/* Role Selection and Signup Flow */}
+      {currentScreen === 'setup' && !selectedRole && (
+        <SetupScreen
+          onSelectRole={(role) => setSelectedRole(role)}
           onBack={() => setCurrentScreen('welcome')}
         />
       )}
-      
+
+      {currentScreen === 'setup' && selectedRole && (
+        <SignupScreen
+          selectedRole={selectedRole}
+          onComplete={handleSetupComplete}
+          onBack={() => setSelectedRole(null)} // Go back to role selection
+        />
+      )}
+
       {currentScreen === 'login' && (
-        <LoginScreen 
+        <LoginScreen
           onLogin={handleLogin}
           onAddUser={() => alert('Add user functionality coming soon!')}
         />

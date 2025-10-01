@@ -1,5 +1,5 @@
 import React from 'react'
-import { UsersIcon, ChartIcon, DocumentIcon, ChatIcon, ArrowRightIcon } from './Icons'
+import { UsersIcon, ChartIcon, DocumentIcon, ChatIcon, ArrowRightIcon } from '../components/Icons'
 
 const WelcomeScreen = ({ onGetStarted }) => {
   const features = [

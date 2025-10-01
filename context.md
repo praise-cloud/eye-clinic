@@ -310,4 +310,3 @@ eye-clinic-desktop/
 * Dev machine: Windows (since clinic will likely run on Windows) — test on target OS
 * Access to the visual field machine or its sample export files (CSV/XML/DICOM) early in development
 * If machine uses RS-232, a USB-RS232 adapter for dev testing
-

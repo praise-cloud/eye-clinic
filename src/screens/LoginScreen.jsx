@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EyeIcon, LoginIcon, UserPlusIcon } from './Icons'
+import { EyeIcon, LoginIcon, UserPlusIcon } from '../components/Icons'
 
 const LoginScreen = ({ onLogin, onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -19,24 +19,24 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required'
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid'
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (validateForm()) {
       setIsLoading(true)
       try {

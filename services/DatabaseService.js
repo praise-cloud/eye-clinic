@@ -34,11 +34,11 @@ class DatabaseService {
 //     this.db = db;
 //   }
 
-//   async isFirstRun() {
-//     // Check if "users" table has any data
-//     const row = await this.db.get("SELECT COUNT(*) as count FROM users");
-//     return row.count === 0;  // true = no users, so first run
-//   }
+  async isFirstRun() {
+    // Check if "users" table has any data
+    const row = await this.db.get("SELECT COUNT(*) as count FROM users");
+    return row.count === 0;  // true = no users, so first run
+  }
 
 //   async getUserByUsername(username) {
 //     return await this.db.get("SELECT * FROM users WHERE username = ?", [username]);
