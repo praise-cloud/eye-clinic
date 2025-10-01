@@ -193,7 +193,9 @@ a {
     box-shadow: 0 1px 10px var(--shadow-light);
     padding: 30px;
     border: 1px solid var(--border-color);
-    margin: -30px;
+    margin: 0 auto;
+    margin-top: -30px;
+    max-width: 900px;
 }
 
 .card-title {
