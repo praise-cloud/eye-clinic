@@ -1,30 +1,46 @@
-/* Base Styles and Reset */
+/* ========================================= */
+/* 1. ROOT VARIABLES & GENERAL STYLES (FROM NEW TEMPLATE) */
+/* ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 :root {
-    --color-primary: #007bff; /* A bit brighter for the blue button */
-    --color-sidebar: #ffffff;
-    --color-background: #f8f9fa;
-    --color-text-dark: #333;
-    --color-text-light: #6c757d;
-    --color-border: #dee2e6;
-    --color-card-background: #ffffff;
-    --color-sidebar-bg-dark: #2c3e50; /* Darker blue/grey for sidebar background */
-    --color-sidebar-text: #6c7a89; /* Greyish blue for sidebar text */
-    --color-sidebar-active: #007bff; /* Blue for active link */
-    --color-input-border: #ced4da;
-    --shadow-light: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    /* --- Template Colors --- */
+    --primary-color: #3742fa;
+    --secondary-color: #6c757d;
+    --text-color: #2c3e50;
+    --light-text-color: #7f8c8d;
+    --border-color: #dee2e6;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --sidebar-bg: #764ba2;
+    --sidebar-text: #bdc3c7;
+    --sidebar-active-bg: #3742fa;
+    --accent-color: #ffd700;
+    --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --danger-color: #dc3545;
+
+    /* --- Form-Specific Colors (Kept from Original for Form Elements) --- */
+    --color-primary-blue: #007bff; /* Used by btn-primary and input focus */
+    --color-text-light: #6c757d; /* Used by form labels and icons */
+    --color-text-dark: #333; /* Default body text (used by form fields) */
+    --color-input-border: #ced4da; /* Light border for inputs */
 }
 
+/* Universal Reset */
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--color-background);
-    color: var(--color-text-dark);
-    line-height: 1.6;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f6fa;
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
 }
 
 a {
@@ -32,141 +48,172 @@ a {
     color: inherit;
 }
 
-/* App Layout */
+/* ========================================= */
+/* 2. APP LAYOUT (FROM NEW TEMPLATE) */
+/* ========================================= */
 .app-container {
+    height: 100vh;
     display: flex;
-    min-height: 100vh;
+    flex-direction: column; 
 }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 250px;
-    background-color: var(--color-sidebar);
-    color: var(--color-sidebar-text);
-    padding: 20px 0;
-    box-shadow: var(--shadow-light);
+/* Wrapper for Sidebar and Content */
+.main-content-wrapper {
     display: flex;
-    flex-direction: column;
+    flex: 1; 
+    overflow: hidden; 
 }
 
-.sidebar-header {
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    color: var(--color-text-dark);
-    padding: 0 20px 20px 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--color-border);
+/* ========================================= */
+/* 3. HEADER STYLING (FROM NEW TEMPLATE) */
+/* ========================================= */
+.app-header {
+    background: var(--header-bg);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
 }
 
-.sidebar-nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-.nav-item {
-    margin: 10px 0;
-}
-
-.nav-item a {
+.header-content {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--color-text-light);
-    transition: background-color 0.2s, color 0.2s;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.nav-item a i {
-    margin-right: 15px;
-    font-size: 18px;
-    width: 20px; /* Aligns icons better */
+.logo {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
 }
 
-.nav-item.active a {
-    color: var(--color-primary);
-    background-color: rgba(0, 123, 255, 0.05); /* Light blue background for active */
-    border-right: 3px solid var(--color-primary);
+.logo i {
+    font-size: 2rem;
+    color: var(--accent-color);
 }
 
-.nav-item a:hover:not(.active) {
-    color: var(--color-text-dark);
-    background-color: #f1f1f1;
-}
-
-.nav-item.logout {
-    margin-top: auto; /* Push logout to the bottom if main content is long */
-}
-
-/* Main Content Area */
-.main-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Top Bar/Header */
-.top-bar {
-    background-color: var(--color-sidebar);
-    padding: 10px 30px;
-    height: 60px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border);
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--color-text-dark);
+    gap: 10px;
+    color: white; 
+    font-weight: 500;
 }
 
-.avatar {
+.user-info .avatar {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    margin-right: 8px;
-    background-color: #eee; /* Placeholder for image */
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.user-info span {
-    font-weight: 500;
-    margin-right: 5px;
+/* ========================================= */
+/* 4. SIDEBAR NAVIGATION STYLING (FROM NEW TEMPLATE) */
+/* ========================================= */
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    height: 100%; 
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
 }
 
-/* Page Content and Card */
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+/* Specific logout hover style */
+.nav-link:has(i.fa-sign-out-alt):hover {
+    color: white !important;
+    background-color: var(--danger-color);
+}
+
+.nav-item.active .nav-link {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+/* Main Content Area (FROM NEW TEMPLATE) */
+.content-area {
+    flex: 1; 
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+}
+
+/* ========================================= */
+/* 5. CARD STYLING (Adapted from Original) */
+/* ========================================= */
 .page-content {
-    padding: 30px;
+    padding: 0; 
     flex-grow: 1;
 }
 
 .card {
-    background-color: var(--color-card-background);
+    background-color: var(--bg-white);
     border-radius: 6px;
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 10px var(--shadow-light);
     padding: 30px;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border-color);
+    margin: -30px;
 }
 
 .card-title {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--color-text-dark);
+    font-size: 28.8px;
+    font-weight: 700;
+    color: var(--text-color);
     margin-bottom: 25px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
 }
 
-/* Form Styling */
+/* ========================================= */
+/* 6. FORM ELEMENTS & GRID LAYOUT (KEPT FROM ORIGINAL) */
+/* ========================================= */
 .patient-form {
     display: flex;
     flex-direction: column;
 }
 
+/* Base grid container for form fields */
 .form-grid {
     display: grid;
     gap: 20px;
@@ -188,61 +235,57 @@ a {
 
 .form-group label {
     font-size: 13px;
-    color: var(--color-text-light);
+    color: var(--color-text-light); /* Using kept form variable */
     margin-bottom: 5px;
     font-weight: 500;
 }
 
+/* Styling for all common input types and selects */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 select {
     padding: 10px 15px;
-    border: 1px solid var(--color-input-border);
+    border: 1px solid var(--color-input-border); /* Using kept form variable */
     border-radius: 4px;
     font-size: 15px;
-    color: var(--color-text-dark);
-    appearance: none; /* Remove default arrow on select */
+    color: var(--color-text-dark); /* Using kept form variable */
+    appearance: none;
     height: 45px;
+    width: 100%; 
 }
 
+/* Focus State Styling */
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="tel"]:focus,
 select:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: var(--color-primary-blue); /* Using kept form variable */
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-/* Specific Input Overrides (for icons) */
+/* Wrapper for elements that need icons (e.g., date, select, search) */
 .date-input, .search-input, .select-input {
     position: relative;
 }
 
 .date-input input, .search-input input {
-    padding-right: 40px; /* Make space for the icon */
-}
-
-.date-input i, .search-input i {
-    position: absolute;
-    right: 15px;
-    top: 35px; /* Adjust based on input height (45px) and label height */
-    color: var(--color-text-light);
-    pointer-events: none; /* Prevents icon from capturing clicks */
-}
-
-.select-input select {
     padding-right: 40px;
 }
 
+/* Icon positioning */
+.date-input i, 
+.search-input i,
 .select-input i {
     position: absolute;
     right: 15px;
-    top: 35px;
-    color: var(--color-text-light);
+    top: 50%; 
+    transform: translateY(calc(-50% + 5px));
+    color: var(--color-text-light); /* Using kept form variable */
     pointer-events: none;
 }
+
 
 /* Checkbox Styling */
 .checkbox-group {
@@ -255,25 +298,31 @@ select:focus {
     width: 18px;
     height: 18px;
     margin-right: 10px;
-    accent-color: var(--color-primary); /* Changes the checkbox color */
+    accent-color: var(--color-primary-blue); /* Using kept form variable */
 }
 
 .checkbox-group label {
     margin-bottom: 0;
     font-weight: 400;
-    color: var(--color-text-dark);
+    color: var(--color-text-dark); /* Using kept form variable */
+    cursor: pointer;
 }
 
-/* Admission Details Container */
+/* Admission Details Separator */
 .admission-details {
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-    margin-top: -5px; /* Adjust to sit right under the checkbox */
+    padding: 20px 0; 
+    border-top: 1px solid var(--border-color); /* Using new template variable */
+    margin-top: 5px; 
 }
 
-/* Button Styling */
+
+/* ========================================= */
+/* 7. BUTTON STYLING (Form Actions) (KEPT FROM ORIGINAL) */
+/* ========================================= */
 .form-actions {
     margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .btn {
@@ -282,14 +331,62 @@ select:focus {
     border-radius: 4px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    font-weight: 500;
 }
 
 .btn-primary {
-    background-color: var(--color-primary);
+    background-color:  #3742fa; /* Using kept form variable */
     color: white;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #2f3542;
+}
+
+/* ========================================= */
+/* 8. RESPONSIVE DESIGN (Media Queries) */
+/* ========================================= */
+
+/* Responsive Layout (FROM NEW TEMPLATE) */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+        padding: 15px 0;
+    }
+    .nav-link {
+        justify-content: center;
+        padding: 10px 0;
+    }
+    .nav-link span { 
+        display: none; 
+    } 
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        border-left: none;
+        border-right: 3px solid var(--accent-color);
+        background-color: var(--sidebar-active-bg);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Layout fix (FROM NEW TEMPLATE) */
+    .sidebar {
+        position: absolute;
+        left: -80px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    
+    .main-content-wrapper { 
+        flex-grow: 1; 
+        width: 100%;
+    }
+
+    /* Form fix (KEPT FROM ORIGINAL) */
+    .two-cols {
+        grid-template-columns: 1fr;
+    }
 }
