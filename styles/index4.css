@@ -182,8 +182,8 @@ body {
     box-shadow: 0 0.5rem 1rem var(--shadow-light); 
     max-width: 1400px;
     margin: 40px; /* Center the card */
-    margin-left: 0px;
-    margin-top: 3px;
+    margin-left: -20px;
+    margin-top: -20px;
 }
 
 .form-card h2 {
@@ -283,7 +283,7 @@ textarea:focus {
 }
 
 .save-button:hover {
-    background-color: #2b35c0; /* Darker shade */
+    background-color: #2f3542; /* Darker shade */
 }
 
 /* -----------------------------------------------------
