@@ -1,0 +1,269 @@
+/* Base Styles and Layout */
+:root {
+    --primary-blue: #3498db; /* A bright, standard blue */
+    --light-blue: #e9f5ff; /* Very light background for active state */
+    --text-dark: #333;
+    --text-medium: #666;
+    --text-light: #aaa;
+    --bg-light: #f4f6f9; /* Main background color */
+    --border-color: #eee;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px; /* Limit overall size */
+    height: 90vh; /* Set a fixed height for the dashboard look */
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* --- Sidebar Styling --- */
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    border-right: 1px solid var(--border-color);
+    padding: 20px 0;
+    flex-shrink: 0;
+}
+
+.clinic-logo {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-dark);
+    line-height: 1.4;
+    padding: 0 20px 30px;
+    opacity: 0.8;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-medium);
+    text-decoration: none;
+    font-size: 15px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-nav li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-nav li.active a {
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-radius: 0 50px 50px 0; /* Creates the pill shape on the right */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-nav li:not(.active) a:hover {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+}
+
+/* --- Main Content and Header --- */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fff;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    color: var(--text-medium);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.user-info i {
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+.user-info .fa-user-circle {
+    font-size: 24px;
+    color: var(--primary-blue);
+    margin-right: 5px;
+}
+
+/* --- Chat Container --- */
+.chat-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-light); /* Lighter background for the chat area */
+}
+
+/* Chat Header */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.assistant-profile {
+    display: flex;
+    align-items: center;
+}
+
+.assistant-avatar {
+    font-size: 36px;
+    color: var(--primary-blue);
+    margin-right: 10px;
+}
+
+.chat-header h2 {
+    font-size: 18px;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.chat-header .online {
+    font-size: 13px;
+    color: #27ae60; /* Green dot/text for online status */
+}
+
+.chat-header .search-icon {
+    color: var(--text-medium);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Chat Body (The messages feed) */
+.chat-body {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Message Bubble Styles */
+.message {
+    max-width: 60%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* This makes the timestamp sit next to the bubble */
+    align-self: flex-start;
+}
+
+.message p {
+    margin-bottom: 5px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.timestamp {
+    font-size: 10px;
+    color: var(--text-light);
+    align-self: flex-end;
+}
+
+/* Styles for Received Messages (Left/Blue) */
+.message.received {
+    background-color: var(--primary-blue);
+    color: #fff;
+    border-bottom-left-radius: 4px; /* Flatter edge towards the sender */
+    align-self: flex-start;
+}
+.message.received .timestamp {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Styles for Sent Messages (Right/White) */
+.message.sent {
+    background-color: #fff;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+    border-bottom-right-radius: 4px; /* Flatter edge towards the sender */
+    align-self: flex-end; /* Pushes the message to the right */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.message.sent .timestamp {
+    color: var(--text-light);
+}
+
+
+/* --- Chat Input Area --- */
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: #fff;
+}
+
+.chat-input input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    margin-right: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.chat-input input[type="text"]:focus {
+    border-color: var(--primary-blue);
+}
+
+.input-icons i {
+    color: var(--text-medium);
+    font-size: 18px;
+    margin-left: 15px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.input-icons i:hover {
+    color: var(--primary-blue);
+}
+
+.input-icons i:last-child {
+    color: var(--primary-blue); /* The send/plane icon is blue in the image */
+    font-size: 20px;
+}

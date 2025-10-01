@@ -135,6 +135,18 @@ body {
     width: 20px;
 }
 
+/* Logout link specific hover effect */
+.nav-link:has(i.fa-sign-out-alt):hover {
+    color: white !important;
+    background-color: rgba(255, 8, 0, 0.774);
+}
+
+/* Alternative fallback for browsers that don't support :has() */
+.nav-item:last-child .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 8, 0, 0.774);
+}
+
 /* Content Area */
 .content-area {
     flex: 1;

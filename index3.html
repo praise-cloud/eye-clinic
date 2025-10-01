@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient | Korenye Clinic</title>
+    <link rel="stylesheet" href="../eye-clinic/styles/index3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                KORENYE CLINIC <br> NIG. LTD.
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active"><a href="#"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                    <li class="nav-item"><a href="#"><i class="fas fa-envelope"></i> Messages</a></li>
+                    <li class="nav-item"><a href="#"><i class="fas fa-vial"></i> Test</a></li>
+                    <li class="nav-item"><a href="#"><i class="fas fa-box"></i> Inventory</a></li>
+                    <li class="nav-item"><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li class="nav-item logout"><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-info">
+                    <img src="avatar.jpg" alt="Admin Avatar" class="avatar">
+                    <span>Admin</span>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <h2 class="card-title">Add Patient</h2>
+                    <form class="patient-form">
+                        <div class="form-grid two-cols">
+                            <div class="form-group">
+                                <label for="first-name">First name *</label>
+                                <input type="text" id="first-name" name="first-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="last-name">Last name *</label>
+                                <input type="text" id="last-name" name="last-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                        </div>
+
+                        <div class="form-grid two-cols">
+                            <div class="form-group date-input">
+                                <label for="dob">Date of birth</label>
+                                <input type="text" id="dob" name="dob" value="dd/mm/yyyy">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="form-group select-input">
+                                <label for="gender">Gender *</label>
+                                <select id="gender" name="gender">
+                                    <option value="" disabled selected>- select -</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                                <i class="fas fa-caret-down"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="admit-patient" name="admit-patient" checked>
+                            <label for="admit-patient">Admit Patient</label>
+                        </div>
+
+                        <div class="admission-details">
+                            <div class="form-grid two-cols">
+                                <div class="form-group search-input">
+                                    <label for="room">Room *</label>
+                                    <input type="text" id="room" name="room">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="form-group search-input">
+                                    <label for="doctor">Doctor *</label>
+                                    <input type="text" id="doctor" name="doctor">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid single-col">
+                                <div class="form-group search-input">
+                                    <label for="nurse">Nurse *</label>
+                                    <input type="text" id="nurse" name="nurse">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-grid two-cols">
+                                <div class="form-group date-input">
+                                    <label for="admission-date">Admission date *</label>
+                                    <input type="text" id="admission-date" name="admission-date" value="dd/mm/yyyy">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="form-group date-input">
+                                    <label for="discharge-date">Discharge date</label>
+                                    <input type="text" id="discharge-date" name="discharge-date" value="dd/mm/yyyy">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-grid single-col">
+                                <div class="form-group select-input">
+                                    <label for="department">Department *</label>
+                                    <select id="department" name="department">
+                                        <option value="" disabled selected>- select -</option>
+                                        <option value="er">Emergency Room</option>
+                                        <option value="surgery">Surgery</option>
+                                    </select>
+                                    <i class="fas fa-caret-down"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
