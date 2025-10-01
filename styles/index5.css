@@ -49,7 +49,6 @@ body {
     flex-direction: column; 
 }
 
-/* FIX: New Wrapper for Sidebar and Content */
 .main-content-wrapper {
     display: flex;
     flex: 1; 
@@ -57,7 +56,7 @@ body {
 }
 
 /* -----------------------------------------------------
- * Header Styling (from new sample)
+ * Header Styling
  * ----------------------------------------------------- */
 .app-header {
     background: var(--header-bg);
@@ -109,7 +108,7 @@ body {
 
 
 /* -----------------------------------------------------
- * Sidebar Styling (from new sample)
+ * Sidebar Styling
  * ----------------------------------------------------- */
 .sidebar {
     width: 250px;
@@ -164,127 +163,172 @@ body {
 }
 
 /* -----------------------------------------------------
- * Main Content Area and Form Styles (from old CSS, adapted)
+ * Main Content Area and Chat Styles
  * ----------------------------------------------------- */
 .content-area {
-    /* Renamed from .main-panel to .content-area to match new HTML */
     flex: 1; 
     padding: 2rem;
     overflow-y: auto;
     background-color: var(--bg-light);
-}
-
-.form-card {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px; /* Slightly more rounded */
-    box-shadow: 0 0.5rem 1rem var(--shadow-light); 
-    max-width: 1400px;
-    margin: 40px; /* Center the card */
-    margin-left: -20px;
-    margin-top: -20px;
-}
-
-.form-card h2 {
-    margin-bottom: 25px;
-    font-size: 1.75rem;
-    color: var(--text-color);
-    font-weight: 600;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-/* Form Layout */
-.form-row {
     display: flex;
-    gap: 30px; 
-    margin-bottom: 20px;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
 }
 
-.form-row.single-group {
-    gap: 0;
-}
-
-.form-group {
-    flex: 1; 
+.chat-container {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-}
-
-.form-group.full-width {
-    flex: none; 
     width: 100%;
+    max-width: 1000px; /* Increased from 800px to 1000px to fill more horizontal space */
+    height: 90vh; /* Increased from 80vh to 90vh for more space */
+    min-height: 450px;
+    overflow: hidden;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f7f9fc;
+}
+
+.assistant-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.assistant-avatar {
+    font-size: 2.2rem;
+    color: var(--primary-color);
+}
+
+.details h2 {
+    font-size: 1.1rem;
     font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-color);
+    margin: 0;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-select,
-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 1rem;
-    line-height: 1.5;
-    background-color: #fff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+.details .online {
+    font-size: 0.8rem;
+    color: #27ae60; /* Green for online status */
+    margin: 0;
 }
 
-select {
-    /* Style for the select arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    /* Custom SVG for arrow */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23495057" class="bi bi-caret-down-fill" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.019 2.342 4 3.204 4h9.592c.862 0 1.319 1.019.753 1.658l-4.796 5.482a1 1 0 0 1-1.506 0z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 10px 10px;
-    padding-right: 30px;
-}
-
-textarea {
-    min-height: 120px;
-    resize: vertical;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: var(--primary-color);
-    outline: 0;
-    /* Updated shadow color to match new primary color */
-    box-shadow: 0 0 0 0.2rem rgba(55, 66, 250, 0.25);
-}
-
-/* Save Button Styling */
-.save-button {
-    background-color: rgb(55, 66, 250); 
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 7px; /* Pill shape */
+.search-icon {
+    color: var(--secondary-color);
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: background-color 0.2s, transform 0.1s;
-    box-shadow: 0 4px 10px rgba(55, 66, 250, 0.3);
-    margin-left: auto;
+    font-size: 1.1rem;
+    transition: color 0.2s;
 }
 
-.save-button:hover {
-    background-color: #2f3542; /* Darker shade */
+.search-icon:hover {
+    color: var(--primary-color);
 }
+
+.chat-body {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    /* Subtle background texture restored for better visual appeal */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" opacity=".05"><circle cx="10" cy="10" r="10" fill="%23764ba2"/></svg>');
+    background-size: 50px 50px;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 15px;
+    padding: 10px 15px; 
+    border-radius: 7px; 
+    line-height: 1.4;
+    position: relative;
+    font-size: 0.95rem;
+    /* --- FIX: Set to block to allow auto margins, and use fit-content to shrink width --- */
+    display: block;
+    width: fit-content;
+}
+
+.message p {
+    margin: 0;
+}
+
+.message .timestamp {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+    text-align: right; /* Default timestamp alignment */
+}
+
+/* Received Message (Assistant) */
+.message.received {
+    background-color: #e9ecef; 
+    color: var(--text-color);
+    text-align: left; /* Text alignment within the received bubble */
+    /* Ensure it sticks to the left */
+    margin-left: 0;
+    margin-right: auto; 
+}
+
+.message.received .timestamp {
+    color: var(--secondary-color);
+    text-align: left;
+}
+
+/* Sent Message (User/Admin) */
+.message.sent {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+    /* --- FIX: margin-left: auto now works to push the block to the right --- */
+    margin-left: auto; 
+    margin-right: 0;
+    text-align: left; /* Keep text left-aligned inside the bubble for readability */
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-white);
+}
+
+.chat-input input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 7px; 
+    font-size: 1rem;
+    margin-right: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.chat-input input[type="text"]:focus {
+    border-color: var(--primary-color);
+}
+
+.input-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.input-icons i {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.input-icons i:hover {
+    color: #2b35c0;
+}
+
 
 /* -----------------------------------------------------
  * Responsive Adjustments
@@ -308,17 +352,8 @@ textarea:focus {
         border-right: 3px solid var(--accent-color);
         background-color: var(--sidebar-active-bg);
     }
-    
-    /* Form stacking */
-    .form-card {
-        padding: 20px;
-    }
-    .form-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .form-group {
-        width: 100%;
+    .chat-container {
+        height: 90vh; /* Increased from 85vh to 90vh */
     }
 }
 
@@ -342,5 +377,12 @@ textarea:focus {
     .main-content-wrapper { 
         flex-grow: 1; 
         width: 100%;
+    }
+    .content-area {
+        padding: 1rem;
+    }
+    .chat-container {
+        height: 95vh; /* Increased from 90vh to 95vh for max mobile space */
+        border-radius: 0;
     }
 }
