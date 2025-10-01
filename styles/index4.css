@@ -180,10 +180,9 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px; /* Slightly more rounded */
     box-shadow: 0 0.5rem 1rem var(--shadow-light); 
-    max-width: 1400px;
-    margin: 40px; /* Center the card */
-    margin-left: -20px;
-    margin-top: -20px;
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: -30px;
 }
 
 .form-card h2 {
