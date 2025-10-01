@@ -83,30 +83,6 @@ const AdminForm = ({ formData, onChange }) => {
         </div>
       </div>
 
-      {/* Clinic Info */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700">Clinic Name</label>
-        <input
-          type="text"
-          name="clinicName"
-          value={formData.clinicName}
-          onChange={onChange}
-          className="w-full p-3 border border-gray-300 rounded-lg"
-          required
-        />
-      </div>
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700">Clinic Address</label>
-        <textarea
-          name="clinicAddress"
-          value={formData.clinicAddress}
-          onChange={onChange}
-          className="w-full p-3 border border-gray-300 rounded-lg"
-          rows="3"
-          required
-        />
-      </div>
-
       {/* Passwords */}
       <div className="flex gap-4 w-full">
         <div className="flex flex-col w-1/2">

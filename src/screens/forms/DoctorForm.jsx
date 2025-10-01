@@ -19,14 +19,14 @@ const DoctorForm = ({ formData, onChange }) => {
   //   setFormData((prev) => ({ ...prev, [name]: value }))
   // }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match')
-      return
-    }
-    onSubmit(formData)
-  }
+  // const handleSubmit = (e) => {
+  //   e.preventDefault()
+  //   if (formData.password !== formData.confirmPassword) {
+  //     alert('Passwords do not match')
+  //     return
+  //   }
+  //   onSubmit(formData)
+  // }
 
   return (
     <form
@@ -40,7 +40,7 @@ const DoctorForm = ({ formData, onChange }) => {
             type="text"
             name="firstName"
             value={formData.firstName}
-            onChange={handleChange}
+            onChange={onChange}
             className="w-full p-3 border border-gray-300 rounded-lg"
             required
           />
@@ -51,7 +51,7 @@ const DoctorForm = ({ formData, onChange }) => {
             type="text"
             name="lastName"
             value={formData.lastName}
-            onChange={handleChange}
+            onChange={onChange}
             className="w-full p-3 border border-gray-300 rounded-lg"
             required
           />
@@ -65,7 +65,7 @@ const DoctorForm = ({ formData, onChange }) => {
           type="email"
           name="email"
           value={formData.email}
-          onChange={handleChange}
+          onChange={onChange}
           className="w-full p-3 border border-gray-300 rounded-lg"
           required
         />
@@ -79,7 +79,7 @@ const DoctorForm = ({ formData, onChange }) => {
             type="text"
             name="phoneNumber"
             value={formData.phoneNumber}
-            onChange={handleChange}
+            onChange={onChange}
             className="w-full p-3 border border-gray-300 rounded-lg"
             required
           />
@@ -101,41 +101,6 @@ const DoctorForm = ({ formData, onChange }) => {
         </div>
       </div>
 
-      {/* Professional Info */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium text-gray-700">Specialization</label>
-        <input
-          type="text"
-          name="specialization"
-          value={formData.specialization}
-          onChange={onChange}
-          className="w-full p-3 border border-gray-300 rounded-lg"
-          required
-        />
-      </div>
-      <div className="flex gap-4 w-full">
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-medium text-gray-700">License Number</label>
-          <input
-            type="text"
-            name="licenseNumber"
-            value={formData.licenseNumber}
-            onChange={onChange}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            required
-          />
-        </div>
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-medium text-gray-700">Years of Experience</label>
-          <input
-            type="number"
-            name="yearsOfExperience"
-            value={formData.yearsOfExperience}
-            onChange={onChange}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-          />
-        </div>
-      </div>
 
       {/* Passwords */}
       <div className="flex gap-4 w-full">

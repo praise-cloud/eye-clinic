@@ -54,49 +54,63 @@ class IPCHandlers {
             }
         });
 
-        ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
+       ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
             try {
-                // Validate required fields
-                if (!clinicData?.clinicName || !adminData?.name || !adminData?.email || !adminData?.password || !adminData?.role) {
-                return { error: 'Missing required fields for setup (clinic name, admin name/email/password/role)' };
+                // Validate core fields
+                if (!adminData?.firstName || !adminData?.lastName || !adminData?.email || !adminData?.password || !adminData?.role) {
+                return { error: 'Missing core fields: clinic name, admin name/email/password/role' };
                 }
 
-                // Step 1: Create the first admin user
-                const userResult = await DatabaseService.createUser({
-                name: `${adminData.firstName || ''} ${adminData.lastName || ''}`.trim() || adminData.name,
+                // Normalize role for DB (e.g., 'Doctor' → 'doctor')
+                const dbRole = adminData.role.toLowerCase().replace('clinic assistant', 'assistant');
+
+                // Build userData dynamically based on role (only include available fields)
+                const baseUserData = {
+                name: `${adminData.firstName} ${adminData.lastName}`.trim(),
                 email: adminData.email,
-                password: adminData.password,  // Assume hashed in DatabaseService.createUser
-                role: adminData.role.toLowerCase() === 'clinic assistant' ? 'assistant' : adminData.role.toLowerCase(),
-                // Add other fields like phone, gender, etc., if your users table supports them
-                phoneNumber: adminData.phoneNumber || '',
-                gender: adminData.gender || '',
-                ...(adminData.specialization && { specialization: adminData.specialization }),
-                ...(adminData.licenseNumber && { licenseNumber: adminData.licenseNumber }),
-                ...(adminData.yearsOfExperience && { yearsOfExperience: adminData.yearsOfExperience }),
-                ...(adminData.permissions && { permissions: adminData.permissions }),
-                });
+                password: adminData.password,  // Hash in DatabaseService.createUser
+                role: dbRole,
+                phoneNumber: adminData.phoneNumber || null,
+                gender: adminData.gender || null,
+                };
 
+                // Role-specific fields (only if present and relevant)
+                // let userData = { ...baseUserData };
+                // if (dbRole === 'doctor') {
+                // userData = {
+                //     ...userData,
+                //     specialization: adminData.specialization || null,
+                //     licenseNumber: adminData.licenseNumber || null,
+                //     yearsOfExperience: adminData.yearsOfExperience ? parseInt(adminData.yearsOfExperience) : null,
+                // };
+                // } else if (dbRole === 'admin') {
+                // userData = {
+                //     ...userData,
+                //     permissions: adminData.permissions || null,  // e.g., 'users,patients,reports'
+                // };
+                // }
+                // For 'assistant': No extras—just base.
+
+                // Step 1: Create user (pass dynamic userData—DatabaseService handles NULLs)
+                const userResult = await DatabaseService.createUser(userData);
                 if (!userResult) {
-                return { error: 'Failed to create admin user—check DatabaseService.createUser' };
+                return { error: 'Failed to create user—check DB schema for optional fields' };
                 }
 
-                // Step 2: Set initial clinic settings
-                await DatabaseService.setSetting('clinic_name', clinicData.clinicName);
-                await DatabaseService.setSetting('clinic_address', clinicData.address || '');
+                // Step 2: Set clinic settings (always)
                 await DatabaseService.setSetting('setup_complete', 'true');
-                await DatabaseService.setSetting('created_at', new Date().toISOString());
 
-                // Step 3: Log the setup activity (if logActivity exists)
+                // Step 3: Log (non-blocking)
                 try {
-                await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Initial clinic setup by ${userResult.name}`);
+                await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Setup by ${userData.name} (${dbRole})`);
                 } catch (logErr) {
-                console.warn('Activity log failed during setup:', logErr);  // Non-blocking
+                console.warn('Log skipped:', logErr);
                 }
 
-                return { success: true, message: 'Setup completed! User created and settings saved.' };
+                return { success: true, user: userResult, message: `Setup done for ${dbRole}!` };
             } catch (error) {
                 console.error('Setup handler error:', error);
-                return { error: error.message || 'Setup failed internally' };
+                return { error: error.message };
             }
             });
 

@@ -5,6 +5,7 @@ import AdminForm from './forms/AdminForm'
 
 const SignupScreen = ({ selectedRole, onComplete, onBack }) => {
   const [formData, setFormData] = useState({})
+  console.log('Selected Role in SignupScreen:', selectedRole)
 
   const handleChange = (e) => {
     setFormData({
