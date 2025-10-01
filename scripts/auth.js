@@ -120,11 +120,11 @@ async function handleSetupComplete() {
 
     try {
         // Collect clinic info
-        const clinicData = {
-            name: document.getElementById('clinicName').value,
-            address: document.getElementById('clinicAddress').value,
-            phone: document.getElementById('clinicPhone').value
-        };
+        // const clinicData = {
+        //     name: document.getElementById('clinicName').value,
+        //     address: document.getElementById('clinicAddress').value,
+        //     phone: document.getElementById('clinicPhone').value
+        // };
 
         // Collect admin user data
         const adminData = {
