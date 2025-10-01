@@ -29,7 +29,7 @@ const DoctorForm = ({ formData, onChange }) => {
   // }
 
   return (
-    <form
+    <div
       className="flex flex-col space-y-6 w-full "
     >
       {/* First & Last Name */}
@@ -127,7 +127,7 @@ const DoctorForm = ({ formData, onChange }) => {
           />
         </div>
       </div>
-    </form>
+    </div>
   )
 }
 

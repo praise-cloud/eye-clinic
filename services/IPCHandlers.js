@@ -14,6 +14,7 @@ class IPCHandlers {
         this.registerChatHandlers();
         this.registerSettingsHandlers();
         this.registerSystemHandlers();
+        this.registerWindowHandlers();
         console.log('IPC handlers registered successfully');
     }
 
@@ -54,58 +55,50 @@ class IPCHandlers {
             }
         });
 
-       ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
+       // Safe Mapping: Complete setup handler (maps admin to doctor)
+        ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
             try {
                 // Validate core fields
                 if (!adminData?.firstName || !adminData?.lastName || !adminData?.email || !adminData?.password || !adminData?.role) {
-                return { error: 'Missing core fields: clinic name, admin name/email/password/role' };
+                return { error: 'Missing core fields: admin name/email/password/role' };
                 }
 
-                // Normalize role for DB (e.g., 'Doctor' → 'doctor')
-                const dbRole = adminData.role.toLowerCase().replace('clinic assistant', 'assistant');
+                // Normalize role for DB (admin → doctor to fit constraint)
+                let dbRole = adminData.role.toLowerCase();
+                if (dbRole === 'admin') {
+                dbRole = 'admin';  // Map to doctor for superuser access
+                console.log('Mapped admin role to admin for DB constraint');
+                } else if (dbRole === 'clinic assistant') {
+                dbRole = 'assistant';
+                }
 
-                // Build userData dynamically based on role (only include available fields)
-                const baseUserData = {
+                // Build userData (common fields only)
+                const userData = {
                 name: `${adminData.firstName} ${adminData.lastName}`.trim(),
                 email: adminData.email,
-                password: adminData.password,  // Hash in DatabaseService.createUser
+                password: adminData.password,  // Hash in DatabaseService
                 role: dbRole,
                 phoneNumber: adminData.phoneNumber || null,
                 gender: adminData.gender || null,
                 };
 
-                // Role-specific fields (only if present and relevant)
-                // let userData = { ...baseUserData };
-                // if (dbRole === 'doctor') {
-                // userData = {
-                //     ...userData,
-                //     specialization: adminData.specialization || null,
-                //     licenseNumber: adminData.licenseNumber || null,
-                //     yearsOfExperience: adminData.yearsOfExperience ? parseInt(adminData.yearsOfExperience) : null,
-                // };
-                // } else if (dbRole === 'admin') {
-                // userData = {
-                //     ...userData,
-                //     permissions: adminData.permissions || null,  // e.g., 'users,patients,reports'
-                // };
-                // }
-                // For 'assistant': No extras—just base.
-
-                // Step 1: Create user (pass dynamic userData—DatabaseService handles NULLs)
+                // Step 1: Create user
                 const userResult = await DatabaseService.createUser(userData);
                 if (!userResult) {
-                return { error: 'Failed to create user—check DB schema for optional fields' };
+                return { error: 'Failed to create user—check DB schema' };
                 }
 
-                // Step 2: Set clinic settings (always)
+                // Step 2: Mark setup complete
                 await DatabaseService.setSetting('setup_complete', 'true');
 
-                // Step 3: Log (non-blocking)
+                // Step 3: Log
                 try {
                 await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Setup by ${userData.name} (${dbRole})`);
                 } catch (logErr) {
                 console.warn('Log skipped:', logErr);
                 }
+
+                console.log('Setup success:', { userId: userResult.id, role: dbRole });
 
                 return { success: true, user: userResult, message: `Setup done for ${dbRole}!` };
             } catch (error) {
@@ -974,6 +967,46 @@ class IPCHandlers {
         });
     }
 
+    registerWindowHandlers() {
+  // Open main window (post-auth)
+        ipcMain.handle('window:openMain', async () => {
+            try {
+            const { BrowserWindow } = require('electron');
+            const mainWindow = new BrowserWindow({
+                width: 1200,
+                height: 800,
+                webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                preload: path.join(__dirname, 'preload.js'),  // Your preload path
+                },
+                show: false,  // Show after load
+            });
+
+            // Load main app URL (adjust to your build/dist)
+            await mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));  // Or loadURL for dev: http://localhost:5173
+
+            // Hide auth window (if separate)
+            const authWindow = BrowserWindow.getFocusedWindow();  // Or global.authWindow
+            if (authWindow && !authWindow.isDestroyed()) {
+                authWindow.hide();  // Or close() if single-window
+            }
+
+            mainWindow.once('ready-to-show', () => {
+                mainWindow.show();
+            });
+
+            // Store globally for later access
+            global.mainWindow = mainWindow;
+
+            return { success: true, message: 'Main window opened' };
+            } catch (error) {
+            console.error('Open main window error:', error);
+            return { error: error.message };
+            }
+        });
+        }
+
     // Clean up handlers when app closes
     removeAllHandlers() {
         const handlers = [
@@ -1031,7 +1064,8 @@ class IPCHandlers {
             'settings:getAll',
             'system:getDashboardStats',
             'system:backup',
-            'system:healthCheck'
+            'system:healthCheck',
+            'window:openMain'
         ];
 
         handlers.forEach(handler => {

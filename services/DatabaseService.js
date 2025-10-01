@@ -739,7 +739,7 @@ class DatabaseService {
                 MAX(a.timestamp) as last_activity
             FROM users u
             LEFT JOIN patients p ON (u.role = 'assistant' AND p.id IS NOT NULL)
-            LEFT JOIN tests t ON (u.role IN ('doctor', 'assistant') AND t.id IS NOT NULL)
+            LEFT JOIN tests t ON (u.role IN ('doctor', 'assistant', 'admin') AND t.id IS NOT NULL)
             LEFT JOIN reports r ON (u.role = 'doctor' AND r.id IS NOT NULL)
             LEFT JOIN activity_logs a ON u.id = a.user_id
             GROUP BY u.id

@@ -41,8 +41,7 @@ const AssistantForm = ({ formData, onChange }) => {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
+    <div
       className="flex flex-col space-y-7 w-full"
     >
 
@@ -148,7 +147,7 @@ const AssistantForm = ({ formData, onChange }) => {
       >
         Register Assistant
       </button> */}
-    </form>
+    </div>
   )
 }
 
