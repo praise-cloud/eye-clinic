@@ -170,7 +170,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 0 20px var(--shadow-light);
     padding: 25px;
-    margin: -55px;
+    margin: -60px;
 }
 
 .card-header {
@@ -277,7 +277,6 @@ body {
 
 .btn-primary:hover {
     background-color: #2f3542;
-    transform: translateY(-2px);
 }
 
 .btn-secondary {
