@@ -1,6 +1,7 @@
 const { ipcMain } = require('electron');
 const DatabaseService = require('./DatabaseService');
-const FileService = require('./FileService');
+const path = require('path');
+// const FileService = require('./FileService');
 
 class IPCHandlers {
     constructor() {
@@ -28,7 +29,9 @@ class IPCHandlers {
             try {
                 // Use DatabaseService singleton instead of this.getDatabase()
                 const result = await DatabaseService.getDatabase().then(db => db.get('SELECT COUNT(*) as count FROM users'));
+                const isFirstRun = result.count === 0
                 return { success: true, isFirstRun: result.count === 0 };
+
             } catch (error) {
                 console.error('Error checking first run:', error);
                 return { error: error.message };

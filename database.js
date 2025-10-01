@@ -8,12 +8,12 @@ class Database {
         // Use app data directory for database storage
         const { app } = require('electron');
         const userDataPath = app.getPath('userData');
-        
+
         // Ensure directory exists
         if (!fs.existsSync(userDataPath)) {
             fs.mkdirSync(userDataPath, { recursive: true });
         }
-        
+
         this.dbPath = dbPath || path.join(userDataPath, 'eye_clinic.db');
         this.db = null;
     }
@@ -27,7 +27,7 @@ class Database {
                     reject(err);
                     return;
                 }
-                
+
                 console.log('Connected to SQLite database at:', this.dbPath);
                 this.createTables()
                     .then(resolve)
@@ -45,12 +45,13 @@ class Database {
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
+                gender TEXT NOT NULL,
                 role TEXT NOT NULL CHECK (role IN ('admin', 'doctor', 'assistant')),
                 status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
-            
+
             // Patients table
             `CREATE TABLE IF NOT EXISTS patients (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +64,7 @@ class Database {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
-            
+
             // Tests table
             `CREATE TABLE IF NOT EXISTS tests (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,7 +77,7 @@ class Database {
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
             )`,
-            
+
             // Reports table
             `CREATE TABLE IF NOT EXISTS reports (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,7 +90,7 @@ class Database {
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
             )`,
-            
+
             // Chat table
             `CREATE TABLE IF NOT EXISTS chat (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -130,7 +131,7 @@ class Database {
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (last_updated_by) REFERENCES users (id)
             )`,
-            
+
             // Activity logs table for tracking user actions
             `CREATE TABLE IF NOT EXISTS activity_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,7 +145,7 @@ class Database {
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )`,
-            
+
             // Settings table for application configuration
             `CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -158,7 +159,7 @@ class Database {
         for (const query of queries) {
             await this.run(query);
         }
-        
+
         console.log('Database tables created successfully');
     }
 
@@ -176,16 +177,16 @@ class Database {
     // User Management
     async createUser(userData) {
         const { name, email, password, role } = userData;
-        
+
         // Hash password
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
-        
+
         const query = `
             INSERT INTO users (name, email, password_hash, role, updated_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-        
+
         try {
             const result = await this.run(query, [name, email, passwordHash, role]);
             console.log('User created successfully:', email);
@@ -198,23 +199,23 @@ class Database {
 
     async authenticateUser(email, password) {
         const query = 'SELECT * FROM users WHERE email = ?';
-        
+
         try {
             const users = await this.all(query, [email]);
-            
+
             if (users.length === 0) {
                 return null; // User not found
             }
-            
+
             const user = users[0];
             const isValid = await bcrypt.compare(password, user.password_hash);
-            
+
             if (isValid) {
                 // Don't return password hash
                 const { password_hash, ...userWithoutPassword } = user;
                 return userWithoutPassword;
             }
-            
+
             return null; // Invalid password
         } catch (error) {
             console.error('Error authenticating user:', error);
@@ -236,9 +237,9 @@ class Database {
 
     async setSetting(key, value) {
         const query = `
-            INSERT INTO settings (key, value, updated_at) 
+            INSERT INTO settings (key, value, updated_at)
             VALUES (?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(key) DO UPDATE SET 
+            ON CONFLICT(key) DO UPDATE SET
                 value = excluded.value,
                 updated_at = CURRENT_TIMESTAMP
         `;

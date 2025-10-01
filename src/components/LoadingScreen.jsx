@@ -13,6 +13,21 @@ const LoadingScreen = ({ message = 'Loading...' }) => {
         {/* Loading Spinner */}
         <div className="mb-6">
           <LoadingIcon className="w-12 h-12 text-blue-600 mx-auto" />
+          {/* <div className="">
+        <img
+          src={logo}
+          alt="Background Logo"
+          className="w-full h-full object-cover opacity-5"
+        />
+      </div> */}
+
+      {/* Background text close to logo */}
+      {/* <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none z-0">
+        <div>
+          <h1 className="text-6xl font-extrabold tracking-wide">KORENYE CLINIC</h1>
+          <h2 className="text-3xl">NIG. LTD.</h2>
+        </div>
+      </div> */}
         </div>
 
         {/* Loading Message */}
