@@ -195,7 +195,7 @@ a {
 .page-header {
     margin-bottom: 20px;
     font-size: 1.8em;
-    font-weight: 600; /* Adjusted from 500 to match new font weights */
+    font-weight: 700; /* Adjusted from 500 to match new font weights */
 }
 
 /* --- Toolbar (Search/Filter) Styles --- */
