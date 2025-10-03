@@ -199,12 +199,13 @@ a {
 }
 
 .card-title {
-    font-size: 28.8px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--text-color);
     margin-bottom: 25px;
     padding-bottom: 15px;
     border-bottom: 1px solid #eee;
+    height: 54px;
 }
 
 /* ========================================= */
@@ -236,10 +237,10 @@ a {
 }
 
 .form-group label {
-    font-size: 13px;
-    color: var(--color-text-light); /* Using kept form variable */
+    font-size: 15.2px;
+    color: rgb(44, 62, 80);
     margin-bottom: 5px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Styling for all common input types and selects */
