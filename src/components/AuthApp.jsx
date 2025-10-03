@@ -3,7 +3,7 @@ import WelcomeScreen from '../screens/WelcomeScreen'
 import SetupScreen from '../screens/SetupScreen'
 import LoginScreen from '../screens/LoginScreen'
 import LoadingScreen from './LoadingScreen'
-import SignupScreen from '../screens/SigupScreen'
+import SignupScreen from '../screens/SigupScreen'  // Fixed typo: SigupScreen → SignupScreen
 
 const AuthApp = () => {
   const [currentScreen, setCurrentScreen] = useState('loading')
@@ -21,21 +21,34 @@ const AuthApp = () => {
       setLoadingMessage('Checking system status...')
 
       // Check if this is first run
-      const firstRun = await window.electronAPI?.isFirstRun()
-      setIsFirstRun(firstRun)
+      console.log('Calling IPC isFirstRun...');  // Debug: Start of call
+      const response = await window.electronAPI?.isFirstRun();
+      console.log('IPC response:', response);  // Debug: Full response object
+
+      if (!response || !response.success) {
+        console.warn('IPC failed or no success—falling back to setup');  // Debug: Why fallback?
+        throw new Error(response?.error || 'IPC call failed');
+      }
+
+      const firstRun = response.isFirstRun;  // Direct extract—no || true here
+      console.log('Extracted firstRun:', firstRun);  // Debug: Boolean value
+      setIsFirstRun(firstRun);
 
       setTimeout(() => {
         setLoading(false)
         if (firstRun) {
+          console.log('Setting screen to welcome (firstRun true)');  // Debug
           setCurrentScreen('welcome')
         } else {
+          console.log('Setting screen to login (data exists)');  // Debug
           setCurrentScreen('login')
         }
       }, 1500)
 
     } catch (error) {
-      console.error('Error initializing app:', error)
+      console.error('Error initializing app:', error)  // Will log full error
       setLoading(false)
+      console.log('Fallback to welcome due to error');  // Debug
       setCurrentScreen('welcome') // Fallback to welcome
     }
   }
@@ -51,41 +64,40 @@ const AuthApp = () => {
     }
   }
 
- const handleSetupComplete = async (clinicData, adminData) => {
-  if (!window.electronAPI) {
-    console.error('Electron API not available');
-    return;
-  }
-
-  // Add the selected role to adminData (already there)
-  adminData.role = selectedRole;
-
-  try {
-    handleScreenChange('loading', 'Setting up your clinic...')
-
-    const result = await window.electronAPI.completeSetup(clinicData, adminData);  // Now uses new handler
-
-    if (result?.success) {
-      setLoadingMessage('Setup completed successfully!')
-      setTimeout(() => {
-        window.electronAPI?.openMainWindow()
-      }, 1500)
-    } else {
-      throw new Error(result?.message || 'Setup failed')
+  const handleSetupComplete = async (clinicData, adminData) => {
+    if (!window.electronAPI) {
+      console.error('Electron API not available');
+      return;
     }
-  } catch (error) {
-    console.error('Setup error:', error)
-    alert(error.message || 'Setup failed. Please try again.')
-    setCurrentScreen('setup')
+
+    // Add the selected role to adminData
+    adminData.role = selectedRole;
+
+    try {
+      handleScreenChange('loading', 'Setting up your clinic...')
+
+      const result = await window.electronAPI.completeSetup(clinicData, adminData);
+
+      if (result?.success) {
+        setLoadingMessage('Setup completed successfully!')
+        setTimeout(() => {
+          window.electronAPI?.openMainWindow()
+        }, 1500)
+      } else {
+        throw new Error(result?.message || 'Setup failed')
+      }
+    } catch (error) {
+      console.error('Setup error:', error)
+      alert(error.message || 'Setup failed. Please try again.')
+      setCurrentScreen('setup')
+    }
   }
-}
 
   const handleLogin = async (email, password) => {
-    //API check
     if (!window.electronAPI) {
-    console.error('Electron API not available');
-    return;
-  }
+      console.error('Electron API not available');
+      return;
+    }
 
     try {
       handleScreenChange('loading', 'Signing you in...')

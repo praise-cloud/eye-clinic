@@ -27,14 +27,14 @@ class IPCHandlers {
         // Check if this is first run
         ipcMain.handle('auth:isFirstRun', async () => {
             try {
-                // Use DatabaseService singleton instead of this.getDatabase()
-                const result = await DatabaseService.getDatabase().then(db => db.get('SELECT COUNT(*) as count FROM users'));
-                const isFirstRun = result.count === 0
-                return { success: true, isFirstRun: result.count === 0 };
-
+                const db = await DatabaseService.getDatabase();
+                const result = await db.get('SELECT COUNT(*) as count FROM users');
+                const isFirstRun = result.count === 0;  // If data exists (count > 0), false → login
+                console.log('First run check: User count =', result.count, 'isFirstRun =', isFirstRun);  // Debug log
+                return { success: true, isFirstRun };
             } catch (error) {
                 console.error('Error checking first run:', error);
-                return { error: error.message };
+                return { error: error.message, isFirstRun: true };  // Fallback to setup on error
             }
             });
 
