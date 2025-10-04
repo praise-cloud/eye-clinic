@@ -1,4 +1,3 @@
-/* General Body & Reset */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -141,7 +140,7 @@ body {
 }
 
 .nav-item.active .nav-link {
-    background-color: var(--sidebar-active-bg);
+    background-color: var(--danger-color);
     color: white;
     border-left-color: var(--accent-color);
 }
