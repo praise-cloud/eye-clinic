@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Korenye Clinic Assistant</title>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Link to the external stylesheet -->
     <link rel="stylesheet" href="../eye-clinic/styles/index5.css"> 
 </head>
 <body>
@@ -27,8 +25,7 @@
             <nav class="sidebar">
                 <ul class="nav-menu">
                     <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
-                    <!-- Messages is the currently active page -->
-                     <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> <span>Patients</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> <span>Patients</span></a></li>
                     <li class="nav-item active"><a href="#" class="nav-link"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
                     <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-clipboard-check"></i> <span>Tests</span></a></li>
                     <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-box-open"></i> <span>Inventory</span></a></li>
@@ -51,8 +48,7 @@
                         <i class="fas fa-search search-icon"></i>
                     </div>
                     
-                    <div class="chat-body">
-                        <!-- Example messages -->
+                    <div class="chat-body" id="chat-body">
                         <div class="message received">
                             <p>Good morning Sir</p>
                             <span class="timestamp">10:39 AM</span>
@@ -68,16 +64,77 @@
                     </div>
 
                     <div class="chat-input">
-                        <input type="text" placeholder="Type a message">
+                        <input type="text" placeholder="Type a message" id="message-input">
                         <div class="input-icons">
                             <i class="fas fa-image"></i>
                             <i class="fas fa-paperclip"></i>
-                            <i class="fas fa-paper-plane"></i>
+                            <i class="fas fa-paper-plane" id="send-button"></i>
                         </div>
                     </div>
                 </section>
             </main>
         </div>
     </div>
+
+    <script>
+        // Function to create and append a new message
+        function sendMessage() {
+            // 1. Get the input element and its value
+            const inputElement = document.getElementById('message-input');
+            const messageText = inputElement.value.trim();
+
+            // 2. Check if the message is not empty
+            if (messageText === "") {
+                return; // Do nothing if the input is empty
+            }
+
+            // 3. Get the chat body element
+            const chatBody = document.getElementById('chat-body');
+
+            // 4. Get the current time for the timestamp
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            // Format time as HH:MM AM/PM
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            const timestamp = `${formattedHours}:${formattedMinutes} ${ampm}`;
+
+            // 5. Create the new message HTML structure (sent message)
+            const newMessageHtml = `
+                <div class="message sent">
+                    <p>${messageText}</p>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+            `;
+
+            // 6. Insert the new message into the chat body
+            chatBody.insertAdjacentHTML('beforeend', newMessageHtml);
+
+            // 7. Clear the input field
+            inputElement.value = '';
+
+            // 8. Scroll to the bottom of the chat body to show the new message
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Event listener for the Send button (paper-plane icon)
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+
+        // Event listener for the Enter key in the input box
+        document.getElementById('message-input').addEventListener('keypress', function (e) {
+            // Check if the pressed key is 'Enter' (key code 13)
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initial scroll to the bottom when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+             const chatBody = document.getElementById('chat-body');
+             chatBody.scrollTop = chatBody.scrollHeight;
+        });
+    </script>
 </body>
 </html>
