@@ -1,0 +1,487 @@
+/* General Body & Reset */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #3742fa;
+    --secondary-color: #6c757d;
+    --text-color: #2c3e50;
+    --light-text-color: #7f8c8d;
+    --border-color: #dee2e6;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --sidebar-bg: #764ba2;
+    --sidebar-text: #bdc3c7;
+    --sidebar-active-bg: #3742fa;
+    --accent-color: #ffd700;
+    --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    /* Using Poppins font and variables from sample */
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f6fa;
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* App Container */
+.app-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Styling (Updated from sample) */
+.app-header {
+    background: var(--header-bg);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.logo i {
+    font-size: 2rem;
+    color: var(--accent-color);
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* User Info Styling (New from sample) */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white; 
+    font-weight: 500;
+}
+
+.user-info .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Buttons (Retained functionality, updated to use variables) */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--text-color); 
+    transform: translateY(-2px);
+}
+
+/* Main Content Wrapper (Used for flex layout) */
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+
+/* Sidebar Styling (Updated from sample) */
+.sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    height: 100%; 
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+.nav-item.active .nav-link {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+/* Specific logout hover style (New from sample) */
+.nav-link:has(i.fa-sign-out-alt):hover {
+    color: white !important;
+    background-color: var(--danger-color);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+
+/* Content Area (Retained) */
+.content-area {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+}
+
+/* Content Sections (Retained) */
+.content-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.content-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: var(--light-text-color);
+    font-size: 1rem;
+}
+
+/* Stats Grid (Retained, adapted to use variables) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: var(--header-bg);
+}
+
+.stat-content h3 {
+    font-size: 0.9rem;
+    color: var(--light-text-color);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+/* Dashboard Widgets (Retained, adapted to use variables) */
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.widget {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.widget-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f1f2f6 0%, #e9ecef 100%);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.widget-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.widget-content {
+    padding: 1.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--light-text-color);
+    font-style: italic;
+    padding: 2rem 0;
+}
+
+/* Quick Actions (Retained, adapted to use variables) */
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #495057;
+    text-align: left;
+    width: 100%;
+}
+
+.quick-action-btn:hover {
+    background: #e9ecef;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.quick-action-btn i {
+    font-size: 1.2rem;
+    width: 24px;
+}
+
+/* Responsive Design (Updated from sample) */
+
+/* Sidebar collapse for tablets/medium screens */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+        padding: 15px 0;
+    }
+    .nav-link {
+        justify-content: center;
+        padding: 10px 0;
+    }
+    .nav-link span { 
+        display: none; /* Hide link text */
+    } 
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        border-left: none;
+        border-right: 3px solid var(--accent-color); /* Move active border to the right */
+        background-color: var(--sidebar-active-bg);
+    }
+}
+
+/* Small screen adjustments */
+@media (max-width: 768px) {
+    /* Header stacking for mobile */
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    /* Sidebar hiding for mobile */
+    .sidebar {
+        position: absolute;
+        left: -250px; /* Hide off-screen by default */
+        width: 250px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    
+    .main-content { 
+        flex-grow: 1; 
+        width: 100%;
+    }
+
+    /* Content area and grid adjustments */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .content-area {
+        padding: 1rem;
+    }
+}
+
+/* Extra small screen adjustments (Horizontal navigation) */
+@media (max-width: 640px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        order: 2; /* Put navigation below content */
+        position: relative; 
+        left: 0;
+        box-shadow: none;
+    }
+    
+    .nav-menu {
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+        justify-content: space-around;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-item {
+        flex-shrink: 0;
+    }
+    
+    .nav-link {
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+        border-left: none;
+        flex-direction: column; /* Stack icon and text */
+        gap: 0.25rem;
+    }
+    .nav-link span { 
+        display: block; /* Show text again for horizontal menu */
+        font-size: 0.7rem;
+    }
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        border-right: none;
+        border-bottom: 3px solid var(--accent-color); /* Move active border to the bottom */
+    }
+}
+
+/* Scrollbar Styling (Retained) */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Loading States (Retained, adapted to use variables) */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

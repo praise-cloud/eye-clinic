@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korenye Clinic - Settings</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Link to the separated CSS file -->
+    <link rel="stylesheet" href="../styles/index11.css"> 
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header (New Gradient Style) -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-eye"></i>
+                    <h1>KORENYE CLINIC</h1>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/30/cccccc/ffffff?text=AD" alt="Admin Avatar" class="avatar"> <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content-wrapper">
+            <!-- Sidebar (New Dark Purple Style) -->
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-clipboard-check"></i> <span>Test</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-box-open"></i> <span>Inventory</span></a></li>
+                    <li class="nav-item active"><a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                    <li class="nav-item nav-item-logout"><a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+
+            <!-- Main Content Area (Original Settings Content) -->
+            <main class="content-area">
+                <div class="settings-page">
+                    <h2>Settings</h2>
+
+                    <div class="profile-section">
+                        <div class="profile-card">
+                            <div class="profile-info">
+                                <img src="https://i.ibb.co/R2p8XW7/john-doe-profile.jpg" alt="User Avatar" class="profile-avatar">
+                                <div class="user-details">
+                                    <span class="profile-name">John Doe</span>
+                                    <span class="profile-role">Doctor</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Contact Info separated for layout adjustments -->
+                        <div class="contact-info">
+                            <span class="info-item">Nigerian</span>
+                            <span class="info-item">River State, Port Harcourt</span>
+                            <span class="info-item">+234 123 4567</span>
+                            <span class="info-item">clinic@korenye.com</span>
+                        </div>
+                        <button class="edit-button">Edit</button>
+                    </div>
+                    
+                    <div class="preferences-section">
+                        <h3>User Preference</h3>
+                        <div class="preference-group">
+                            <div class="preference-item">
+                                <label for="language-select">Language</label>
+                                <select id="language-select" class="custom-select">
+                                    <option>English</option>
+                                    <option>Igbo</option>
+                                    <option>Yoruba</option>
+                                </select>
+                            </div>
+                            <div class="preference-item">
+                                <label for="theme-select">Theme</label>
+                                <select id="theme-select" class="custom-select">
+                                    <option>Dark</option>
+                                    <option>Light</option>
+                                </select>
+                            </div>
+                            <div class="preference-item">
+                                <label for="notification-select">Notification</label>
+                                <select id="notification-select" class="custom-select">
+                                    <option>Off</option>
+                                    <option>On</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="preference-group file-export">
+                            <div class="preference-item">
+                                <label for="export-type-select">Export File Type</label>
+                                <select id="export-type-select" class="custom-select">
+                                    <option>CSV</option>
+                                    <option>PDF</option>
+                                    <option>XLSX</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="reset-button">Reset</button> 
+                        <button class="save-button">Save</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

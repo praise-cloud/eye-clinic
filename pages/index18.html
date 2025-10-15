@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korenye Clinic - Add Concern</title>
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href= "../styles/index18.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdL5vR6h0e7k8a7jE1Q9L9P+N7r+q/P1w09JzC4g4X0f0/8lYqF0hVjW3l2S8H3aDkR5Uf8xOa5FzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- 1. HEADER -->
+        <header class="app-header">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <i class="fas fa-eye"></i>
+                    <div class="logo-text">
+                        <h1>KORENYE CLINIC</h1>
+                    </div>
+                </div>
+                
+                <!-- Admin Profile -->
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. MAIN LAYOUT: SIDEBAR + CONTENT -->
+        <div class="main-content-wrapper">
+            
+            <!-- 2a. SIDEBAR -->
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-th-large"></i> 
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-envelope"></i> 
+                            <span>Messages</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clipboard-check"></i> 
+                            <span>Test</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-box-open"></i> 
+                            <span>Inventory</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-cog"></i> 
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i> 
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- 2b. CONTENT AREA - Add Concern Form -->
+            <main class="content-area">
+                <div class="content-card">
+                    
+                    <h2 class="page-title">Add Case</h2>
+
+                    <div class="form-content">
+                        <!-- Form Grid for ID and Name -->
+                        <div class="form-grid">
+                            <!-- ID Input -->
+                            <div class="input-group">
+                                <label for="concernId">ID <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <input 
+                                        id="concernId" 
+                                        type="text" 
+                                        placeholder="Enter ID"
+                                    />
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Name Input -->
+                            <div class="input-group">
+                                <label for="concernName">Name <span class="required">*</span></label>
+                                <div class="input-with-icon">
+                                    <input 
+                                        id="concernName" 
+                                        type="text" 
+                                        placeholder="Enter Name"
+                                    />
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Note Textarea -->
+                        <div class="input-group full-width">
+                            <label for="note">Note</label>
+                            <textarea 
+                                id="note" 
+                                rows="5"
+                                placeholder="Add a detailed note about the concern..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Upload Icon -->
+                        <div class="input-group full-width upload-group">
+                            <label>Upload Icon</label>
+                            <div class="file-input-wrapper">
+                                <input 
+                                    type="file" 
+                                    id="fileUpload" 
+                                    onchange="handleFileChange(event)"
+                                    accept=".png,.jpg,.jpeg,.webp,.svg"
+                                    class="hidden-file-input"
+                                />
+                                <label for="fileUpload" class="file-chooser-button">
+                                    Choose file
+                                </label>
+                                <div class="file-name-display" id="fileNameDisplay">No file chosen</div>
+                            </div>
+                            <p class="file-info-text">PNG, JPG, WebP, SVG - Max 2MB</p>
+                        </div>
+
+                        <!-- Save Button -->
+                        <button class="save-button" onclick="handleSave()">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function handleFileChange(event) {
+            const fileInput = event.target;
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                fileNameDisplay.textContent = file.name;
+            } else {
+                fileNameDisplay.textContent = 'No file chosen';
+            }
+        }
+
+        function handleSave() {
+            const concernId = document.getElementById('concernId').value;
+            const concernName = document.getElementById('concernName').value;
+            const note = document.getElementById('note').value;
+            const fileName = document.getElementById('fileNameDisplay').textContent;
+
+            // Simple validation
+            if (!concernId || !concernName) {
+                console.error("ID and Name are required.");
+                // In a real app, show a custom modal/message box instead of this console log
+                return;
+            }
+
+            console.log('--- Attempting to save new concern ---');
+            console.log('ID:', concernId);
+            console.log('Name:', concernName);
+            console.log('Note:', note);
+            console.log('File:', fileName);
+            console.log('-------------------------------------');
+
+            // Reset form (optional, for demo)
+            document.getElementById('concernId').value = '';
+            document.getElementById('concernName').value = '';
+            document.getElementById('note').value = '';
+            document.getElementById('fileNameDisplay').textContent = 'No file chosen';
+            document.getElementById('fileUpload').value = '';
+        }
+
+        // Add event listener for responsive sidebar on small screens
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content-wrapper');
+            
+            // This is a minimal implementation. On a true mobile app, you might want a toggle button.
+            // For now, the CSS handles the collapsing/expanding of the sidebar content.
+        });
+    </script>
+</body>
+</html>

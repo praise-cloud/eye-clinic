@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korenye Clinic Assistant</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../styles/index8.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HTML Structure for Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-eye"></i>
+                    <h1>KORENE EYE CLINIC</h1>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/30" onerror="this.onerror=null;this.src='https://placehold.co/30x30/3742fa/ffffff?text=A'" alt="Admin Avatar" class="avatar"> <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content-wrapper">
+            <!-- HTML Structure for Sidebar -->
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                    <li class="nav-item active"><a href="#" class="nav-link"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-clipboard-check"></i> <span>Tests</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> <span>Reports</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+
+            <main class="content-area">
+                <!-- HTML Structure for Chat Interface -->
+                <section class="chat-container">
+                    <div class="chat-header">
+                        <div class="assistant-profile">
+                            <i class="fas fa-user-circle assistant-avatar"></i>
+                            <div class="details">
+                                <h2>Clinic Assistant</h2>
+                                <p class="online">Online</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div class="chat-body" id="chat-body">
+                        <!-- Chat messages will appear here. -->
+                    </div>
+
+                    <div class="chat-input">
+                        <input type="text" placeholder="Type a message" id="message-input">
+                        <div class="input-icons">
+                            <i class="fas fa-image"></i>
+                            <i class="fas fa-paperclip"></i>
+                            <i class="fas fa-paper-plane" id="send-button"></i>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript Functionality -->
+    <script>
+        // Function to format the current time as HH:MM AM/PM
+        function formatTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            return `${formattedHours}:${formattedMinutes} ${ampm}`;
+        }
+        
+        // Function to create and append a new message
+        function sendMessage() {
+            // 1. Get the input element and its value
+            const inputElement = document.getElementById('message-input');
+            const messageText = inputElement.value.trim();
+
+            // 2. Check if the message is not empty
+            if (messageText === "") {
+                return; // Stop if the input is empty
+            }
+
+            // 3. Get the chat body element
+            const chatBody = document.getElementById('chat-body');
+            const timestamp = formatTime();
+
+            // 4. Create the new message HTML structure (sent message)
+            const newMessageHtml = `
+                <div class="message sent">
+                    <p>${messageText}</p>
+                    <span class="timestamp">${timestamp}</span>
+                </div>
+            `;
+
+            // 5. Insert the new message into the chat body
+            chatBody.insertAdjacentHTML('beforeend', newMessageHtml);
+
+            // 6. Clear the input field
+            inputElement.value = '';
+
+            // 7. Scroll to the bottom of the chat body to show the new message
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Event listener for the Send button (paper-plane icon)
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+
+        // Event listener for the Enter key in the input box
+        document.getElementById('message-input').addEventListener('keypress', function (e) {
+            // Check if the pressed key is 'Enter'
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent the default action
+                sendMessage();
+            }
+        });
+
+        // Initial scroll to the bottom when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+             const chatBody = document.getElementById('chat-body');
+             chatBody.scrollTop = chatBody.scrollHeight;
+        });
+    </script>
+</body>
+</html>

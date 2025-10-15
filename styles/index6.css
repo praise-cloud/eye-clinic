@@ -1,0 +1,407 @@
+/* -----------------------------------------------------
+ * 1. Global Styles, Root Variables, and Typography
+ * ----------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* --- Template Colors --- */
+    --primary-color: #3742fa; /* Blue for primary actions (Upload) */
+    --secondary-color: #6c757d;
+    --text-color: #2c3e50;
+    --light-text-color: #7f8c8d;
+    --border-color: #dee2e6;
+    --bg-light: #f5f6fa;
+    --bg-white: #ffffff;
+    --sidebar-bg: #764ba2;
+    --sidebar-text: #bdc3c7;
+    --sidebar-active-bg: #3742fa;
+    --accent-color: #ffd700;
+    --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+
+    --sidebar-width: 250px;
+}
+
+/* Universal Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* -----------------------------------------------------
+ * 2. APP LAYOUT
+ * ----------------------------------------------------- */
+.app-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column; 
+}
+
+/* Wrapper for Sidebar and Content */
+.main-content-wrapper {
+    display: flex;
+    flex: 1; 
+    overflow: hidden; 
+}
+
+/* -----------------------------------------------------
+ * 3. HEADER STYLING
+ * ----------------------------------------------------- */
+.app-header {
+    background: var(--header-bg);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.logo i {
+    font-size: 2rem;
+    color: var(--accent-color);
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white; 
+    font-weight: 500;
+}
+
+.user-info .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* -----------------------------------------------------
+ * 4. SIDEBAR NAVIGATION STYLING
+ * ----------------------------------------------------- */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: white;
+    height: 100%; 
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+/* Specific logout hover style */
+.nav-link:has(i.fa-sign-out-alt):hover {
+    color: white !important;
+    background-color: var(--danger-color);
+}
+
+.nav-item.active .nav-link {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+/* -----------------------------------------------------
+ * 5. MAIN CONTENT AREA
+ * ----------------------------------------------------- */
+.content-area {
+    flex: 1; 
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+}
+
+/* -----------------------------------------------------
+ * 6. INVENTORY PAGE STYLES (Toolbar & Table)
+ * ----------------------------------------------------- */
+
+.page-header {
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+/* --- Toolbar (Search/Filter/Upload) Styles --- */
+.toolbar {
+    display: flex;
+    /* Use space-between to push the upload button to the right */
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Group for Search, Filter, Date */
+.toolbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* Allow the toolbar controls group to take up space, but not push the upload button too far */
+    flex-grow: 0.5; 
+}
+
+
+.search-input {
+    position: relative;
+    max-width: 300px;
+    flex-grow: 1; /* Allows it to shrink/grow within its group */
+}
+
+.search-input input {
+    width: 100%;
+    padding: 10px 10px 10px 40px; 
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    color: var(--text-color);
+}
+
+.search-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(55, 66, 250, 0.25);
+}
+
+.search-input i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+/* Base style for all toolbar buttons */
+.toolbar button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Style for the Primary Button (Upload) */
+.btn-primary {
+    background-color: rgb(55, 66, 250);
+    color: var(--bg-white);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 2px 4px rgba(55, 66, 250, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #2e3af7; 
+    border-color: #2e3af7;
+    box-shadow: 0 4px 6px rgba(55, 66, 250, 0.3);
+}
+
+/* Style for the Secondary Buttons (Filter, Date) */
+.btn-secondary {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-white);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-light); 
+    border-color: #adb5bd;
+}
+
+
+/* --- Table Styles --- */
+.data-table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95em;
+}
+
+.data-table th {
+    background-color: #f1f1f1;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Styling for the new Images column */
+.col-images {
+    width: 50px;
+    text-align: center !important;
+}
+
+/* Action icons */
+.data-table .action-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.data-table .action-icons i {
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 5px;
+    border-radius: 4px;
+    transition: color 0.1s;
+}
+
+.data-table .action-icons .fa-trash-can {
+    color: var(--danger-color);
+}
+
+.data-table .action-icons .fa-pen-to-square {
+    color: #28a745; 
+}
+
+.data-table .action-icons .fa-trash-can:hover {
+    color: #c82333;
+}
+
+.data-table .action-icons .fa-pen-to-square:hover {
+    color: #218838;
+}
+
+.price {
+    font-weight: 500;
+}
+
+/* -----------------------------------------------------
+ * 7. RESPONSIVE DESIGN
+ * ----------------------------------------------------- */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 80px;
+        padding: 15px 0;
+    }
+    .nav-link {
+        justify-content: center;
+        padding: 10px 0;
+    }
+    .nav-link span { 
+        display: none; 
+    } 
+    .nav-link:hover,
+    .nav-item.active .nav-link {
+        border-left: none;
+        border-right: 3px solid var(--accent-color);
+        background-color: var(--sidebar-active-bg);
+    }
+    
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .toolbar-controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .search-input {
+        max-width: 100%;
+    }
+
+    .btn-secondary, .btn-primary {
+        width: 100%;
+        /* Ensure primary button stands out even when full width */
+        margin-top: 10px; 
+    }
+
+    /* Make table content scrollable on small screens */
+    .data-table-container {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        min-width: 700px;
+    }
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korenye Clinic - Patients</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../styles/index2.css"> <!-- Preserving original CSS link -->
+</head>
+<body>
+    <div class="app-container">
+        <!-- ==================================== -->
+        <!-- UPDATED HEADER -->
+        <!-- Header structure retained as it was already correct -->
+        <!-- ==================================== -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-eye"></i>
+                    <h1>KORENE EYE CLINIC</h1>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/30" alt="Admin Avatar" class="avatar"> <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content-wrapper">
+            <!-- ==================================== -->
+            <!-- UPDATED SIDEBAR -->
+            <!-- Link text is now wrapped in <span> for CSS responsiveness -->
+            <!-- ==================================== -->
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../eye-clinic/index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="#" class="nav-link"><i class="fas fa-users"></i> <span>Patients</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-envelope"></i> <span>Messages</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-clipboard-check"></i> <span>Tests</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-box-open"></i> <span>Inventory</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main class="content-area">
+                <section class="patients-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>PATIENTS</h3>
+                        </div>
+                        <div class="card-controls">
+                            <div class="search-bar">
+                                <input type="text" placeholder="Search patient...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="filters">
+                                <div class="dropdown">
+                                    <button>Filter <i class="fas fa-chevron-down"></i></button>
+                                </div>
+                                <div class="dropdown">
+                                    <button>ID <i class="fas fa-chevron-down"></i></button>
+                                </div>
+                                <div class="dropdown">
+                                    <button>Gender <i class="fas fa-chevron-down"></i></button>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Patient</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Phone Number</th>
+                                        <th>Email</th>
+                                        <th>Date of birth</th>
+                                        <th>Gender</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Uzair Uzair</td>
+                                        <td>+0123456789</td>
+                                        <td>uzair619@gmail.com</td>
+                                        <td>1/Jan/1999</td>
+                                        <td>Male</td>
+                                        <td class="action-buttons">
+                                            <button class="icon-btn edit"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="icon-btn view"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-btn delete"><i class="fas fa-trash-alt"></i></button>
+                                            <button class="btn btn-secondary">Admit</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Haric Haric</td>
+                                        <td>+0123456789</td>
+                                        <td>haric633@gmail.com</td>
+                                        <td>1/Dec/1991</td>
+                                        <td>Male</td>
+                                        <td class="action-buttons">
+                                            <button class="icon-btn edit"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="icon-btn view"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-btn delete"><i class="fas fa-trash-alt"></i></button>
+                                            <button class="btn btn-secondary">Admit</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Hamza Hamza</td>
+                                        <td>+0123456789</td>
+                                        <td>hamza644@gmail.com</td>
+                                        <td>1/Jan/2001</td>
+                                        <td>Male</td>
+                                        <td class="action-buttons">
+                                            <button class="icon-btn edit"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="icon-btn view"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-btn delete"><i class="fas fa-trash-alt"></i></button>
+                                            <button class="btn btn-secondary">Admit</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

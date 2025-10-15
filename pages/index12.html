@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests | Korenye Clinic - Upload</title>
+    <link rel="stylesheet" href="../styles/index12.css"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-eye"></i>
+                    <h1>KORENE EYE CLINIC</h1>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/30" alt="Admin Avatar" class="avatar"> <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content-wrapper">
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> <span>Patients</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                    <li class="nav-item active"><a href="#" class="nav-link"><i class="fas fa-clipboard-check"></i> <span>Tests</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-box-open"></i> <span>Inventory</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> <span>Reports</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                </ul>
+            </nav>
+
+            <main class="content-area">
+                <div class="page-header-actions">
+                    <h2 class="page-title">Tests</h2>
+                    <button class="btn btn-upload">
+                        Upload <i class="fas fa-cloud-upload-alt"></i>
+                    </button>
+                </div>
+
+                <div class="card search-filter-card">
+                    <h3 class="card-subtitle">Patient's</h3>
+                    <div class="search-bar">
+                        <div class="search-input-group">
+                            <input type="text" placeholder="name or cases...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <button class="btn btn-filter">Filter</button>
+                        <button class="btn btn-date">Date</button>
+                    </div>
+                </div>
+
+                <h2 class="patient-name">Uzair Ahmad</h2>
+
+                <div class="details-history-grid">
+                    <div class="card details-card">
+                        <h4 class="card-subtitle">Details</h4>
+                        <div class="detail-row"><span class="detail-label">Patient_Id:</span><span class="detail-value">1</span></div>
+                        <div class="detail-row"><span class="detail-label">First Name:</span><span class="detail-value">Uzair</span></div>
+                        <div class="detail-row"><span class="detail-label">Last Name:</span><span class="detail-value">Ahmad</span></div>
+                        <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value email-value">uzair@gmail.com</span></div>
+                        <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-value">+0123456789</span></div>
+                        <div class="detail-row"><span class="detail-label">Date of birth:</span><span class="detail-value">1 Jan. 1999</span></div>
+                        <div class="detail-row"><span class="detail-label">Gender:</span><span class="detail-value">Male</span></div>
+                    </div>
+
+                    <div class="card history-card">
+                        <h4 class="card-subtitle">Test History</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Date</th><th>Eye</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>12 Apr, 2025</td><td>Both</td><td><span class="status-tag done">Done</span></td><td><a href="#">View</a></td></tr>
+                                <tr><td>27 Apr, 2025</td><td>Right</td><td><span class="status-tag pending">Pending</span></td><td><a href="#">Retry</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card documents-card">
+                    <h4 class="card-subtitle">Documents</h4>
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Document Name</th><th>File Type</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>27 Apr, 2025</td><td>Second Eye test</td><td>PDF</td></tr>
+                            <tr><td>27 Apr, 2025</td><td>Second Eye test</td><td>PDF</td></tr>
+                            <tr><td>27 Apr, 2025</td><td>Second Eye test</td><td>PDF</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div class="modal-overlay modal-visible">
+        <div class="modal-card">
+            <h3 class="modal-title">Test Upload</h3>
+            <div class="upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <button class="btn btn-save">Save</button>
+        </div>
+    </div>
+
+</body>
+</html>
