@@ -1,0 +1,32 @@
+import React, { useState } from 'react'
+import Header from './Header'
+import Sidebar from './Sidebar'
+import useUser from '../../hooks/useUser'
+
+const Layout = ({ children, activeSection, onSectionClick, searchTerm, onSearchChange, onActionClick }) => {
+  const { user: currentUser } = useUser()
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar
+        activeSection={activeSection}
+        onSectionClick={onSectionClick}
+        currentUser={currentUser}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header
+          activeSection={activeSection}
+          onActionClick={onActionClick}
+          currentUser={currentUser}
+          searchTerm={searchTerm}
+          onSearchChange={onSearchChange}
+        />
+        <main className="flex-1 overflow-auto p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}
+
+export default Layout
