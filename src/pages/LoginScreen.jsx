@@ -40,7 +40,10 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
     if (validateForm()) {
       setIsLoading(true)
       try {
-        await onLogin(formData.email, formData.password)
+        await onLogin({
+          email: formData.email,
+          password: formData.password
+        })
       } finally {
         setIsLoading(false)
       }

@@ -8,34 +8,36 @@ const useUser = () => {
   // Initialize user from storage or electron API
   useEffect(() => {
     const initializeUser = async () => {
+      setLoading(true);
       try {
-        setLoading(true)
-        
         // Try to get user from electron API first
         if (window.electronAPI?.getCurrentUser) {
-          const currentUser = await window.electronAPI.getCurrentUser()
-          if (currentUser) {
-            setUser(currentUser)
-            setLoading(false)
-            return
+          try {
+            const currentUser = await window.electronAPI.getCurrentUser();
+            if (currentUser) {
+              setUser(currentUser);
+              setLoading(false);
+              return;
+            }
+          } catch (err) {
+            // If electronAPI fails, fallback to localStorage
+            console.warn('electronAPI.getCurrentUser failed, falling back to localStorage:', err);
           }
         }
-        
         // Fallback to localStorage
-        const storedUser = localStorage.getItem('currentUser')
+        const storedUser = localStorage.getItem('currentUser');
         if (storedUser) {
-          setUser(JSON.parse(storedUser))
+          setUser(JSON.parse(storedUser));
         }
       } catch (err) {
-        setError(err.message)
-        console.error('Error initializing user:', err)
+        setError(err.message);
+        console.error('Error initializing user:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    initializeUser()
-  }, [])
+    };
+    initializeUser();
+  }, []);
 
   // Login user
   const login = useCallback(async (credentials) => {
@@ -73,11 +75,11 @@ const useUser = () => {
   const logout = useCallback(async () => {
     try {
       setLoading(true)
-      
+
       if (window.electronAPI?.logout) {
         await window.electronAPI.logout()
       }
-      
+
       setUser(null)
       localStorage.removeItem('currentUser')
     } catch (err) {
@@ -120,14 +122,14 @@ const useUser = () => {
   // Check if user has permission
   const hasPermission = useCallback((permission) => {
     if (!user) return false
-    
+
     const rolePermissions = {
       admin: ['read', 'write', 'delete', 'manage_users', 'manage_settings'],
       doctor: ['read', 'write', 'manage_patients', 'generate_reports'],
       assistant: ['read', 'write', 'manage_patients'],
       viewer: ['read']
     }
-    
+
     return rolePermissions[user.role]?.includes(permission) || false
   }, [user])
 
