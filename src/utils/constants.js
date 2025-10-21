@@ -9,12 +9,20 @@ export const USER_ROLES = {
 // Navigation sections
 export const SECTIONS = {
   DASHBOARD: 'dashboard',
-  PATIENTS: 'patients',
+  CLIENT: 'client',
   TESTS: 'tests',
   REPORTS: 'reports',
   MESSAGES: 'messages',
   INVENTORY: 'inventory',
   SETTINGS: 'settings'
+}
+
+//Client data
+export const CLIENT_DATA = {
+  NAME: 'Korenye Clinic Nig. Ltd.',
+  CASE: 'Some pain in the eye ....',
+  CONTACT_EMAIL: 'info@korenyeclinic.com',
+  CONTACT_PHONE: '+123 456 7890'
 }
 
 // Test types

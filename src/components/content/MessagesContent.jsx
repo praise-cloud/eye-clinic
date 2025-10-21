@@ -38,8 +38,41 @@ const MessagesContent = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Doctor & Assistant Chat</h2>
+    <div className="flex flex-col h-full  p-6">
+        <div className="flex">
+          <div className="flex items-center gap-6 p-6 bg-white rounded-lg shadow mb-5 w-full">
+            {/* Doctor avatar and status */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-lg">
+                  {mockUser.doctor.name.split(' ').map(n => n[0]).join('')}
+                </span>
+                <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400" title="Online"></span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium text-gray-900">{mockUser.doctor.name}</span>
+                <span className="text-xs text-green-500">Online</span>
+              </div>
+            </div>
+            <span className="text-gray-300 text-2xl">|</span>
+            {/* Assistant avatar and status */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-pink-100 text-pink-700 font-bold text-lg">
+                  {mockUser.assistant.name.split(' ').map(n => n[0]).join('')}
+                </span>
+                <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400" title="Online"></span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium text-gray-900">{mockUser.assistant.name}</span>
+                <span className="text-xs text-green-500">Online</span>
+              </div>
+            </div>
+            <div className="flex-1 flex justify-center">
+              <h2 className="text-xl font-semibold text-gray-900">Doctor & Assistant Chat</h2>
+            </div>
+          </div>
+        </div>
       <div className="flex-1 overflow-y-auto mb-4 px-2">
         {messages.map((msg) => (
           <div

@@ -22,10 +22,21 @@ const Layout = ({ children, activeSection, onSectionClick, searchTerm, onSearchC
           onSearchChange={onSearchChange}
         />
         <main className="flex-1 overflow-auto p-6">
-           <div className="flex flex-col gap-2">
-          <span className="text-2xl font-medium text-gray-900">Good day</span>
-          <span className="text-sm text-gray-400">{currentUser?.name || 'John Doe'}</span>
-        </div>
+          {['dashboard', 'tests', 'settings', 'inventory'].includes(activeSection) && (
+            <div className="flex flex-col gap-2 mb-2">
+              <span className="text-2xl font-medium text-gray-900">
+                {activeSection === 'dashboard' && 'Good day'}
+                {activeSection === 'tests' && 'Tests'}
+                {activeSection === 'settings' && 'Settings'}
+                {activeSection === 'inventory' && 'Inventory'}
+              </span>
+              {activeSection === 'dashboard' ? (
+                <span className="text-sm text-gray-400">{currentUser?.name || 'John Doe'}</span>
+              ) : (
+                currentUser?.name ? <span className="text-sm text-gray-400">{currentUser.name}</span> : null
+              )}
+            </div>
+          )}
           {children}
         </main>
       </div>
