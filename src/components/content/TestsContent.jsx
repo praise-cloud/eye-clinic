@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { DeleteIcon, EditIcon, ViewIcon } from '../Icons'
 
-const TestsContent = () => {
+const TestsContent = ({ clientName, additionalTests = [] }) => {
   const [tests, setTests] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [viewingTest, setViewingTest] = useState(null);
+  const [showResults, setShowResults] = useState(null);
 
   const totalPages = Math.ceil(tests.length / rowsPerPage);
   const paginatedTests = tests.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
@@ -16,14 +19,17 @@ const TestsContent = () => {
 
   useEffect(() => {
     // Mock data - replace with actual API call
-    setTests([
+    const mockTests = [
       { id: 1, patient: 'John Doe', type: 'Visual Field', date: '2024-01-15', status: 'Completed' },
       { id: 2, patient: 'Jane Smith', type: 'OCT Scan', date: '2024-01-14', status: 'In Progress' },
       { id: 3, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' },
       { id: 4, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' },
       { id: 5, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' }
-    ])
-  }, [])
+    ];
+    
+    // Merge mock tests with additional tests from TestResultsContent
+    setTests([...mockTests, ...additionalTests]);
+  }, [additionalTests])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -108,7 +114,9 @@ const TestsContent = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedTests.map((test) => (
+              {paginatedTests
+                .filter(test => !clientName || test.patient === clientName)
+                .map((test) => (
                 <tr key={test.id}>
                   <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{test.patient}</td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{test.type}</td>
@@ -118,9 +126,23 @@ const TestsContent = () => {
                       {test.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                    <button className="text-green-600 hover:text-green-900">Results</button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setViewingTest(test)}
+                        className="text-blue-500 hover:text-blue-700 p-1"
+                        title="View Details"
+                      >
+                        <ViewIcon />
+                      </button>
+                      <button
+                        onClick={() => setShowResults(test)}
+                        className="text-green-500 hover:text-green-700 p-1"
+                        title="View Results"
+                      >
+                        <EditIcon />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -165,6 +187,119 @@ const TestsContent = () => {
           </div>
         </div>
       </div>
+
+      {/* View Test Details Modal */}
+      {viewingTest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setViewingTest(null)}>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Test Details</h3>
+              <button
+                onClick={() => setViewingTest(null)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Patient Name</label>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.patient}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Test Type</label>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.type}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Test Date</label>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.date}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(viewingTest.status)}`}>
+                  {viewingTest.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setViewingTest(null)}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test Results Modal */}
+      {showResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowResults(null)}>
+          <div className="bg-white rounded-lg p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-semibold text-gray-800">Test Results - {showResults.type}</h3>
+              <button
+                onClick={() => setShowResults(null)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Patient Name</label>
+                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.patient}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Test Type</label>
+                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.type}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Test Date</label>
+                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.date}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <span className={`inline-flex px-4 py-2 text-lg font-semibold rounded-full ${getStatusColor(showResults.status)}`}>
+                    {showResults.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Test Results & Findings</label>
+                <div className="text-gray-900 bg-gray-50 p-4 rounded-lg min-h-[120px]">
+                  {showResults.status === 'Completed' 
+                    ? 'Test completed successfully. All parameters within normal range. No abnormalities detected.' 
+                    : showResults.status === 'In Progress'
+                    ? 'Test is currently being processed. Results will be available shortly.'
+                    : 'Test is scheduled and pending completion.'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-8">
+              <button
+                onClick={() => setShowResults(null)}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

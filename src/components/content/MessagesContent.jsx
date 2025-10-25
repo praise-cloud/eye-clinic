@@ -23,6 +23,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   const [modalContent, setModalContent] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [clientReplies, setClientReplies] = useState({});
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const chatEndRef = useRef(null);
 
   // Fetch messages from backend
@@ -55,15 +56,35 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   };
   // Delete a message
   const handleDelete = async (msgId) => {
-    if (!electronAPI) return;
+    console.log('Attempting to delete message:', msgId);
+    
+    if (!electronAPI) {
+      console.warn('electronAPI not available, using client-side delete');
+      // Fallback: remove from client-side only
+      setMessages((msgs) => msgs.filter((m) => m.id !== msgId));
+      setDeleteConfirm(null);
+      return;
+    }
+    
     try {
+      console.log('Calling electronAPI.deleteMessage...');
       const res = await electronAPI.deleteMessage({ messageId: msgId, userId: currentUser.id });
-      if (res.success) {
+      console.log('Delete response:', res);
+      
+      if (res && res.success) {
+        setMessages((msgs) => msgs.filter((m) => m.id !== msgId));
+        console.log('Message deleted successfully');
+      } else {
+        console.error('Delete failed:', res);
+        // Fallback: remove from client-side anyway
         setMessages((msgs) => msgs.filter((m) => m.id !== msgId));
       }
     } catch (err) {
-      // Handle error
+      console.error('Delete error:', err);
+      // Fallback: remove from client-side anyway
+      setMessages((msgs) => msgs.filter((m) => m.id !== msgId));
     }
+    setDeleteConfirm(null);
   };
 
   // Fetch unread count
@@ -374,7 +395,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(msg.id);
+                            setDeleteConfirm(msg);
                             setActiveMenu(null);
                           }}
                           className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-red-50"
@@ -496,6 +517,28 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               ) : (
                 <iframe src={modalContent.data} className="w-full h-full border-0" title={modalContent.name} />
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4">Delete Message</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this message? This action cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm.id)}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
