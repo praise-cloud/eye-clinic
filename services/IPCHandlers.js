@@ -35,8 +35,9 @@ class IPCHandlers {
         });
 
         // Logout user (clear session, log activity)
-        ipcMain.handle('auth:logout', async (event, { userId }) => {
+        ipcMain.handle('auth:logout', async (event, data = {}) => {
             try {
+                const { userId } = data;
                 // TODO: Clear session or persistent user context here if implemented
                 // For now, just log the logout event if userId is provided
                 if (userId) {
@@ -72,7 +73,8 @@ class IPCHandlers {
 
 
         // Login user
-        ipcMain.handle('auth:login', async (event, { email, password }) => {
+        ipcMain.handle('auth:login', async (event, data = {}) => {
+            const { email, password } = data;
             try {
                 if (!email || !password) {
                     return { error: 'Email and password are required' };
@@ -91,7 +93,8 @@ class IPCHandlers {
         });
 
        // Safe Mapping: Complete setup handler (maps admin to doctor)
-        ipcMain.handle('auth:completeSetup', async (event, { clinicData, adminData }) => {
+        ipcMain.handle('auth:completeSetup', async (event, data = {}) => {
+            const { clinicData, adminData } = data;
             try {
                 // Validate core fields
                 if (!adminData?.firstName || !adminData?.lastName || !adminData?.email || !adminData?.password || !adminData?.role) {
@@ -222,7 +225,8 @@ class IPCHandlers {
         });
 
         // Update patient
-        ipcMain.handle('patients:update', async (event, { id, patientData }) => {
+        ipcMain.handle('patients:update', async (event, data = {}) => {
+            const { id, patientData } = data;
             try {
                 if (!id) {
                     return { error: 'Patient ID is required' };
@@ -323,7 +327,8 @@ class IPCHandlers {
         });
 
         // Update test
-        ipcMain.handle('tests:update', async (event, { id, testData }) => {
+        ipcMain.handle('tests:update', async (event, data = {}) => {
+            const { id, testData } = data;
             try {
                 if (!id) {
                     return { error: 'Test ID is required' };
@@ -400,7 +405,8 @@ class IPCHandlers {
         });
 
         // Generate report
-        ipcMain.handle('reports:generate', async (event, { patientId, testIds, title, reportType }) => {
+        ipcMain.handle('reports:generate', async (event, data = {}) => {
+            const { patientId, testIds, title, reportType } = data;
             try {
                 if (!patientId) {
                     return { error: 'Patient ID is required' };
@@ -452,7 +458,8 @@ class IPCHandlers {
         });
 
         // Export report
-        ipcMain.handle('reports:export', async (event, { reportId, format }) => {
+        ipcMain.handle('reports:export', async (event, data = {}) => {
+            const { reportId, format } = data;
             try {
                 if (!reportId) {
                     return { error: 'Report ID is required' };
@@ -569,7 +576,8 @@ class IPCHandlers {
         });
 
         // Update inventory item
-        ipcMain.handle('inventory:update', async (event, { id, itemData }) => {
+        ipcMain.handle('inventory:update', async (event, data = {}) => {
+            const { id, itemData } = data;
             try {
                 if (!id) {
                     return { error: 'Inventory item ID is required' };
@@ -584,7 +592,8 @@ class IPCHandlers {
         });
 
         // Update inventory quantity
-        ipcMain.handle('inventory:updateQuantity', async (event, { id, quantity, userId, notes }) => {
+        ipcMain.handle('inventory:updateQuantity', async (event, data = {}) => {
+            const { id, quantity, userId, notes } = data;
             try {
                 if (!id || quantity === undefined || quantity === null) {
                     return { error: 'Item ID and quantity are required' };
@@ -690,7 +699,8 @@ class IPCHandlers {
         });
 
         // Update user status
-        ipcMain.handle('admin:updateUserStatus', async (event, { userId, isActive, updatedBy }) => {
+        ipcMain.handle('admin:updateUserStatus', async (event, data = {}) => {
+            const { userId, isActive, updatedBy } = data;
             try {
                 if (!userId || updatedBy === undefined) {
                     return { error: 'User ID and updatedBy are required' };
@@ -705,7 +715,8 @@ class IPCHandlers {
         });
 
         // Delete user
-        ipcMain.handle('admin:deleteUser', async (event, { userId, deletedBy }) => {
+        ipcMain.handle('admin:deleteUser', async (event, data = {}) => {
+            const { userId, deletedBy } = data;
             try {
                 if (!userId || !deletedBy) {
                     return { error: 'User ID and deletedBy are required' };
@@ -742,7 +753,8 @@ class IPCHandlers {
         });
 
         // Log activity (for manual logging)
-        ipcMain.handle('admin:logActivity', async (event, { userId, actionType, entityType, entityId, description, ipAddress, userAgent }) => {
+        ipcMain.handle('admin:logActivity', async (event, data = {}) => {
+            const { userId, actionType, entityType, entityId, description, ipAddress, userAgent } = data;
             try {
                 await DatabaseService.logActivity(userId, actionType, entityType, entityId, description, ipAddress, userAgent);
                 return { success: true };
@@ -753,7 +765,8 @@ class IPCHandlers {
         });
 
         // Create new user (Admin function)
-        ipcMain.handle('admin:createUser', async (event, { userData, createdBy }) => {
+        ipcMain.handle('admin:createUser', async (event, data = {}) => {
+            const { userData, createdBy } = data;
             try {
                 const requiredFields = ['name', 'email', 'password', 'role'];
                 for (const field of requiredFields) {
@@ -814,7 +827,8 @@ class IPCHandlers {
         });
 
         // Read file
-        ipcMain.handle('file:read', async (event, { filePath, encoding }) => {
+        ipcMain.handle('file:read', async (event, data = {}) => {
+            const { filePath, encoding } = data;
             try {
                 const result = await FileService.readFile(filePath, encoding);
                 return result;
@@ -849,7 +863,8 @@ class IPCHandlers {
 
     registerChatHandlers() {
         // Get messages
-        ipcMain.handle('chat:getMessages', async (event, { userId, otherUserId = null, search = '' }) => {
+        ipcMain.handle('chat:getMessages', async (event, data = {}) => {
+            const { userId, otherUserId = null, search = '' } = data;
             try {
                 if (!userId) {
                     return { error: 'User ID is required' };
@@ -863,7 +878,8 @@ class IPCHandlers {
         });
 
         // Send message
-        ipcMain.handle('chat:sendMessage', async (event, { senderId, receiverId, messageText, attachment }) => {
+        ipcMain.handle('chat:sendMessage', async (event, data = {}) => {
+            const { senderId, receiverId, messageText, attachment } = data;
             try {
                 const requiredFields = ['senderId', 'receiverId', 'messageText'];
                 const data = { senderId, receiverId, messageText };
@@ -881,7 +897,8 @@ class IPCHandlers {
         });
 
         // Mark message as read
-        ipcMain.handle('chat:markAsRead', async (event, { messageId, userId }) => {
+        ipcMain.handle('chat:markAsRead', async (event, data = {}) => {
+            const { messageId, userId } = data;
             try {
                 if (!messageId || !userId) {
                     return { error: 'Message ID and User ID are required' };
@@ -909,7 +926,8 @@ class IPCHandlers {
         });
 
         // Search messages
-        ipcMain.handle('chat:searchMessages', async (event, { userId, search }) => {
+        ipcMain.handle('chat:searchMessages', async (event, data = {}) => {
+            const { userId, search } = data;
             try {
                 if (!userId || !search) {
                     return { error: 'User ID and search term are required' };
@@ -923,7 +941,8 @@ class IPCHandlers {
         });
 
         // Delete message
-        ipcMain.handle('chat:deleteMessage', async (event, { messageId, userId }) => {
+        ipcMain.handle('chat:deleteMessage', async (event, data = {}) => {
+            const { messageId, userId } = data;
             try {
                 if (!messageId || !userId) {
                     return { error: 'Message ID and User ID are required' };
@@ -954,7 +973,8 @@ class IPCHandlers {
         });
 
         // Set setting
-        ipcMain.handle('settings:set', async (event, { key, value }) => {
+        ipcMain.handle('settings:set', async (event, data = {}) => {
+            const { key, value } = data;
             try {
                 if (!key) {
                     return { error: 'Setting key is required' };

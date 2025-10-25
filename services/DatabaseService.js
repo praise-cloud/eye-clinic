@@ -10,10 +10,27 @@ class DatabaseService {
         if (!this.initialized) {
             this.db = new Database();
             await this.db.initialize();
+            await this.runMigrations();
             this.initialized = true;
             console.log('DatabaseService initialized successfully');
         }
         return this.db;
+    }
+
+    async runMigrations() {
+        try {
+            // Use this.db directly instead of getDatabase() to avoid circular call
+            const tableInfo = await this.db.all("PRAGMA table_info(chat)");
+            const hasAttachmentColumn = tableInfo.some(column => column.name === 'attachment');
+            
+            if (!hasAttachmentColumn) {
+                console.log('Adding attachment column to chat table...');
+                await this.db.run('ALTER TABLE chat ADD COLUMN attachment TEXT');
+                console.log('Migration completed: Added attachment column to chat table');
+            }
+        } catch (error) {
+            console.error('Migration error:', error);
+        }
     }
 
     async getDatabase() {
@@ -260,11 +277,27 @@ class DatabaseService {
 
     async sendMessage(senderId, receiverId, messageText, attachment = null) {
         const db = await this.getDatabase();
-        const query = `
-            INSERT INTO chat (sender_id, receiver_id, message_text, attachment)
-            VALUES (?, ?, ?, ?)
-        `;
-        const result = await db.run(query, [senderId, receiverId, messageText, attachment]);
+        
+        // Check if attachment column exists
+        const tableInfo = await db.all("PRAGMA table_info(chat)");
+        const hasAttachmentColumn = tableInfo.some(column => column.name === 'attachment');
+        
+        let query, params;
+        if (hasAttachmentColumn) {
+            query = `
+                INSERT INTO chat (sender_id, receiver_id, message_text, attachment)
+                VALUES (?, ?, ?, ?)
+            `;
+            params = [senderId, receiverId, messageText, attachment];
+        } else {
+            query = `
+                INSERT INTO chat (sender_id, receiver_id, message_text)
+                VALUES (?, ?, ?)
+            `;
+            params = [senderId, receiverId, messageText];
+        }
+        
+        const result = await db.run(query, params);
         // Return the created message with user details
         return await db.get(`
             SELECT c.*,

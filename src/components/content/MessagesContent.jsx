@@ -18,6 +18,11 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   const [file, setFile] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notification, setNotification] = useState('');
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+  const [replyTo, setReplyTo] = useState(null);
+  const [clientReplies, setClientReplies] = useState({});
   const chatEndRef = useRef(null);
 
   // Fetch messages from backend
@@ -81,44 +86,91 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveMenu(null);
+      setShowAttachMenu(false);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Close modal on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setModalContent(null);
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
   // Handle file upload
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+    // Reset the input value so the same file can be selected again
+    e.target.value = '';
   };
 
   // Send message (with optional file)
   const handleSend = async (e) => {
     e.preventDefault();
-    if ((!input.trim() && !file) || !ipcRenderer) return;
-    let attachment = null;
+    if ((!input.trim() && !file) || !electronAPI) return;
+    
     if (file) {
       // Read file as base64
       const reader = new FileReader();
       reader.onload = async (ev) => {
-        attachment = {
+        const attachment = {
           name: file.name,
           type: file.type,
           data: ev.target.result
         };
+        console.log('File attachment created:', attachment);
         await sendMessage(attachment);
+        setFile(null);
+        setInput('');
       };
       reader.readAsDataURL(file);
-      setFile(null);
+    } else {
+      await sendMessage();
       setInput('');
-      return;
     }
-    await sendMessage();
-    setInput('');
   };
 
   const sendMessage = async (attachment = null) => {
     try {
-      const res = await electronAPI.sendMessage(currentUser.id, otherUser.id, input, attachment);
+      const attachmentData = attachment ? JSON.stringify(attachment) : null;
+      const messageText = input.trim() || (attachment ? 'File attachment' : '');
+      const replyToId = replyTo ? replyTo.id : null;
+      
+      console.log('Sending message with replyToId:', replyToId);
+      
+      // Try with replyToId first, fallback without it if backend doesn't support it
+      let res;
+      try {
+        res = await electronAPI.sendMessage(currentUser.id, otherUser.id, messageText, attachmentData, replyToId);
+      } catch (replyError) {
+        console.warn('Backend may not support replyToId, sending without it:', replyError);
+        res = await electronAPI.sendMessage(currentUser.id, otherUser.id, messageText, attachmentData);
+      }
+      
       if (res.success) {
+        // Store reply reference client-side until backend supports it
+        if (replyToId) {
+          setClientReplies(prev => ({
+            ...prev,
+            [res.message.id]: replyToId
+          }));
+        }
         setMessages((msgs) => [...msgs, res.message]);
+        setReplyTo(null);
       }
     } catch (err) {
-      // Handle error
+      console.error('Send message error:', err);
     }
   };
 
@@ -130,7 +182,22 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
 
   return (
     <div className="flex flex-col h-full p-6">
-      <div className="flex">
+      <div className="flex flex-col">
+      <form onSubmit={handleSearch} className="flex items-center gap-2 mb-2">
+        <input
+          type="text"
+          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+          placeholder="Search messages..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button
+          type="submit"
+          className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition"
+        >
+          Search
+        </button>
+      </form>
         <div className="flex items-center gap-6 p-6 bg-white rounded-lg shadow mb-5 w-full">
           {/* Doctor avatar and status */}
           <div className="flex items-center gap-2">
@@ -168,21 +235,6 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
         </div>
       </div>
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex items-center gap-2 mb-2">
-        <input
-          type="text"
-          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
-          placeholder="Search messages..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition"
-        >
-          Search
-        </button>
-      </form>
       <div className="flex-1 overflow-y-auto mb-4 px-2">
         {notification && (
           <div className="text-center text-green-600 font-semibold mb-2">{notification}</div>
@@ -207,46 +259,163 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                 <span className="block font-bold mb-1">
                   {msg.sender_id === currentUser.id ? currentUser.name : otherUser.name}
                 </span>
-                <span>{msg.message_text}</span>
+                {(() => {
+                  // Check backend reply field or client-side tracking
+                  const replyId = msg.reply_to_id || msg.replyToId || clientReplies[msg.id];
+                  if (replyId) {
+                    const referencedMsg = messages.find(m => m.id === replyId);
+                    if (referencedMsg) {
+                      return (
+                        <div className={`mb-2 p-2 rounded border-l-2 text-xs ${
+                          msg.sender_id === currentUser.id 
+                            ? 'bg-blue-500 border-blue-300 text-blue-100' 
+                            : 'bg-gray-200 border-gray-400 text-gray-600'
+                        }`}>
+                          <div className="font-medium">
+                            Replying to {referencedMsg.sender_id === currentUser.id ? currentUser.name : otherUser.name}
+                          </div>
+                          <div className="truncate">
+                            {referencedMsg.message_text || 'File attachment'}
+                          </div>
+                        </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
+                {msg.message_text && msg.message_text !== 'File attachment' && (
+                  <span>{msg.message_text}</span>
+                )}
                 {msg.attachment && (
                   <div className="mt-2">
-                    <a
-                      href={msg.attachment.data}
-                      download={msg.attachment.name}
-                      className="text-xs text-blue-500 underline"
-                      target="_blank" rel="noopener noreferrer"
-                    >
-                      {msg.attachment.name}
-                    </a>
+                    {(() => {
+                      try {
+                        const attachment = typeof msg.attachment === 'string' ? JSON.parse(msg.attachment) : msg.attachment;
+                        const isImage = attachment.type && attachment.type.startsWith('image/');
+                        
+                        if (isImage) {
+                          return (
+                            <div>
+                              <img 
+                                src={attachment.data} 
+                                alt={attachment.name}
+                                className="max-w-48 max-h-32 rounded cursor-pointer hover:opacity-80"
+                                onClick={() => setModalContent({type: 'image', data: attachment.data, name: attachment.name})}
+                              />
+                              <div className="text-xs text-blue-300 mt-1">
+                                🖼️ {attachment.name}
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div
+                              className="text-xs text-blue-300 bg-blue-900 p-2 rounded cursor-pointer hover:bg-blue-800 inline-block"
+                              onClick={() => setModalContent({type: 'file', data: attachment.data, name: attachment.name})}
+                            >
+                              📄 {attachment.name}
+                            </div>
+                          );
+                        }
+                      } catch (e) {
+                        return (
+                          <div className="text-xs text-blue-300 bg-blue-900 p-1 rounded">
+                            📎 File (error)
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
                 )}
                 <span className="block text-xs text-right mt-1 opacity-70">
                   {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  {msg.sender_id === currentUser.id && (
+                    <span className="ml-2">
+                      {msg.status === 'read' ? (
+                        <span className="text-white">✓✓</span>
+                      ) : (
+                        <span className="text-gray-300">✓</span>
+                      )}
+                    </span>
+                  )}
                   {msg.status === 'unread' && msg.receiver_id === currentUser.id && (
                     <span className="ml-2 text-red-500">● Unread</span>
                   )}
                 </span>
-                {/* Delete button for own messages */}
-                {msg.sender_id === currentUser.id && (
+                {/* Options menu for all messages */}
+                <div className="absolute top-1 right-1">
                   <button
-                    onClick={() => handleDelete(msg.id)}
-                    className="absolute top-1 right-1 text-xs text-red-400 hover:text-red-600"
-                    title="Delete message"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenu(activeMenu === msg.id ? null : msg.id);
+                    }}
+                    className={`text-xs p-1 ${
+                      msg.sender_id === currentUser.id 
+                        ? 'text-white hover:text-gray-600' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                    title="Message options"
                   >
-                    ✕
+                    ⋯
                   </button>
-                )}
+                  {activeMenu === msg.id && (
+                    <div className="absolute right-0 top-6 bg-white border rounded shadow-lg py-1 z-10">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setReplyTo(msg);
+                          setActiveMenu(null);
+                        }}
+                        className="block w-full text-left px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
+                      >
+                        Reply
+                      </button>
+                      {msg.sender_id === currentUser.id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(msg.id);
+                            setActiveMenu(null);
+                          }}
+                          className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))
         )}
         <div ref={chatEndRef} />
       </div>
+      {replyTo && (
+        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-yellow-700 font-medium">Replying to {replyTo.sender_id === currentUser.id ? currentUser.name : otherUser.name}</span>
+            <button onClick={() => setReplyTo(null)} className="text-yellow-600 hover:text-yellow-800 text-sm">✕</button>
+          </div>
+          <div className="text-sm text-gray-600 truncate">{replyTo.message_text || 'File attachment'}</div>
+        </div>
+      )}
+      {file && (
+        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center justify-between">
+          <span className="text-sm text-blue-700">📎 {file.name}</span>
+          <button
+            onClick={() => setFile(null)}
+            className="text-red-500 hover:text-red-700 text-sm"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <form onSubmit={handleSend} className="flex items-center gap-2">
         <input
           type="text"
           className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
-          placeholder="Type your message..."
+          placeholder={replyTo ? "Reply to message..." : file ? "Add a message (optional)..." : "Type your message..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -256,9 +425,51 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
           id="chat-file-upload"
           onChange={handleFileChange}
         />
-        <label htmlFor="chat-file-upload" className="bg-gray-200 text-gray-700 px-3 py-2 rounded cursor-pointer hover:bg-gray-300 transition">
-          📎
-        </label>
+        <input
+          type="file"
+          className="hidden"
+          id="chat-image-upload"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowAttachMenu(!showAttachMenu);
+            }}
+            className="bg-gray-200 text-gray-700 px-3 py-2 rounded cursor-pointer hover:bg-gray-300 transition"
+          >
+            📎
+          </button>
+          {showAttachMenu && (
+            <div className="absolute bottom-12 left-0 bg-white border rounded shadow-lg py-1 z-10 min-w-32">
+              <button
+                type="button"
+                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  document.getElementById('chat-file-upload').click();
+                  setShowAttachMenu(false);
+                }}
+              >
+                📄 File
+              </button>
+              <button
+                type="button"
+                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  document.getElementById('chat-image-upload').click();
+                  setShowAttachMenu(false);
+                }}
+              >
+                🖼️ Image
+              </button>
+            </div>
+          )}
+        </div>
         <button
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
@@ -266,6 +477,29 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
           Send
         </button>
       </form>
+      {modalContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalContent(null)}>
+          <div className="bg-white rounded-lg p-6 w-[90vw] h-[90vh] flex flex-col resize overflow-hidden" onClick={(e) => e.stopPropagation()} style={{minWidth: '600px', minHeight: '400px'}}>
+            <div className="flex justify-between items-center mb-4 flex-shrink-0">
+              <h3 className="text-xl font-semibold truncate">{modalContent.name}</h3>
+              <button onClick={() => setModalContent(null)} className="text-gray-500 hover:text-gray-700 text-2xl ml-4">✕</button>
+            </div>
+            <div className="flex-1 flex items-center justify-center" style={{minHeight: '300px'}}>
+              {modalContent.type === 'image' ? (
+                <img 
+                  src={modalContent.data} 
+                  alt={modalContent.name} 
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => console.error('Image load error:', e)}
+                  onLoad={() => console.log('Image loaded successfully')}
+                />
+              ) : (
+                <iframe src={modalContent.data} className="w-full h-full border-0" title={modalContent.name} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -97,6 +97,7 @@ class Database {
                 sender_id INTEGER NOT NULL,
                 receiver_id INTEGER NOT NULL,
                 message_text TEXT NOT NULL,
+                attachment TEXT, -- JSON string for file attachments
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 status TEXT DEFAULT 'unread' CHECK (status IN ('read', 'unread')),
                 FOREIGN KEY (sender_id) REFERENCES users (id),
@@ -160,7 +161,27 @@ class Database {
             await this.run(query);
         }
 
+        // Run migrations for existing databases
+        await this.runMigrations();
+
         console.log('Database tables created successfully');
+    }
+
+    // Run database migrations
+    async runMigrations() {
+        try {
+            // Check if attachment column exists in chat table
+            const tableInfo = await this.all("PRAGMA table_info(chat)");
+            const hasAttachmentColumn = tableInfo.some(column => column.name === 'attachment');
+            
+            if (!hasAttachmentColumn) {
+                console.log('Adding attachment column to chat table...');
+                await this.run('ALTER TABLE chat ADD COLUMN attachment TEXT');
+                console.log('Migration completed: Added attachment column to chat table');
+            }
+        } catch (error) {
+            console.error('Migration error:', error);
+        }
     }
 
     // Check if this is the first run (no users exist)

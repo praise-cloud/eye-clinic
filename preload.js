@@ -60,9 +60,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     exportReport: (reportId, format) => ipcRenderer.invoke('reports:export', { reportId, format }),
 
     // Chat APIs
-    getMessages: (userId) => ipcRenderer.invoke('chat:getMessages', userId),
+    getMessages: (data) => ipcRenderer.invoke('chat:getMessages', data),
     sendMessage: (senderId, receiverId, messageText, attachment = null) => ipcRenderer.invoke('chat:sendMessage', { senderId, receiverId, messageText, attachment }),
-    markMessageRead: (messageId) => ipcRenderer.invoke('chat:markRead', messageId),
+    markMessageRead: (data) => ipcRenderer.invoke('chat:markAsRead', data),
+    getUnreadCount: (userId) => ipcRenderer.invoke('chat:getUnreadCount', userId),
+    deleteMessage: (data) => ipcRenderer.invoke('chat:deleteMessage', data),
 
     // File APIs
     selectFile: (options) => ipcRenderer.invoke('file:select', options),
