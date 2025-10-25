@@ -234,7 +234,7 @@ class DatabaseService {
     }
 
     // Chat/Messaging Operations
-    async getMessages(userId, otherUserId = null) {
+    async getMessages(userId, otherUserId = null, search = '') {
         const db = await this.getDatabase();
         let query = `
             SELECT c.*,
@@ -246,26 +246,25 @@ class DatabaseService {
             WHERE (c.sender_id = ? OR c.receiver_id = ?)
         `;
         const params = [userId, userId];
-
         if (otherUserId) {
             query += ` AND (c.sender_id = ? OR c.receiver_id = ?)`;
             params.push(otherUserId, otherUserId);
         }
-
+        if (search) {
+            query += ` AND c.message_text LIKE ?`;
+            params.push(`%${search}%`);
+        }
         query += ` ORDER BY c.timestamp DESC LIMIT 100`;
-
         return await db.all(query, params);
     }
 
-    async sendMessage(senderId, receiverId, messageText) {
+    async sendMessage(senderId, receiverId, messageText, attachment = null) {
         const db = await this.getDatabase();
         const query = `
-            INSERT INTO chat (sender_id, receiver_id, message_text)
-            VALUES (?, ?, ?)
+            INSERT INTO chat (sender_id, receiver_id, message_text, attachment)
+            VALUES (?, ?, ?, ?)
         `;
-
-        const result = await db.run(query, [senderId, receiverId, messageText]);
-
+        const result = await db.run(query, [senderId, receiverId, messageText, attachment]);
         // Return the created message with user details
         return await db.get(`
             SELECT c.*,
@@ -285,7 +284,6 @@ class DatabaseService {
             SET status = 'read'
             WHERE id = ? AND receiver_id = ?
         `;
-
         const result = await db.run(query, [messageId, userId]);
         return { success: result.changes > 0 };
     }
@@ -297,8 +295,18 @@ class DatabaseService {
             FROM chat
             WHERE receiver_id = ? AND status = 'unread'
         `, [userId]);
-
         return result.count || 0;
+    }
+
+    async deleteMessage(messageId, userId) {
+        const db = await this.getDatabase();
+        // Only allow sender or receiver to delete
+        const message = await db.get('SELECT * FROM chat WHERE id = ?', [messageId]);
+        if (!message || (message.sender_id !== userId && message.receiver_id !== userId)) {
+            return { error: 'Not authorized to delete this message' };
+        }
+        const result = await db.run('DELETE FROM chat WHERE id = ?', [messageId]);
+        return { success: result.changes > 0 };
     }
 
     // Settings Operations

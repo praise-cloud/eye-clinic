@@ -20,6 +20,38 @@ class IPCHandlers {
     }
 
     registerAuthHandlers() {
+        // Get current user (placeholder, replace with real session logic)
+        ipcMain.handle('auth:getCurrentUser', async () => {
+            // TODO: Replace with real session or persistent user context
+            return {
+                success: true,
+                user: {
+                    id: 1,
+                    name: 'Dr. Smith',
+                    email: 'dr.smith@example.com',
+                    role: 'doctor'
+                }
+            };
+        });
+
+        // Logout user (clear session, log activity)
+        ipcMain.handle('auth:logout', async (event, { userId }) => {
+            try {
+                // TODO: Clear session or persistent user context here if implemented
+                // For now, just log the logout event if userId is provided
+                if (userId) {
+                    try {
+                        await DatabaseService.logActivity(userId, 'logout', 'user', userId, 'User logged out');
+                    } catch (logErr) {
+                        console.warn('Logout log skipped:', logErr);
+                    }
+                }
+                return { success: true, message: 'Logged out successfully' };
+            } catch (error) {
+                console.error('Logout error:', error);
+                return { error: error.message };
+            }
+        });
 
         // Always clear any existing handler first
         ipcMain.removeHandler('auth:isFirstRun');
@@ -817,13 +849,12 @@ class IPCHandlers {
 
     registerChatHandlers() {
         // Get messages
-        ipcMain.handle('chat:getMessages', async (event, { userId, otherUserId = null }) => {
+        ipcMain.handle('chat:getMessages', async (event, { userId, otherUserId = null, search = '' }) => {
             try {
                 if (!userId) {
                     return { error: 'User ID is required' };
                 }
-
-                const messages = await DatabaseService.getMessages(userId, otherUserId);
+                const messages = await DatabaseService.getMessages(userId, otherUserId, search);
                 return { success: true, messages };
             } catch (error) {
                 console.error('Get messages error:', error);
@@ -832,18 +863,16 @@ class IPCHandlers {
         });
 
         // Send message
-        ipcMain.handle('chat:sendMessage', async (event, { senderId, receiverId, messageText }) => {
+        ipcMain.handle('chat:sendMessage', async (event, { senderId, receiverId, messageText, attachment }) => {
             try {
                 const requiredFields = ['senderId', 'receiverId', 'messageText'];
                 const data = { senderId, receiverId, messageText };
-
                 for (const field of requiredFields) {
                     if (!data[field]) {
                         return { error: `${field} is required` };
                     }
                 }
-
-                const message = await DatabaseService.sendMessage(senderId, receiverId, messageText);
+                const message = await DatabaseService.sendMessage(senderId, receiverId, messageText, attachment);
                 return { success: true, message };
             } catch (error) {
                 console.error('Send message error:', error);
@@ -857,7 +886,6 @@ class IPCHandlers {
                 if (!messageId || !userId) {
                     return { error: 'Message ID and User ID are required' };
                 }
-
                 const result = await DatabaseService.markMessageAsRead(messageId, userId);
                 return result;
             } catch (error) {
@@ -872,11 +900,38 @@ class IPCHandlers {
                 if (!userId) {
                     return { error: 'User ID is required' };
                 }
-
                 const count = await DatabaseService.getUnreadMessageCount(userId);
                 return { success: true, count };
             } catch (error) {
                 console.error('Get unread count error:', error);
+                return { error: error.message };
+            }
+        });
+
+        // Search messages
+        ipcMain.handle('chat:searchMessages', async (event, { userId, search }) => {
+            try {
+                if (!userId || !search) {
+                    return { error: 'User ID and search term are required' };
+                }
+                const messages = await DatabaseService.getMessages(userId, null, search);
+                return { success: true, messages };
+            } catch (error) {
+                console.error('Search messages error:', error);
+                return { error: error.message };
+            }
+        });
+
+        // Delete message
+        ipcMain.handle('chat:deleteMessage', async (event, { messageId, userId }) => {
+            try {
+                if (!messageId || !userId) {
+                    return { error: 'Message ID and User ID are required' };
+                }
+                const result = await DatabaseService.deleteMessage(messageId, userId);
+                return result;
+            } catch (error) {
+                console.error('Delete message error:', error);
                 return { error: error.message };
             }
         });
@@ -1017,6 +1072,7 @@ class IPCHandlers {
             'auth:login',
             'auth:createUser',
             'auth:getAllUsers',
+            'auth:logout',
             'patients:getAll',
             'patients:getById',
             'patients:create',

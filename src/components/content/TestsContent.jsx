@@ -161,7 +161,7 @@ const TestsContent = () => {
               >
                 Next
               </button>
-            </div>
+            </div> 
           </div>
         </div>
       </div>
