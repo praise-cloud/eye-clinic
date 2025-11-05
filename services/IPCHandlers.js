@@ -73,14 +73,17 @@ class IPCHandlers {
 
 
         // Login user
-        ipcMain.handle('auth:login', async (event, data = {}) => {
-            const { email, password } = data;
+        ipcMain.handle('auth:login', async (event, email, password) => {
             try {
+                console.log('Login attempt:', { email, password: '***' });
+                
                 if (!email || !password) {
                     return { error: 'Email and password are required' };
                 }
 
                 const user = await DatabaseService.authenticateUser(email, password);
+                console.log('Authentication result:', user ? 'SUCCESS' : 'FAILED');
+                
                 if (user) {
                     return { success: true, user };
                 } else {
@@ -117,7 +120,7 @@ class IPCHandlers {
                 password: adminData.password,  // Hash in DatabaseService
                 role: dbRole,
                 phoneNumber: adminData.phoneNumber || null,
-                gender: adminData.gender || null,
+                gender: adminData.gender || 'other',  // Default to 'other' if not provided
                 };
 
                 // Step 1: Create user
@@ -153,6 +156,11 @@ class IPCHandlers {
                     if (!userData[field]) {
                         return { error: `${field} is required` };
                     }
+                }
+
+                // Ensure gender field has a default value
+                if (!userData.gender) {
+                    userData.gender = 'other';
                 }
 
                 const user = await DatabaseService.createUser(userData);
@@ -782,6 +790,11 @@ class IPCHandlers {
                     return { error: 'Email already exists' };
                 }
 
+                // Ensure gender field has a default value
+                if (!userData.gender) {
+                    userData.gender = 'other';
+                }
+
                 const user = await DatabaseService.createUser(userData);
 
                 // Log the activity
@@ -1046,44 +1059,26 @@ class IPCHandlers {
     }
 
     registerWindowHandlers() {
-  // Open main window (post-auth)
+        // Open main window (post-auth)
         ipcMain.handle('window:openMain', async () => {
             try {
-            const { BrowserWindow } = require('electron');
-            const mainWindow = new BrowserWindow({
-                width: 1200,
-                height: 800,
-                webPreferences: {
-                nodeIntegration: false,
-                contextIsolation: true,
-                preload: path.join(__dirname, 'preload.js'),  // Your preload path
-                },
-                show: false,  // Show after load
-            });
-
-            // Load main app URL (adjust to your build/dist)
-            await mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));  // Or loadURL for dev: http://localhost:5173
-
-            // Hide auth window (if separate)
-            const authWindow = BrowserWindow.getFocusedWindow();  // Or global.authWindow
-            if (authWindow && !authWindow.isDestroyed()) {
-                authWindow.hide();  // Or close() if single-window
-            }
-
-            mainWindow.once('ready-to-show', () => {
-                mainWindow.show();
-            });
-
-            // Store globally for later access
-            global.mainWindow = mainWindow;
-
-            return { success: true, message: 'Main window opened' };
+                console.log('Redirecting to main app...');
+                const { BrowserWindow } = require('electron');
+                
+                // Get current window and redirect to main app
+                const currentWindow = BrowserWindow.getFocusedWindow();
+                if (currentWindow) {
+                    await currentWindow.loadURL('http://localhost:3000/');
+                    console.log('Redirected to main app successfully');
+                }
+                
+                return { success: true };
             } catch (error) {
-            console.error('Open main window error:', error);
-            return { error: error.message };
+                console.error('Window error:', error);
+                return { error: error.message };
             }
         });
-        }
+    }
 
     // Clean up handlers when app closes
     removeAllHandlers() {

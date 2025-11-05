@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DeleteIcon, EditIcon, ViewIcon } from '../Icons';
+import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
 
 const TestResultsContent = ({ clientName, onTestCreate }) => {
   const [testResults, setTestResults] = useState([
@@ -46,7 +46,7 @@ const TestResultsContent = ({ clientName, onTestCreate }) => {
       // Create new
       const newTest = { ...formData, id: Date.now() };
       setTestResults(prev => [...prev, newTest]);
-      
+
       // Notify parent component about new test creation
       if (onTestCreate) {
         onTestCreate(newTest);

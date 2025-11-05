@@ -5,39 +5,24 @@ const useUser = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Initialize user from storage or electron API
+  // Initialize user from storage
   useEffect(() => {
-    const initializeUser = async () => {
-      setLoading(true);
-      try {
-        // Try to get user from electron API first
-        if (window.electronAPI?.getCurrentUser) {
-          try {
-            const currentUser = await window.electronAPI.getCurrentUser();
-            if (currentUser) {
-              setUser(currentUser);
-              setLoading(false);
-              return;
-            }
-          } catch (err) {
-            // If electronAPI fails, fallback to localStorage
-            console.warn('electronAPI.getCurrentUser failed, falling back to localStorage:', err);
-          }
-        }
-        // Fallback to localStorage
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      } catch (err) {
-        setError(err.message);
-        console.error('Error initializing user:', err);
-      } finally {
-        setLoading(false);
+    setLoading(true)
+    
+    try {
+      const storedUser = localStorage.getItem('currentUser')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      } else {
+        setUser(null)
       }
-    };
-    initializeUser();
-  }, []);
+    } catch (err) {
+      console.error('Error loading user:', err)
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   // Login user
   const login = useCallback(async (credentials) => {
@@ -45,25 +30,35 @@ const useUser = () => {
       setLoading(true)
       setError(null)
 
-      let userData
+      let result
       if (window.electronAPI?.login) {
-        userData = await window.electronAPI.login(credentials)
+        result = await window.electronAPI.login(credentials.email, credentials.password)
+        console.log('Login result:', result)
+        
+        if (result?.success && result?.user) {
+          const userData = result.user
+          setUser(userData)
+          localStorage.setItem('currentUser', JSON.stringify(userData))
+          return userData
+        } else {
+          throw new Error(result?.error || 'Login failed')
+        }
       } else {
         // Mock login for development
-        userData = {
+        const userData = {
           id: Date.now(),
-          name: credentials.name || 'Dr. John Doe',
+          name: credentials.name || credentials.firstName + ' ' + credentials.lastName || 'User',
           email: credentials.email,
-          role: credentials.role || 'doctor',
+          role: credentials.role || 'admin',
           avatar: null,
           createdAt: new Date().toISOString()
         }
+        setUser(userData)
+        localStorage.setItem('currentUser', JSON.stringify(userData))
+        return userData
       }
-
-      setUser(userData)
-      localStorage.setItem('currentUser', JSON.stringify(userData))
-      return userData
     } catch (err) {
+      console.error('Login error:', err)
       setError(err.message)
       throw err
     } finally {
@@ -72,22 +67,18 @@ const useUser = () => {
   }, [])
 
   // Logout user
-  const logout = useCallback(async () => {
-    try {
-      setLoading(true)
-
-      if (window.electronAPI?.logout) {
-        await window.electronAPI.logout()
-      }
-
-      setUser(null)
-      localStorage.removeItem('currentUser')
-    } catch (err) {
-      setError(err.message)
-      console.error('Logout error:', err)
-    } finally {
-      setLoading(false)
-    }
+  const logout = useCallback(() => {
+    console.log('Logout called')
+    
+    // Clear all storage
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    // Set user to null
+    setUser(null)
+    
+    // Redirect to login immediately
+    window.location.href = '/login'
   }, [])
 
   // Update user profile

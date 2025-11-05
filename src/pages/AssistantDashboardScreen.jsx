@@ -1,651 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
 
-// Component to hold all the necessary custom CSS styles
-const AppStyles = () => (
-    <style>
-        {`
-        /* Import Font Awesome - kept for icons */
-        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css");
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-
-        /* -----------------------------------------------------
-         * 1. Global Styles, Root Variables, and Typography
-         * ----------------------------------------------------- */
-
-        :root {
-            /* --- RESTORED ORIGINAL THEME COLORS --- */
-            --primary-color: #3742fa; /* Bright Blue - Main Action/Active */
-            --secondary-color: #6c757d;
-            --text-color: #2c3e50; /* Darker text */
-            --light-text-color: #7f8c8d;
-            --border-color: #dee2e6;
-            --bg-light: #f5f6fa; /* Light background */
-            --bg-white: #ffffff;
-            
-            /* Sidebar Colors (Original Purple/Indigo) */
-            --sidebar-bg: #764ba2; 
-            --sidebar-text: #bdc3c7;
-            --sidebar-active-bg: #3742fa; /* Original Bright Blue */
-            --accent-color: #ffd700; /* Gold accent for hover/active */
-            
-            /* Header Colors (Original Gradient) */
-            --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            
-            --card-bg: #ffffff;
-            
-            /* Enhanced Shadows */
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-
-            --sidebar-width: 250px;
-        }
-
-        /* Universal Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-color);
-            overflow: hidden;
-            height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* -----------------------------------------------------
-         * 2. APP LAYOUT
-         * ----------------------------------------------------- */
-        .app-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column; 
-        }
-
-        /* Wrapper for Sidebar and Content */
-        .main-content-wrapper {
-            display: flex;
-            flex: 1; 
-            overflow: hidden; 
-        }
-
-        /* -----------------------------------------------------
-         * 3. HEADER STYLING
-         * ----------------------------------------------------- */
-        .app-header {
-            background: var(--header-bg); /* Original Gradient */
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-        }
-
-        .logo i {
-            font-size: 2rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
-        }
-
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white; 
-            font-weight: 500;
-        }
-
-        .user-info .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-        }
-
-        /* -----------------------------------------------------
-         * 4. SIDEBAR NAVIGATION STYLING
-         * ----------------------------------------------------- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--sidebar-bg); /* Original Purple */
-            color: white;
-            height: 100%; 
-            overflow-y: auto;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-            transition: width 0.3s ease;
-        }
-
-        .nav-menu {
-            list-style: none;
-            padding: 1rem 0;
-        }
-
-        .nav-link{
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-left: 5px solid transparent;
-        }
-
-        .nav-link:hover {
-            /* Kept modern hover state */
-            background-color: rgba(255, 255, 255, 0.1); 
-            color: white;
-            border-left-color: var(--primary-color);
-        }
-
-        /* Specific logout hover style */
-        .nav-link:has(i.fa-sign-out-alt) {
-            margin-top: 2rem; /* Separator for logout */
-        }
-
-        .nav-link:has(i.fa-sign-out-alt):hover {
-            color: white !important;
-            background-color: var(--danger-color);
-            border-left-color: var(--danger-color);
-        }
-
-        .nav-item.active .nav-link {
-            background-color: var(--sidebar-active-bg); /* Original Bright Blue */
-            color: white;
-            border-left-color: var(--accent-color);
-            font-weight: 600;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .nav-link i {
-            font-size: 1.1rem;
-            width: 20px;
-        }
-
-        /* -----------------------------------------------------
-         * 5. MAIN CONTENT AREA
-         * ----------------------------------------------------- */
-        .content-area {
-            flex: 1; 
-            padding: 2rem;
-            overflow-y: auto;
-            background-color: var(--bg-light);
-        }
-
-        .section-header {
-            margin-bottom: 25px;
-        }
-
-        .section-header h2 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--text-color);
-        }
-
-        .section-header p {
-            font-size: 1.1em;
-            color: var(--light-text-color);
-            margin-top: 5px;
-        }
-
-        /* -----------------------------------------------------
-         * 6. DASHBOARD COMPONENTS
-         * ----------------------------------------------------- */
-
-        /* Layout for the 4 stat cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 15px var(--shadow-light);
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-card:hover {
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
-            transform: translateY(-4px);
-        }
-
-        .stat-icon-wrapper {
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .stat-icon-wrapper i {
-            font-size: 1.75rem;
-        }
-
-        .stat-content h3 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--light-text-color);
-            margin-bottom: 0.25rem;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-content .stat-number {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--text-color);
-            line-height: 1;
-        }
-
-        /* Stat Color Utilities */
-        .stat-primary { color: var(--primary-color); } /* Bright Blue */
-        .stat-bg-primary { background-color: rgba(55, 66, 250, 0.1); }
-
-        .stat-success { color: #28a745; } 
-        .stat-bg-success { background-color: rgba(40, 167, 69, 0.1); }
-
-        .stat-warning { color: var(--warning-color); } 
-        .stat-bg-warning { background-color: rgba(255, 193, 7, 0.1); }
-
-        .stat-danger { color: var(--danger-color); } 
-        .stat-bg-danger { background-color: rgba(220, 53, 69, 0.1); }
-
-
-        /* Dashboard Widgets Layout */
-        .dashboard-widgets-grid {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 1.5rem;
-        }
-
-        .widget {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-light);
-            border: 1px solid var(--border-color);
-        }
-
-        .widget-header {
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .widget-header h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .quick-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        /* Button base style */
-        .action-btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.2s ease;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            color: var(--bg-white);
-            border: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Specific Button Styles */
-        .btn-primary-action { /* Add Patient */
-            background-color: var(--primary-color); /* Original Bright Blue */
-        }
-        .btn-primary-action:hover {
-            background-color: #2e3af7; 
-        }
-
-        .btn-secondary-action { /* Schedule Appointment (Mapped to Indigo) */
-            background-color: #555c9d; 
-        }
-        .btn-secondary-action:hover {
-            background-color: #434a7c;
-        }
-
-        .btn-tertiary-action { /* New Examination */
-            background-color: #343a40; 
-        }
-
-        .btn-tertiary-action:hover {
-            background-color: #1d2124;
-        }
-
-        /* Empty State Styling */
-        .empty-state-content {
-            min-height: 10rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 1.1em;
-            color: var(--light-text-color);
-            font-style: italic;
-        }
-        .empty-state-content i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--border-color);
-        }
-
-        /* -----------------------------------------------------
-         * 7. RESPONSIVE DESIGN
-         * ----------------------------------------------------- */
-
-        @media (min-width: 640px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) { 
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            .dashboard-widgets-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .widget.recent-appointments { /* lg:col-span-2 */
-                grid-column: span 2 / span 2;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .app-header {
-                padding: 1rem;
-            }
-
-            .sidebar {
-                width: 80px;
-                padding: 15px 0;
-            }
-            .nav-link {
-                justify-content: center;
-                padding: 10px 0;
-                gap: 0;
-            }
-            .nav-link span { 
-                display: none; 
-            } 
-            .nav-link i {
-                margin: 0;
-            }
-            .nav-link:hover,
-            .nav-item.active .nav-link {
-                border-left: none;
-                border-right: 5px solid var(--accent-color); /* Move border to the right for condensed view */
-            }
-            
-            .content-area {
-                padding: 1rem;
-            }
-        }
-        `}
-    </style>
-);
-
-// Helper to map old Tailwind colors to new semantic classes
 const getStatClasses = (color) => {
-    // This logic correctly maps placeholder colors to the custom CSS utility classes
-    if (color.includes('blue')) return { icon: 'stat-primary', bg: 'stat-bg-primary' };
-    if (color.includes('green')) return { icon: 'stat-success', bg: 'stat-bg-success' };
-    if (color.includes('yellow')) return { icon: 'stat-warning', bg: 'stat-bg-warning' };
-    if (color.includes('red')) return { icon: 'stat-danger', bg: 'stat-bg-danger' };
+    if (color.includes('blue')) return { icon: 'text-blue-600', bg: 'bg-blue-100' };
+    if (color.includes('green')) return { icon: 'text-green-600', bg: 'bg-green-100' };
+    if (color.includes('yellow')) return { icon: 'text-yellow-600', bg: 'bg-yellow-100' };
+    if (color.includes('red')) return { icon: 'text-red-600', bg: 'bg-red-100' };
     return {};
 };
 
-// Main application component
 const App = () => {
-    // State to manage which section is currently active for navigation
-    const [activeSection, setActiveSection] = useState('dashboard');
-
-    // Defines the navigation structure and icons
-    const navItems = [
-        { id: 'dashboard', icon: 'fas fa-th-large', label: 'Dashboard' },
-        { id: 'patients', icon: 'fas fa-users', label: 'Patients' },
-        { id: 'messages', icon: 'fas fa-envelope', label: 'Messages' },
-        { id: 'tests', icon: 'fas fa-clipboard-check', label: 'Tests' },
-        { id: 'inventory', icon: 'fas fa-box-open', label: 'Inventory' },
-        { id: 'reports', icon: 'fas fa-chart-bar', label: 'Reports' },
-        { id: 'settings', icon: 'fas fa-cog', label: 'Settings' },
-        { id: 'logout', icon: 'fas fa-sign-out-alt', label: 'Logout' },
-    ];
-
-    // Placeholder data for dashboard stats
     const statsData = [
-        // Using old Tailwind color names for mapping to new semantic classes
         { label: 'Total Patients', number: '1,240', icon: 'fas fa-users', color: 'text-blue-500' },
         { label: "Today's Appointments", number: '15', icon: 'fas fa-calendar-check', color: 'text-green-500' },
         { label: 'Pending Appointments', number: '7', icon: 'fas fa-clock', color: 'text-yellow-500' },
-        // Using Naira symbol from original code
-        { label: 'Monthly Revenue', number: '₦850,000', icon: 'fa-solid fa-coins', color: 'text-red-500' }, 
+        { label: 'Monthly Revenue', number: '₦850,000', icon: 'fa-solid fa-coins', color: 'text-red-500' },
     ];
 
-    // Function to change the active section on click
-    const handleNavClick = (sectionId) => {
-        if (sectionId === 'logout') {
-            // Handle logout action
-            console.log('User logged out');
-        } else {
-            setActiveSection(sectionId);
-        }
-    };
+    // Patient data
+    const [patients] = useState([
+        { name: 'Dr. Ammar', date: '25/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'ammar@gmail.com' },
+        { name: 'Dr. Khan', date: '25/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'khan@gmail.com' },
+        { name: 'Dr. Abdullah', date: '24/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'abdullah@gmail.com' },
+        { name: 'Dr. Alia', date: '13/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'ali@gmail.com' },
+    ]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const totalPages = Math.ceil(patients.length / rowsPerPage);
+    const paginatedPatients = patients.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-    // Component to render the Dashboard content
     const DashboardSection = () => (
-        <section id="dashboard-section" className="content-section">
-            <div className="section-header">
-                <h2>DASHBOARD</h2>
-                <p>Overview of your eye clinic operations and quick access tools.</p>
+        <div className="w-full">
+            <div className="mb-6">
+                <p className="text-gray-300 text-sm italic">Overview of your eye clinic operations and quick access tools.</p>
             </div>
-            
-            <div className="stats-grid">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {statsData.map((stat, index) => {
                     const { icon: iconClass, bg: bgClass } = getStatClasses(stat.color);
                     return (
-                        <div key={index} className="stat-card">
-                            <div className={`stat-icon-wrapper ${bgClass} ${iconClass}`}>
-                                <i className={stat.icon}></i>
+                        <div key={index} className="bg-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:shadow-lg transition-shadow">
+                            <div className={`p-4 rounded-lg ${bgClass}`}>
+                                <i className={`${stat.icon} text-2xl ${iconClass}`}></i>
                             </div>
-                            <div className="stat-content">
-                                <h3>{stat.label}</h3>
-                                <span className="stat-number">{stat.number}</span>
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-600 mb-1">{stat.label}</h3>
+                                <span className="text-3xl font-bold text-gray-900">{stat.number}</span>
                             </div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="dashboard-widgets-grid">
-                <div className="widget recent-appointments">
-                    <div className="widget-header">
-                        <h3>Recent Appointments</h3>
-                        <a href="#appointments" className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">View All</a>
-                    </div>
-                    <div className="empty-state-content">
-                        <i className="fas fa-calendar-alt"></i>
-                        <p>No appointments scheduled for today.</p>
-                        <p className="mt-2 text-sm text-gray-500">Use the quick actions on the right to schedule a new one.</p>
-                    </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="mb-4 pb-4 border-b-2 border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900">Patient's of the day</h3>
                 </div>
-                
-                <div className="widget">
-                    <div className="widget-header">
-                        <h3>Quick Actions</h3>
+                <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                    <thead>
+                        <tr style={{backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6'}}>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Name</th>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Date</th>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Case</th>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Phone</th>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Email</th>
+                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {paginatedPatients.map((patient, idx) => (
+                            <tr key={idx} style={{borderBottom: '1px solid #dee2e6'}}>
+                                <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.name}</td>
+                                <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.date}</td>
+                                <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.case}</td>
+                                <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.phone}</td>
+                                <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.email}</td>
+                                <td style={{padding: '12px', fontSize: '0.875rem', display: 'flex', gap: '8px'}}>
+                                    <button style={{color: '#dc3545', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                        <DeleteIcon />
+                                    </button>
+                                    <button style={{color: '#28a745', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                        <EditIcon />
+                                    </button>
+                                    <button style={{color: '#007bff', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                        <ViewIcon />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <label style={{fontSize: '0.875rem', color: '#6c757d'}}>Rows per page:</label>
+                        <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} style={{padding: '4px 8px', border: '1px solid #dee2e6', borderRadius: '4px'}}>
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                        </select>
                     </div>
-                    <div className="quick-actions">
-                        <button className="action-btn btn-primary-action">
-                            <i className="fas fa-user-plus"></i>
-                            <span>Add New Patient</span>
-                        </button>
-                        <button className="action-btn btn-secondary-action">
-                            <i className="fas fa-calendar-plus"></i>
-                            <span>Schedule Appointment</span>
-                        </button>
-                        <button className="action-btn btn-tertiary-action">
-                            <i className="fas fa-file-medical"></i>
-                            <span>New Examination Record</span>
-                        </button>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === 1 ? '#e9ecef' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer'}}>Previous</button>
+                        <span style={{fontSize: '0.875rem', color: '#6c757d'}}>Page {currentPage} of {totalPages}</span>
+                        <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === totalPages ? '#e9ecef' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'}}>Next</button>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     );
 
-    // Component to render the Patients content
-    const PatientsSection = () => (
-        <section id="patients-section" className="content-section">
-            <div className="section-header">
-                <h2>PATIENTS</h2>
-                <p>Manage patient information and records for Korene Eye Clinic.</p>
-            </div>
-            <div className="widget">
-                <div className="empty-state-content">
-                    <i className="fas fa-box-open"></i>
-                    <p>Patient management functionality coming soon...</p>
-                </div>
-            </div>
-        </section>
-    );
 
-    // Main render function
-    const renderContent = () => {
-        switch(activeSection) {
-            case 'dashboard':
-                return <DashboardSection />;
-            case 'patients':
-                return <PatientsSection />;
-            default:
-                return (
-                    <div className="widget">
-                        <div className="empty-state-content">
-                            <i className="fas fa-tools"></i>
-                            <p>Content for the **{activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}** section is not yet implemented.</p>
-                        </div>
-                    </div>
-                );
-        }
-    };
 
-    return (
-        <>
-            <AppStyles /> 
-            
-            <div className="app-container">
-                {/* Header */}
-                <header className="app-header">
-                    <div className="header-content">
-                        <div className="logo">
-                            <i className="fas fa-eye"></i>
-                            <h1>KORENE EYE CLINIC</h1>
-                        </div>
-                        <div className="header-actions">
-                            <div className="user-info">
-                                <img 
-                                    src="https://placehold.co/36x36/764ba2/ffffff?text=A" 
-                                    alt="Admin Avatar" 
-                                    className="avatar" 
-                                    onError={(e) => {e.target.onerror = null; e.target.src='https://placehold.co/36x36/764ba2/ffffff?text=A'}} 
-                                /> 
-                                <span className="hidden-on-mobile">Admin</span>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Main Content Area */}
-                <div className="main-content-wrapper">
-                    {/* Sidebar Navigation */}
-                    <nav className="sidebar">
-                        <ul className="nav-menu">
-                            {navItems.map((item) => (
-                                <li key={item.id} className={`nav-item ${activeSection === item.id ? 'active' : ''}`}>
-                                    <a 
-                                        href={`#${item.id}`} 
-                                        className="nav-link"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleNavClick(item.id);
-                                        }}
-                                    >
-                                        <i className={item.icon}></i>
-                                        <span>{item.label}</span>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-
-                    {/* Content Area */}
-                    <div className="content-area">
-                        {renderContent()}
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+    return <DashboardSection />;
 };
 
 export default App;

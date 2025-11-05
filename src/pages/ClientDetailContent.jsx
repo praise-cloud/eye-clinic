@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeftIcon } from '../Icons';
+import { ArrowLeftIcon } from '../components/Icons';
 import TestResultsContent from './TestResultsContent';
 import TestsContent from './TestsContent';
 
@@ -235,8 +235,8 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       {/* Test Results Tab */}
       {activeTab === 'tests' && (
         <div className="bg-white rounded-lg shadow">
-          <TestResultsContent 
-            clientName={formData.name} 
+          <TestResultsContent
+            clientName={formData.name}
             onTestCreate={(newTest) => {
               const scheduledTest = {
                 id: Date.now(),
@@ -254,8 +254,8 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       {/* Scheduled Tests Tab */}
       {activeTab === 'scheduled' && (
         <div className="bg-white rounded-lg shadow">
-          <TestsContent 
-            clientName={formData.name} 
+          <TestsContent
+            clientName={formData.name}
             additionalTests={sharedTests}
           />
         </div>

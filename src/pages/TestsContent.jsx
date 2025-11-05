@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DeleteIcon, EditIcon, ViewIcon } from '../Icons'
+import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
 
 const TestsContent = ({ clientName, additionalTests = [] }) => {
   const [tests, setTests] = useState([])
@@ -26,7 +26,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
       { id: 4, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' },
       { id: 5, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' }
     ];
-    
+
     // Merge mock tests with additional tests from TestResultsContent
     setTests([...mockTests, ...additionalTests]);
   }, [additionalTests])
@@ -106,7 +106,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
           <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 rounded-md">
             <thead className="bg-gray-50 py-5">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Type</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -183,7 +183,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
               >
                 Next
               </button>
-            </div> 
+            </div>
           </div>
         </div>
       </div>
@@ -201,7 +201,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                 ✕
               </button>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Patient Name</label>
@@ -251,7 +251,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                 ✕
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Patient Name</label>
@@ -280,8 +280,8 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Test Results & Findings</label>
                 <div className="text-gray-900 bg-gray-50 p-4 rounded-lg min-h-[120px]">
-                  {showResults.status === 'Completed' 
-                    ? 'Test completed successfully. All parameters within normal range. No abnormalities detected.' 
+                  {showResults.status === 'Completed'
+                    ? 'Test completed successfully. All parameters within normal range. No abnormalities detected.'
                     : showResults.status === 'In Progress'
                     ? 'Test is currently being processed. Results will be available shortly.'
                     : 'Test is scheduled and pending completion.'}

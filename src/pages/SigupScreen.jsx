@@ -55,6 +55,7 @@ const SignupScreen = ({ selectedRole, onComplete, onBack }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (validateForm()) {
+      // Pass clinic data and admin data to complete setup
       onComplete({}, { role: normalizedRole, ...formData })
     }
   }

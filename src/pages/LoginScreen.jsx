@@ -39,14 +39,8 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
 
     if (validateForm()) {
       setIsLoading(true)
-      try {
-        await onLogin({
-          email: formData.email,
-          password: formData.password
-        })
-      } finally {
-        setIsLoading(false)
-      }
+      await onLogin(formData)
+      setIsLoading(false)
     }
   }
 
@@ -64,7 +58,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
 
         {/* Login Form */}
         <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8 animate-fade-in">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -102,7 +96,14 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
             </div>
 
             <button
-              type="submit"
+              type="button"
+              onClick={async () => {
+                if (validateForm()) {
+                  setIsLoading(true)
+                  await onLogin(formData)
+                  setIsLoading(false)
+                }
+              }}
               disabled={isLoading}
               className={`w-full btn btn-primary ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -118,7 +119,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
                 </>
               )}
             </button>
-          </form>
+          </div>
         </div>
 
         {/* Footer */}

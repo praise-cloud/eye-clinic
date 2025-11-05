@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import WelcomeScreen from '../screens/WelcomeScreen'
-import SetupScreen from '../screens/SetupScreen'
-import LoginScreen from '../screens/LoginScreen'
+import WelcomeScreen from '../pages/WelcomeScreen'
+import SetupScreen from '../pages/SetupScreen'
+import LoginScreen from '../pages/LoginScreen'
 import LoadingScreen from './LoadingScreen'
-import SignupScreen from '../screens/SigupScreen'  // Fixed typo: SigupScreen → SignupScreen
+import SignupScreen from '../pages/SigupScreen'  // Fixed typo: SigupScreen → SignupScreen
 
 const AuthApp = () => {
   const [currentScreen, setCurrentScreen] = useState('loading')
@@ -80,11 +80,14 @@ const AuthApp = () => {
 
       if (result?.success) {
         setLoadingMessage('Setup completed successfully!')
+        // Store user in localStorage for the main app
+        localStorage.setItem('currentUser', JSON.stringify(result.user))
+        // Open main window
         setTimeout(() => {
           window.electronAPI?.openMainWindow()
-        }, 1500)
+        }, 500)
       } else {
-        throw new Error(result?.message || 'Setup failed')
+        throw new Error(result?.error || 'Setup failed')
       }
     } catch (error) {
       console.error('Setup error:', error)
@@ -93,29 +96,28 @@ const AuthApp = () => {
     }
   }
 
-  const handleLogin = async (email, password) => {
-    if (!window.electronAPI) {
-      console.error('Electron API not available');
-      return;
-    }
-
+  const handleLogin = async (credentials) => {
     try {
-      handleScreenChange('loading', 'Signing you in...')
+      setLoading(true)
+      setLoadingMessage('Signing you in...')
+      setCurrentScreen('loading')
 
-      const result = await window.electronAPI?.login(email, password)
+      const result = await window.electronAPI.login(credentials.email, credentials.password)
 
       if (result?.success) {
-        setLoadingMessage('Login successful!')
-        setTimeout(() => {
-          window.electronAPI?.openMainWindow()
-        }, 1000)
+        setLoadingMessage('Login successful! Opening dashboard...')
+        // Set user in localStorage for the main app
+        localStorage.setItem('currentUser', JSON.stringify(result.user))
+        await window.electronAPI.openMainWindow()
       } else {
-        throw new Error(result?.message || 'Login failed')
+        setLoading(false)
+        setCurrentScreen('login')
+        alert(result?.error || 'Login failed')
       }
     } catch (error) {
-      console.error('Login error:', error)
-      alert(error.message || 'Login failed. Please check your credentials.')
+      setLoading(false)
       setCurrentScreen('login')
+      alert('Login failed: ' + error.message)
     }
   }
 

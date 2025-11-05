@@ -1,14 +1,34 @@
-import React from 'react'
-import { EyeIcon, ChartIcon, ChatIcon, UsersIcon, DocumentIcon, InventoryIcon} from '../Icons' //CogIcons,  LogOutIcon
+import React, { useState } from 'react'
+import { EyeIcon, ChartIcon, ChatIcon, UsersIcon, DocumentIcon, InventoryIcon, LogoutIcon} from '../Icons'
+import useUser from '../../hooks/useUser'
+import LogoutModal from '../modals/LogoutModal'
 
-const Sidebar = ({ activeSection, onSectionClick, currentUser, onLogout }) => {
-  const sidebarItems = [
+const Sidebar = ({ activeSection, onSectionClick, currentUser }) => {
+  const { user, logout, loading } = useUser();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowLogoutModal(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('Failed to logout. Please try again.');
+    }
+  };
+  
+  const allSidebarItems = [
     { id: 'dashboard', name: 'Dashboard', icon: <ChartIcon className="w-5 h-5" /> },
     { id: 'messages', name: 'Messages', icon: <ChatIcon className="w-5 h-5" /> },
     { id: 'tests', name: 'Test', icon: <DocumentIcon className="w-5 h-5" /> },
+    { id: 'inventory', name: 'Inventory', icon: <InventoryIcon className="w-5 h-5" />, roles: ['admin', 'assistant'] },
     { id: 'settings', name: 'Settings', icon: <DocumentIcon className="w-5 h-5" /> },
-    { id: 'logout', name: 'Logout', icon: <EyeIcon className="w-5 h-5" /> },
-  ]
+    { id: 'logout', name: 'Logout', icon: <LogoutIcon className="w-5 h-5" /> },
+  ];
+  
+  const sidebarItems = allSidebarItems.filter(item => 
+    !item.roles || item.roles.includes(user?.role)
+  )
 
   return (
     <div className="flex flex-col w-64 bg-white shadow-lg h-screen">
@@ -27,12 +47,12 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser, onLogout }) => {
             key={item.id}
             onClick={() => {
               if (item.id === 'logout') {
-                if (onLogout) onLogout();
+                setShowLogoutModal(true);
               } else {
                 onSectionClick(item.id);
               }
             }}
-            className={`$${
+            className={`${
               activeSection === item.id
                 ? 'bg-blue-100 border-r-2 border-blue-600 text-blue-700'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -43,6 +63,13 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser, onLogout }) => {
           </button>
         ))}
       </nav>
+      
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        loading={false}
+      />
     </div>
   )
 }

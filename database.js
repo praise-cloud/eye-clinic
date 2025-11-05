@@ -5,16 +5,26 @@ const bcrypt = require('bcryptjs');
 
 class Database {
     constructor(dbPath = null) {
-        // Use app data directory for database storage
-        const { app } = require('electron');
-        const userDataPath = app.getPath('userData');
+        if (dbPath) {
+            // Use provided path (for initialization script)
+            this.dbPath = dbPath;
+        } else {
+            try {
+                // Use app data directory for database storage (Electron context)
+                const { app } = require('electron');
+                const userDataPath = app.getPath('userData');
 
-        // Ensure directory exists
-        if (!fs.existsSync(userDataPath)) {
-            fs.mkdirSync(userDataPath, { recursive: true });
+                // Ensure directory exists
+                if (!fs.existsSync(userDataPath)) {
+                    fs.mkdirSync(userDataPath, { recursive: true });
+                }
+
+                this.dbPath = path.join(userDataPath, 'eye_clinic.db');
+            } catch (error) {
+                // Fallback for non-Electron context
+                this.dbPath = path.join(__dirname, 'eye_clinic.db');
+            }
         }
-
-        this.dbPath = dbPath || path.join(userDataPath, 'eye_clinic.db');
         this.db = null;
     }
 
@@ -197,21 +207,24 @@ class Database {
 
     // User Management
     async createUser(userData) {
-        const { name, email, password, role } = userData;
+        const { name, email, password, role, gender } = userData;
 
         // Hash password
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
+        // Default gender if not provided (required by schema)
+        const userGender = gender || 'other';
+
         const query = `
-            INSERT INTO users (name, email, password_hash, role, updated_at)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO users (name, email, password_hash, gender, role, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
         try {
-            const result = await this.run(query, [name, email, passwordHash, role]);
+            const result = await this.run(query, [name, email, passwordHash, userGender, role]);
             console.log('User created successfully:', email);
-            return { id: result.lastID, name, email, role };
+            return { id: result.lastID, name, email, role, gender: userGender };
         } catch (error) {
             console.error('Error creating user:', error);
             throw error;

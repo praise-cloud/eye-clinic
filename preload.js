@@ -4,7 +4,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
     // Authentication APIs
     isFirstRun: () => ipcRenderer.invoke('auth:isFirstRun'),
-    login: (email, password) => ipcRenderer.invoke('auth:login', { email, password }),
+    login: (email, password) => {
+        // Handle both single object parameter and separate parameters
+        if (typeof email === 'object' && email.email) {
+            return ipcRenderer.invoke('auth:login', email.email, email.password);
+        }
+        return ipcRenderer.invoke('auth:login', email, password);
+    },
     logout: () => ipcRenderer.invoke('auth:logout'),
     createUser: (userData) => ipcRenderer.invoke('auth:createUser', userData),
     completeSetup: (clinicData, adminData) => ipcRenderer.invoke('auth:completeSetup', { clinicData, adminData }),

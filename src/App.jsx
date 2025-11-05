@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import MainApp from './components/MainApp';
 import LoginScreen from './pages/LoginScreen';
 import SetupScreen from './pages/SetupScreen';
+import SignupScreen from './pages/SignupScreen';
 import LoadingScreen from './components/LoadingScreen';
 import useUser from './hooks/useUser';
 
 const App = () => {
   const { user, login, loading } = useUser();
-  const [showSetup, setShowSetup] = useState(false);
+  const navigate = useNavigate();
+
+  console.log('App render - user:', user, 'loading:', loading);
 
   if (loading) {
     return <LoadingScreen />;
@@ -19,12 +22,16 @@ const App = () => {
       <Route
         path="/login"
         element={
-          <LoginScreen onLogin={login} onAddUser={() => setShowSetup(true)} />
+          user ? <Navigate to="/" replace /> : <LoginScreen onLogin={login} onAddUser={() => navigate('/signup')} />
         }
       />
       <Route
+        path="/signup"
+        element={<SignupScreen onComplete={() => navigate('/login')} />}
+      />
+      <Route
         path="/setup"
-        element={<SetupScreen onComplete={() => setShowSetup(false)} />}
+        element={<SetupScreen onComplete={() => navigate('/login')} />}
       />
       <Route
         path="/*"

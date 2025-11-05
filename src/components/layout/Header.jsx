@@ -1,19 +1,29 @@
 import React, { useState, useRef } from 'react';
+import useUser from '../../hooks/useUser';
+import LogoutModal from '../modals/LogoutModal';
 
 const Header = ({ activeSection, currentUser, searchTerm, onSearchChange }) => {
+  const { logout, loading } = useUser();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const userRef = useRef();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowLogoutModal(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('Failed to logout. Please try again.');
+    }
+  };
 
   const userMenuItems = [
     { label: 'Profile' },
     { label: 'Settings' },
-    { label: 'Logout', onClick: async () => {
-      try {
-        await window.electronAPI?.logout();
-        window.location.reload();
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
+    { label: 'Logout', onClick: () => {
+      setShowUserDropdown(false);
+      setShowLogoutModal(true);
     } }
   ];
 
@@ -63,7 +73,10 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange }) => {
               alt="avatar"
               className="w-8 h-8 rounded-full border ml-2"
             />
-            <span className="font-medium text-gray-700">{currentUser?.role === 'admin' ? 'Admin' : currentUser?.name || 'Doctor'}</span>
+            <div className="flex flex-col text-right">
+              <span className="font-medium text-gray-700">{currentUser?.name || 'User'}</span>
+              <span className="text-xs text-gray-500 capitalize">{currentUser?.role || 'Unknown'}</span>
+            </div>
             <svg className="w-4 h-4 ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
           </button>
           {showUserDropdown && (
@@ -81,6 +94,13 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange }) => {
           )}
         </div>
       </div>
+      
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        loading={false}
+      />
     </header>
   );
 };

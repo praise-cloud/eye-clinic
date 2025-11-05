@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { CLIENT_DATA } from '../../utils/constants'
 import { DeleteIcon, EditIcon, ViewIcon } from '../Icons';
-import ClientDetailContent from './ClientDetailContent';
+import ClientDetailContent from '../../pages/ClientDetailContent';
 
 const DashboardContent = ({activeSection}) => {
   const [selectedDate, setSelectedDate] = React.useState('');
@@ -51,15 +51,15 @@ const DashboardContent = ({activeSection}) => {
   // Handle save from client detail - update the client data
   const handleClientSave = (updatedClient) => {
     // Update in local state
-    setClientList(prev => prev.map(client => 
-      client.name === selectedClient.name && client.email === selectedClient.email 
-        ? { ...client, ...updatedClient } 
+    setClientList(prev => prev.map(client =>
+      client.name === selectedClient.name && client.email === selectedClient.email
+        ? { ...client, ...updatedClient }
         : client
     ));
-    
+
     // Here you would typically save to backend/database
     // await api.updateClient(updatedClient);
-    
+
     console.log('Client updated across application:', updatedClient);
   };
 
@@ -176,22 +176,22 @@ const DashboardContent = ({activeSection}) => {
                     <td className="px-6 py-3 text-sm text-gray-800">{client.phone}</td>
                     <td className="px-6 py-3 text-sm text-gray-800">{client.email}</td>
                     <td className="px-6 py-3 text-sm flex gap-3">
-                      <button 
-                        className="text-red-500 hover:text-red-700" 
+                      <button
+                        className="text-red-500 hover:text-red-700"
                         title="Delete"
                         onClick={() => setDeleteConfirm({client, index: (currentPage - 1) * rowsPerPage + idx})}
                       >
                         <DeleteIcon />
                       </button>
-                      <button 
-                        className="text-green-500 hover:text-green-700" 
+                      <button
+                        className="text-green-500 hover:text-green-700"
                         title="Edit"
                         onClick={() => handleEdit(client)}
                       >
                         <EditIcon />
                       </button>
-                      <button 
-                        className="text-blue-500 hover:text-blue-700" 
+                      <button
+                        className="text-blue-500 hover:text-blue-700"
                         title="View"
                         onClick={() => handleView(client)}
                       >
@@ -248,7 +248,7 @@ const DashboardContent = ({activeSection}) => {
           </div>
         )}
       </div>
-      
+
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
@@ -287,7 +287,7 @@ const DashboardContent = ({activeSection}) => {
                 ✕
               </button>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
