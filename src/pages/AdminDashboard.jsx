@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
-import { EyeIcon, UsersIcon, ChartIcon, DocumentIcon, InventoryIcon, AdminIcon } from '../components/Icons';
+import { UsersIcon, ChartIcon, DocumentIcon, InventoryIcon, AdminIcon } from '../components/Icons';
+import Layout from '../components/layout/Layout';
 import useUser from '../hooks/useUser';
+import { useTheme } from '../context/ThemeContext';
 
 const AdminDashboard = () => {
   const { user, logout } = useUser();
+  const { isDark, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('overview');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [users, setUsers] = useState([
+    { id: 1, name: 'Dr. Sarah Johnson', role: 'doctor', email: 'sarah@clinic.com', status: 'active', created: '2024-01-15' },
+    { id: 2, name: 'Mike Assistant', role: 'assistant', email: 'mike@clinic.com', status: 'active', created: '2024-01-14' },
+    { id: 3, name: 'Lisa Admin', role: 'admin', email: 'lisa@clinic.com', status: 'inactive', created: '2024-01-13' }
+  ]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', role: 'doctor' });
 
-  // Mock data - replace with real API calls
+  const handleSectionClick = (section) => {
+    if (section === 'system-settings') {
+      setActiveTab('settings');
+    } else {
+      setActiveTab(section);
+    }
+  };
+
   const stats = {
-    totalUsers: 12,
+    totalUsers: users.length,
     totalPatients: 156,
     totalTests: 89,
     totalInventory: 45,
@@ -16,30 +36,88 @@ const AdminDashboard = () => {
     pendingTests: 12
   };
 
-  const recentUsers = [
-    { id: 1, name: 'Dr. Sarah Johnson', role: 'doctor', email: 'sarah@clinic.com', status: 'active', created: '2024-01-15' },
-    { id: 2, name: 'Mike Assistant', role: 'assistant', email: 'mike@clinic.com', status: 'active', created: '2024-01-14' },
-    { id: 3, name: 'Lisa Admin', role: 'admin', email: 'lisa@clinic.com', status: 'inactive', created: '2024-01-13' }
-  ];
+  const handleAddUser = () => {
+    const newUser = {
+      id: users.length + 1,
+      ...formData,
+      created: new Date().toISOString().split('T')[0],
+      status: 'active'
+    };
+    setUsers([...users, newUser]);
+    setShowUserModal(false);
+    setFormData({ name: '', email: '', role: 'doctor' });
+    
+    const newLog = {
+      id: systemLogs.length + 1,
+      action: 'User Created',
+      user: user?.name || 'Admin',
+      timestamp: new Date().toLocaleString(),
+      status: 'success'
+    };
+    setSystemLogs(prev => [newLog, ...prev].slice(0, 10));
+  };
 
-  const systemLogs = [
+  const handleEditUser = () => {
+    setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData } : u));
+    setEditingUser(null);
+    setShowUserModal(false);
+    setFormData({ name: '', email: '', role: 'doctor' });
+  };
+
+  const handleDeleteUser = (userId) => {
+    const deletedUser = users.find(u => u.id === userId);
+    setUsers(users.filter(u => u.id !== userId));
+    setShowDeleteModal(null);
+    
+    const newLog = {
+      id: systemLogs.length + 1,
+      action: 'User Deleted',
+      user: user?.name || 'Admin',
+      timestamp: new Date().toLocaleString(),
+      status: 'success'
+    };
+    setSystemLogs(prev => [newLog, ...prev].slice(0, 10));
+  };
+
+  const handleToggleStatus = (userId) => {
+    setUsers(users.map(u => 
+      u.id === userId ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u
+    ));
+  };
+
+  const [systemLogs, setSystemLogs] = useState([
     { id: 1, action: 'User Login', user: 'Dr. Sarah Johnson', timestamp: '2024-01-15 09:30', status: 'success' },
     { id: 2, action: 'Patient Added', user: 'Mike Assistant', timestamp: '2024-01-15 09:15', status: 'success' },
     { id: 3, action: 'Test Uploaded', user: 'Dr. Sarah Johnson', timestamp: '2024-01-15 08:45', status: 'success' },
     { id: 4, action: 'Login Failed', user: 'Unknown', timestamp: '2024-01-15 08:30', status: 'error' }
-  ];
+  ]);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/login';
-  };
+  // Track user logins
+  React.useEffect(() => {
+    const handleUserLogin = (event) => {
+      const { userName, timestamp, status } = event.detail;
+      const newLog = {
+        id: systemLogs.length + 1,
+        action: 'User Login',
+        user: userName,
+        timestamp: timestamp || new Date().toLocaleString(),
+        status: status || 'success'
+      };
+      setSystemLogs(prev => [newLog, ...prev].slice(0, 10));
+    };
+
+    window.addEventListener('userLogin', handleUserLogin);
+    return () => window.removeEventListener('userLogin', handleUserLogin);
+  }, [systemLogs.length]);
+
+
 
   const StatCard = ({ title, value, icon, color = 'blue' }) => (
-    <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-500">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
         </div>
         <div className={`p-3 rounded-full bg-${color}-100`}>
           {icon}
@@ -61,22 +139,22 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Recent System Activity</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent System Activity</h3>
         </div>
         <div className="p-6">
           <div className="space-y-4">
             {systemLogs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div key={log.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                 <div className="flex items-center space-x-3">
                   <div className={`w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{log.action}</p>
-                    <p className="text-xs text-gray-500">by {log.user}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{log.action}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">by {log.user}</p>
                   </div>
                 </div>
-                <span className="text-xs text-gray-500">{log.timestamp}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{log.timestamp}</span>
               </div>
             ))}
           </div>
@@ -85,39 +163,60 @@ const AdminDashboard = () => {
     </div>
   );
 
-  const renderUserManagement = () => (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
-        <button 
-          onClick={() => window.location.href = '/signup'}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Add New User
-        </button>
+  const renderUserManagement = () => {
+    const filteredUsers = users.filter(u =>
+      userSearchTerm === '' ||
+      u.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+      u.role.toLowerCase().includes(userSearchTerm.toLowerCase())
+    );
+    
+    return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Management</h3>
+          <button 
+            onClick={() => {
+              setEditingUser(null);
+              setFormData({ name: '', email: '', role: 'doctor' });
+              setShowUserModal(true);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Add New User
+          </button>
+        </div>
+        <input
+          type="text"
+          value={userSearchTerm}
+          onChange={(e) => setUserSearchTerm(e.target.value)}
+          placeholder="Search by name, email, or role..."
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {recentUsers.map((user) => (
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            {filteredUsers.length > 0 ? filteredUsers.map((user) => (
               <tr key={user.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{user.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 capitalize">
                     {user.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -125,60 +224,111 @@ const AdminDashboard = () => {
                     {user.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.created}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.created}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <div className="flex space-x-2">
-                    <button className="text-blue-600 hover:text-blue-900">Edit</button>
-                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                    <button 
+                      onClick={() => {
+                        setEditingUser(user);
+                        setFormData({ name: user.name, email: user.email, role: user.role });
+                        setShowUserModal(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleToggleStatus(user.id)}
+                      className="text-yellow-600 hover:text-yellow-900"
+                    >
+                      {user.status === 'active' ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button 
+                      onClick={() => setShowDeleteModal(user)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan="6" className="px-6 py-8 text-center text-gray-400 dark:text-gray-500">
+                  {userSearchTerm ? 'No matching users found' : 'No users available'}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  );
+    );
+  };
 
   const renderSystemSettings = () => (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">System Configuration</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appearance</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <p className="text-sm font-medium text-gray-900">Automatic Backups</p>
-              <p className="text-xs text-gray-500">Daily system backups at 2:00 AM</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Dark Mode</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Switch between light and dark theme</p>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                isDark ? 'bg-blue-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isDark ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Configuration</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Automatic Backups</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Daily system backups at 2:00 AM</p>
             </div>
             <button className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm">Enabled</button>
           </div>
-          <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-              <p className="text-xs text-gray-500">Send notifications for important events</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Send notifications for important events</p>
             </div>
             <button className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm">Enabled</button>
           </div>
-          <div className="flex items-center justify-between py-3 border-b border-gray-200">
+          <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-              <p className="text-xs text-gray-500">Require 2FA for all admin accounts</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Require 2FA for all admin accounts</p>
             </div>
             <button className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm">Disabled</button>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Database Management</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Database Management</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-            <p className="font-medium text-gray-900">Backup Database</p>
-            <p className="text-sm text-gray-500">Create a manual backup</p>
+          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left">
+            <p className="font-medium text-gray-900 dark:text-white">Backup Database</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Create a manual backup</p>
           </button>
-          <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-            <p className="font-medium text-gray-900">Export Data</p>
-            <p className="text-sm text-gray-500">Export system data</p>
+          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left">
+            <p className="font-medium text-gray-900 dark:text-white">Export Data</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Export system data</p>
           </button>
         </div>
       </div>
@@ -186,66 +336,95 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <EyeIcon className="w-8 h-8 text-blue-600" />
-              <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <AdminIcon className="w-6 h-6 text-gray-600" />
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-6">
-          <nav className="flex space-x-8">
-            {[
-              { id: 'overview', name: 'Overview' },
-              { id: 'users', name: 'User Management' },
-              { id: 'settings', name: 'System Settings' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="px-6 py-8">
+    <Layout
+      activeSection={activeTab}
+      onSectionClick={handleSectionClick}
+      searchTerm=""
+      onSearchChange={() => {}}
+      onActionClick={() => {}}
+    >
+      <div>
         {activeTab === 'overview' && renderOverview()}
         {activeTab === 'users' && renderUserManagement()}
         {activeTab === 'settings' && renderSystemSettings()}
-      </main>
-    </div>
+      </div>
+
+      {/* User Modal */}
+      {showUserModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">{editingUser ? 'Edit User' : 'Add New User'}</h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              >
+                <option value="doctor">Doctor</option>
+                <option value="assistant">Assistant</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  setEditingUser(null);
+                  setFormData({ name: '', email: '', role: 'doctor' });
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={editingUser ? handleEditUser : handleAddUser}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                {editingUser ? 'Update' : 'Add'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">Delete User</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to delete {showDeleteModal.name}?</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowDeleteModal(null)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteUser(showDeleteModal.id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Layout>
   );
 };
 

@@ -7,7 +7,7 @@ const Layout = ({ children, activeSection, onSectionClick, searchTerm, onSearchC
   const { user: currentUser } = useUser()
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar
         activeSection={activeSection}
         onSectionClick={onSectionClick}
@@ -20,11 +20,12 @@ const Layout = ({ children, activeSection, onSectionClick, searchTerm, onSearchC
           currentUser={currentUser}
           searchTerm={searchTerm}
           onSearchChange={onSearchChange}
+          onSectionClick={onSectionClick}
         />
         <main className="flex-1 overflow-auto p-6">
           {['dashboard', 'tests', 'settings', 'inventory'].includes(activeSection) && (
             <div className="flex flex-col gap-2 mb-2">
-              <span className="text-2xl font-medium text-gray-900">
+              <span className="text-2xl font-medium text-gray-900 dark:text-white">
                 {activeSection === 'dashboard' && 'Good day'}
                 {activeSection === 'tests' && 'Tests'}
                 {activeSection === 'settings' && 'Settings'}

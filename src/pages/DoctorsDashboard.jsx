@@ -6,6 +6,7 @@ import ClientDetailContent from './ClientDetailContent';
 const DoctorsDashboard = ({activeSection}) => {
   const [selectedDate, setSelectedDate] = React.useState('');
   const [customDate, setCustomDate] = React.useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   // Use client data from constants
   const clients = [
     { name: 'Dr. Ammar', date: '25/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'ammar@gmail.com' },
@@ -29,8 +30,22 @@ const DoctorsDashboard = ({activeSection}) => {
   const [clientList, setClientList] = useState(clients);
   const [selectedClient, setSelectedClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
-  const totalPages = Math.ceil(clientList.length / rowsPerPage);
-  const paginatedClients = clientList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  
+  // Filter clients based on search and date
+  const filteredClients = clientList.filter(client => {
+    const matchesSearch = searchTerm === '' || 
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.case.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDate = !selectedDate || selectedDate === '' ||
+      (selectedDate === 'custom' && customDate ? client.date === customDate : true);
+    
+    return matchesSearch && matchesDate;
+  });
+  
+  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
+  const paginatedClients = filteredClients.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   // Reset to first page if rowsPerPage changes
   useEffect(() => {
@@ -90,13 +105,19 @@ const DoctorsDashboard = ({activeSection}) => {
     <div className="flex flex-col mx-auto justify-center w-full">
         <div className="space-y-6">
           <div className="flex my-4">
-            <div className="flex flex-col gap-4 bg-white w-full rounded-md shadow px-5 py-4">
+            <div className="flex flex-col gap-4 bg-white dark:bg-gray-800 w-full rounded-md shadow px-5 py-4">
               <div>
-                  <span className="text-xl font-semibold text-gray-600">Patient's of the day</span>
+                  <span className="text-xl font-semibold text-gray-600 dark:text-gray-300">Patient's of the day</span>
               </div>
 
               <div className="flex items-center gap-5 w-2/3">
-                <input type="text" className="border border-gray-300 rounded-md p-3 w-full" placeholder="name of case or clients name..." />
+                <input 
+                  type="text" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-3 w-full" 
+                  placeholder="name of case or clients name..." 
+                />
 
                 <div className="flex items-center gap-3">
                   <div className="flex">
@@ -105,7 +126,7 @@ const DoctorsDashboard = ({activeSection}) => {
                   {/* Date filter dropdown */}
                   <div className="relative">
                     <select
-                      className="border border-gray-300 rounded-md p-2"
+                      className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-2"
                       onChange={e => setSelectedDate(e.target.value)}
                       value={selectedDate || ''}
                     >
@@ -120,7 +141,7 @@ const DoctorsDashboard = ({activeSection}) => {
                     {selectedDate === 'custom' && (
                       <input
                         type="date"
-                        className="absolute top-full left-0 mt-2 border border-gray-300 rounded-md p-2 bg-white z-10"
+                        className="absolute top-full left-0 mt-2 border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-700 dark:text-white z-10"
                         onChange={e => setCustomDate(e.target.value)}
                         value={customDate || ''}
                       />
@@ -153,28 +174,28 @@ const DoctorsDashboard = ({activeSection}) => {
         </div>
 
         {/* Client table or empty message */}
-        {clients.length > 0 ? (
+        {filteredClients.length > 0 ? (
           <div className="overflow-x-auto mt-4">
 
-            <table className="min-w-full bg-white border border-gray-200 rounded-md divide-y divide-gray-200 ">
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md divide-y divide-gray-200 dark:divide-gray-700">
               <thead>
-                <tr className="bg-gray-50 py-2">
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Case</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Phone Number</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600">Action</th>
+                <tr className="bg-gray-50 dark:bg-gray-700 py-2">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Case</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Phone Number</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedClients.map((client, idx) => (
-                  <tr key={idx} className="border-t">
-                    <td className="px-6 py-3 text-sm text-gray-800">{client.name}</td>
-                    <td className="px-6 py-3 text-sm text-gray-800">{client.date}</td>
-                    <td className="px-6 py-3 text-sm text-gray-800 truncate max-w-xs">{client.case}</td>
-                    <td className="px-6 py-3 text-sm text-gray-800">{client.phone}</td>
-                    <td className="px-6 py-3 text-sm text-gray-800">{client.email}</td>
+                  <tr key={idx} className="border-t dark:border-gray-700">
+                    <td className="px-6 py-3 text-sm text-gray-800 dark:text-gray-200">{client.name}</td>
+                    <td className="px-6 py-3 text-sm text-gray-800 dark:text-gray-200">{client.date}</td>
+                    <td className="px-6 py-3 text-sm text-gray-800 dark:text-gray-200 truncate max-w-xs">{client.case}</td>
+                    <td className="px-6 py-3 text-sm text-gray-800 dark:text-gray-200">{client.phone}</td>
+                    <td className="px-6 py-3 text-sm text-gray-800 dark:text-gray-200">{client.email}</td>
                     <td className="px-6 py-3 text-sm flex gap-3">
                       <button
                         className="text-red-500 hover:text-red-700"
@@ -206,10 +227,10 @@ const DoctorsDashboard = ({activeSection}) => {
             <div className="flex items-center justify-between mt-4">
                   {/* Rows per page selector */}
                 <div className="flex justify-end items-center mb-2 gap-2">
-                  <label htmlFor="rowsPerPage" className="text-sm text-gray-600">Rows per page:</label>
+                  <label htmlFor="rowsPerPage" className="text-sm text-gray-600 dark:text-gray-400">Rows per page:</label>
                   <select
                     id="rowsPerPage"
-                    className="border border-gray-300 rounded-md p-1 text-sm"
+                    className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md p-1 text-sm"
                     value={rowsPerPage}
                     onChange={e => setRowsPerPage(Number(e.target.value))}
                   >
@@ -229,7 +250,7 @@ const DoctorsDashboard = ({activeSection}) => {
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
@@ -244,7 +265,9 @@ const DoctorsDashboard = ({activeSection}) => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-12">
-            <span className="text-gray-400 text-lg font-semibold opacity-60">No Client Yet</span>
+            <span className="text-gray-400 dark:text-gray-500 text-lg font-semibold opacity-60">
+              {searchTerm || selectedDate ? 'No matching patients found' : 'No Client Yet'}
+            </span>
           </div>
         )}
       </div>
@@ -252,10 +275,10 @@ const DoctorsDashboard = ({activeSection}) => {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-4">Delete Patient Record</h3>
-            <p className="text-gray-600 mb-2">Are you sure you want to delete this patient record?</p>
-            <p className="text-sm text-gray-500 mb-6"><strong>{deleteConfirm.client.name}</strong> - {deleteConfirm.client.case}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">Delete Patient Record</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-2">Are you sure you want to delete this patient record?</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6"><strong>{deleteConfirm.client.name}</strong> - {deleteConfirm.client.case}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteConfirm(null)}
@@ -277,9 +300,9 @@ const DoctorsDashboard = ({activeSection}) => {
       {/* View Modal */}
       {viewingClient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setViewingClient(null)}>
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Patient Details</h3>
+              <h3 className="text-lg font-semibold dark:text-white">Patient Details</h3>
               <button
                 onClick={() => setViewingClient(null)}
                 className="text-gray-500 hover:text-gray-700 text-xl"
@@ -290,28 +313,28 @@ const DoctorsDashboard = ({activeSection}) => {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingClient.name}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingClient.name}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingClient.date}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingClient.date}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingClient.phone}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingClient.phone}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingClient.email}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingClient.email}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Case Description</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded min-h-[60px]">{viewingClient.case}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Case Description</label>
+                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded min-h-[60px]">{viewingClient.case}</p>
               </div>
             </div>
 

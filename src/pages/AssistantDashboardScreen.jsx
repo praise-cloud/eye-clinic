@@ -24,10 +24,19 @@ const App = () => {
         { name: 'Dr. Abdullah', date: '24/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'abdullah@gmail.com' },
         { name: 'Dr. Alia', date: '13/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'ali@gmail.com' },
     ]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const totalPages = Math.ceil(patients.length / rowsPerPage);
-    const paginatedPatients = patients.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+    
+    const filteredPatients = patients.filter(patient => 
+        searchTerm === '' ||
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.case.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
+    const paginatedPatients = filteredPatients.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
     const DashboardSection = () => (
         <div className="w-full">
@@ -39,37 +48,44 @@ const App = () => {
                 {statsData.map((stat, index) => {
                     const { icon: iconClass, bg: bgClass } = getStatClasses(stat.color);
                     return (
-                        <div key={index} className="bg-white p-6 rounded-lg shadow-md flex items-center gap-4 hover:shadow-lg transition-shadow">
+                        <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md flex items-center gap-4 hover:shadow-lg transition-shadow">
                             <div className={`p-4 rounded-lg ${bgClass}`}>
                                 <i className={`${stat.icon} text-2xl ${iconClass}`}></i>
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-600 mb-1">{stat.label}</h3>
-                                <span className="text-3xl font-bold text-gray-900">{stat.number}</span>
+                                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">{stat.label}</h3>
+                                <span className="text-3xl font-bold text-gray-900 dark:text-white">{stat.number}</span>
                             </div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="mb-4 pb-4 border-b-2 border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900">Patient's of the day</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div className="mb-4 pb-4 border-b-2 border-gray-200 dark:border-gray-700">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Patient's of the day</h3>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search by name, case, or email..."
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                 </div>
-                <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                <table style={{width: '100%', borderCollapse: 'collapse'}} className="dark:text-white">
                     <thead>
-                        <tr style={{backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6'}}>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Name</th>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Date</th>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Case</th>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Phone</th>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Email</th>
-                            <th style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Action</th>
+                        <tr className="bg-gray-50 dark:bg-gray-700" style={{borderBottom: '2px solid #dee2e6'}}>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Name</th>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Date</th>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Case</th>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Phone</th>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Email</th>
+                            <th className="dark:text-gray-300" style={{padding: '12px', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#6c757d'}}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {paginatedPatients.map((patient, idx) => (
-                            <tr key={idx} style={{borderBottom: '1px solid #dee2e6'}}>
+                        {paginatedPatients.length > 0 ? paginatedPatients.map((patient, idx) => (
+                            <tr key={idx} className="dark:border-gray-700" style={{borderBottom: '1px solid #dee2e6'}}>
                                 <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.name}</td>
                                 <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.date}</td>
                                 <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.case}</td>
@@ -87,22 +103,30 @@ const App = () => {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan="6" style={{padding: '24px', textAlign: 'center'}}>
+                                    <span className="text-gray-400 dark:text-gray-500">
+                                        {searchTerm ? 'No matching patients found' : 'No patients available'}
+                                    </span>
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                        <label style={{fontSize: '0.875rem', color: '#6c757d'}}>Rows per page:</label>
-                        <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} style={{padding: '4px 8px', border: '1px solid #dee2e6', borderRadius: '4px'}}>
+                        <label className="dark:text-gray-400" style={{fontSize: '0.875rem', color: '#6c757d'}}>Rows per page:</label>
+                        <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} className="dark:bg-gray-700 dark:text-white dark:border-gray-600" style={{padding: '4px 8px', border: '1px solid #dee2e6', borderRadius: '4px'}}>
                             <option value={5}>5</option>
                             <option value={10}>10</option>
                             <option value={20}>20</option>
                         </select>
                     </div>
                     <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === 1 ? '#e9ecef' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer'}}>Previous</button>
-                        <span style={{fontSize: '0.875rem', color: '#6c757d'}}>Page {currentPage} of {totalPages}</span>
-                        <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === totalPages ? '#e9ecef' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'}}>Next</button>
+                        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="dark:bg-gray-700 dark:text-white dark:border-gray-600" style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === 1 ? '#e9ecef' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer'}}>Previous</button>
+                        <span className="dark:text-gray-400" style={{fontSize: '0.875rem', color: '#6c757d'}}>Page {currentPage} of {totalPages}</span>
+                        <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="dark:bg-gray-700 dark:text-white dark:border-gray-600" style={{padding: '6px 12px', border: '1px solid #dee2e6', borderRadius: '4px', background: currentPage === totalPages ? '#e9ecef' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'}}>Next</button>
                     </div>
                 </div>
             </div>

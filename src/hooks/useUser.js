@@ -39,6 +39,16 @@ const useUser = () => {
           const userData = result.user
           setUser(userData)
           localStorage.setItem('currentUser', JSON.stringify(userData))
+          
+          // Dispatch login event for admin dashboard
+          window.dispatchEvent(new CustomEvent('userLogin', {
+            detail: {
+              userName: userData.name,
+              timestamp: new Date().toLocaleString(),
+              status: 'success'
+            }
+          }));
+          
           return userData
         } else {
           throw new Error(result?.error || 'Login failed')
@@ -55,6 +65,16 @@ const useUser = () => {
         }
         setUser(userData)
         localStorage.setItem('currentUser', JSON.stringify(userData))
+        
+        // Dispatch login event for admin dashboard
+        window.dispatchEvent(new CustomEvent('userLogin', {
+          detail: {
+            userName: userData.name,
+            timestamp: new Date().toLocaleString(),
+            status: 'success'
+          }
+        }));
+        
         return userData
       }
     } catch (err) {

@@ -45,6 +45,16 @@ const AppStyles = () => (
             --border-color: #dee2e6;
             --bg-light: #f8f9fa;
             --bg-white: #ffffff;
+        }
+
+        .dark {
+            --primary-color: #5b6efc;
+            --secondary-color: #9ca3af;
+            --text-color: #e5e7eb;
+            --light-text-color: #9ca3af;
+            --border-color: #374151;
+            --bg-light: #111827;
+            --bg-white: #1f2937;
             
             /* RESTORED ORIGINAL THEME COLORS */
             --sidebar-bg: #764ba2; /* Original Purple */
@@ -68,7 +78,7 @@ const AppStyles = () => (
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f5f6fa;
+            background-color: var(--bg-light);
             color: var(--text-color);
             overflow: hidden;
             height: 100vh;
@@ -249,6 +259,7 @@ const AppStyles = () => (
             border-radius: 8px; /* Slightly more rounded */
             font-size: 0.9em;
             color: var(--text-color);
+            background-color: var(--bg-white);
             transition: border-color 0.3s ease;
         }
 
@@ -358,7 +369,7 @@ const AppStyles = () => (
         }
 
         table thead tr {
-            background-color: #f8f9fa;
+            background-color: var(--bg-light);
             border-bottom: 2px solid var(--border-color);
         }
 
@@ -378,7 +389,7 @@ const AppStyles = () => (
         }
 
         table tbody tr:hover {
-            background-color: #f6f6f6;
+            background-color: var(--bg-light);
         }
 
         .action-buttons {

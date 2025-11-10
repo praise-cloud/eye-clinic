@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EyeIcon, ChartIcon, ChatIcon, UsersIcon, DocumentIcon, InventoryIcon, LogoutIcon} from '../Icons'
+import { Logo, ChartIcon, ChatIcon, UsersIcon, DocumentIcon, InventoryIcon, LogoutIcon} from '../Icons'
 import useUser from '../../hooks/useUser'
 import LogoutModal from '../modals/LogoutModal'
 
@@ -16,8 +16,15 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser }) => {
       alert('Failed to logout. Please try again.');
     }
   };
-  
-  const allSidebarItems = [
+
+  const adminSidebarItems = [
+    { id: 'overview', name: 'Overview', icon: <ChartIcon className="w-5 h-5" /> },
+    { id: 'users', name: 'User Management', icon: <UsersIcon className="w-5 h-5" /> },
+    { id: 'system-settings', name: 'System Settings', icon: <DocumentIcon className="w-5 h-5" /> },
+    { id: 'logout', name: 'Logout', icon: <LogoutIcon className="w-5 h-5" /> },
+  ];
+
+  const regularSidebarItems = [
     { id: 'dashboard', name: 'Dashboard', icon: <ChartIcon className="w-5 h-5" /> },
     { id: 'messages', name: 'Messages', icon: <ChatIcon className="w-5 h-5" /> },
     { id: 'tests', name: 'Test', icon: <DocumentIcon className="w-5 h-5" /> },
@@ -25,18 +32,20 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser }) => {
     { id: 'settings', name: 'Settings', icon: <DocumentIcon className="w-5 h-5" /> },
     { id: 'logout', name: 'Logout', icon: <LogoutIcon className="w-5 h-5" /> },
   ];
-  
-  const sidebarItems = allSidebarItems.filter(item => 
+
+  const allSidebarItems = user?.role === 'admin' ? adminSidebarItems : regularSidebarItems;
+
+  const sidebarItems = allSidebarItems.filter(item =>
     !item.roles || item.roles.includes(user?.role)
   )
 
   return (
-    <div className="flex flex-col w-64 bg-white shadow-lg h-screen">
+    <div className="flex flex-col w-64 bg-white dark:bg-gray-800 shadow-lg h-screen">
       {/* Logo */}
-      <div className="flex items-center justify-center h-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
+      <div className="flex items-center justify-center h-20 px-4 py-5 ">
         <div className="flex items-center">
-          <EyeIcon className="w-8 h-8 text-white mr-3" />
-          <span className="text-xl font-bold text-white">KORENYE CLINIC NIG. LTD.</span>
+          <Logo className="w-24" />
+          <span className="text-sm font-bold text-gray-900 dark:text-white">KORENE EYE CLINIC NIG. LTD.</span>
         </div>
       </div>
 
@@ -54,8 +63,8 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser }) => {
             }}
             className={`${
               activeSection === item.id
-                ? 'bg-blue-100 border-r-2 border-blue-600 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                ? 'bg-blue-100 dark:bg-blue-900 border-r-2 border-blue-600 text-blue-700 dark:text-blue-300'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
             } group flex items-center px-4 py-2 text-sm font-medium rounded-md w-full text-left transition-colors duration-200`}
           >
             {item.icon}
@@ -63,7 +72,7 @@ const Sidebar = ({ activeSection, onSectionClick, currentUser }) => {
           </button>
         ))}
       </nav>
-      
+
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

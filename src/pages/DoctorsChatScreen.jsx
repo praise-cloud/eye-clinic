@@ -82,6 +82,15 @@ const App = () => {
                     --border-color: #dee2e6;
                     --bg-light: #f5f6fa;
                     --bg-white: #ffffff;
+                }
+
+                .dark {
+                    --primary-color: #5b6efc;
+                    --secondary-color: #9ca3af;
+                    --text-color: #e5e7eb;
+                    --border-color: #374151;
+                    --bg-light: #111827;
+                    --bg-white: #1f2937;
                     
                     /* Sidebar Specific */
                     --sidebar-bg: #764ba2;
@@ -112,6 +121,11 @@ const App = () => {
                     color: var(--text-color);
                     overflow: hidden;
                     height: 100vh;
+                }
+
+                .dark body {
+                    background-color: var(--bg-light);
+                    color: var(--text-color);
                 }
 
                 .app-container {
@@ -259,6 +273,10 @@ const App = () => {
                     overflow: hidden;
                 }
 
+                .dark .chat-container {
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                }
+
                 .chat-header {
                     display: flex;
                     justify-content: space-between;
@@ -266,6 +284,10 @@ const App = () => {
                     padding: 15px 20px;
                     border-bottom: 1px solid var(--border-color);
                     background-color: #f7f9fc;
+                }
+
+                .dark .chat-header {
+                    background-color: #374151;
                 }
 
                 .assistant-profile {
@@ -283,6 +305,7 @@ const App = () => {
                     font-size: 1.1rem;
                     font-weight: 600;
                     margin: 0;
+                    color: var(--text-color);
                 }
 
                 .details .online {
@@ -375,6 +398,12 @@ const App = () => {
                     margin-right: 15px;
                     outline: none;
                     transition: border-color 0.2s;
+                    background-color: var(--bg-white);
+                    color: var(--text-color);
+                }
+
+                .dark .chat-input input[type="text"] {
+                    border-color: var(--border-color);
                 }
 
                 .chat-input input[type="text"]:focus {
