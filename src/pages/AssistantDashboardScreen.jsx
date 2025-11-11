@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
+import ClientDetailContent from './ClientDetailContent';
 
 const getStatClasses = (color) => {
     if (color.includes('blue')) return { icon: 'text-blue-600', bg: 'bg-blue-100' };
@@ -18,7 +19,7 @@ const App = () => {
     ];
 
     // Patient data
-    const [patients] = useState([
+    const [patients, setPatients] = useState([
         { name: 'Dr. Ammar', date: '25/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'ammar@gmail.com' },
         { name: 'Dr. Khan', date: '25/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'khan@gmail.com' },
         { name: 'Dr. Abdullah', date: '24/01/2024', case: 'Some pain in the eye ...', phone: '+0123456789', email: 'abdullah@gmail.com' },
@@ -27,6 +28,34 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [viewingPatient, setViewingPatient] = useState(null);
+    const [selectedClient, setSelectedClient] = useState(null);
+
+    const handleDelete = (patientIndex) => {
+        setPatients(prev => prev.filter((_, index) => index !== patientIndex));
+        setDeleteConfirm(null);
+    };
+
+    const handleView = (patient) => {
+        setViewingPatient(patient);
+    };
+
+    const handleEdit = (patient) => {
+        setSelectedClient(patient);
+    };
+
+    const handleClientSave = (updatedClient) => {
+        setPatients(prev => prev.map(patient =>
+            patient.name === selectedClient.name && patient.email === selectedClient.email
+                ? { ...patient, ...updatedClient }
+                : patient
+        ));
+    };
+
+    const handleBackToDashboard = () => {
+        setSelectedClient(null);
+    };
     
     const filteredPatients = patients.filter(patient => 
         searchTerm === '' ||
@@ -37,6 +66,10 @@ const App = () => {
     
     const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
     const paginatedPatients = filteredPatients.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+    if (selectedClient) {
+        return <ClientDetailContent client={selectedClient} onBack={handleBackToDashboard} onSave={handleClientSave} />;
+    }
 
     const DashboardSection = () => (
         <div className="w-full">
@@ -92,13 +125,13 @@ const App = () => {
                                 <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.phone}</td>
                                 <td style={{padding: '12px', fontSize: '0.875rem'}}>{patient.email}</td>
                                 <td style={{padding: '12px', fontSize: '0.875rem', display: 'flex', gap: '8px'}}>
-                                    <button style={{color: '#dc3545', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                    <button onClick={() => setDeleteConfirm({patient, index: (currentPage - 1) * rowsPerPage + idx})} style={{color: '#dc3545', background: 'none', border: 'none', cursor: 'pointer'}} title="Delete">
                                         <DeleteIcon />
                                     </button>
-                                    <button style={{color: '#28a745', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                    <button onClick={() => handleEdit(patient)} style={{color: '#28a745', background: 'none', border: 'none', cursor: 'pointer'}} title="Edit">
                                         <EditIcon />
                                     </button>
-                                    <button style={{color: '#007bff', background: 'none', border: 'none', cursor: 'pointer'}}>
+                                    <button onClick={() => handleView(patient)} style={{color: '#007bff', background: 'none', border: 'none', cursor: 'pointer'}} title="View">
                                         <ViewIcon />
                                     </button>
                                 </td>
@@ -130,6 +163,58 @@ const App = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold mb-4 dark:text-white">Delete Patient Record</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-2">Are you sure you want to delete this patient record?</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6"><strong>{deleteConfirm.patient.name}</strong> - {deleteConfirm.patient.case}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
+                            <button onClick={() => handleDelete(deleteConfirm.index)} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View Modal */}
+            {viewingPatient && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setViewingPatient(null)}>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold dark:text-white">Patient Details</h3>
+                            <button onClick={() => setViewingPatient(null)} className="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingPatient.name}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+                                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingPatient.date}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingPatient.phone}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">{viewingPatient.email}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Case Description</label>
+                                <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-2 rounded min-h-[60px]">{viewingPatient.case}</p>
+                            </div>
+                        </div>
+                        <div className="flex justify-end mt-6">
+                            <button onClick={() => setViewingPatient(null)} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 

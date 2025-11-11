@@ -17,6 +17,8 @@ const SignupScreen = ({ onComplete }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const roles = [
     { id: 'doctor', name: 'Doctor', description: 'Medical practitioner with full access' },
@@ -105,17 +107,17 @@ const SignupScreen = ({ onComplete }) => {
 
   if (step === 1) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-6">
+      <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
         <div className="w-full max-w-2xl">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6 shadow-xl">
               <EyeIcon className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New User</h1>
-            <p className="text-gray-600">Select the role for the new team member</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Add New User</h1>
+            <p className="text-gray-600 dark:text-gray-400">Select the role for the new team member</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
             <div className="grid gap-4">
               {roles.map((role) => (
                 <button
@@ -124,10 +126,10 @@ const SignupScreen = ({ onComplete }) => {
                     setSelectedRole(role.id);
                     setStep(2);
                   }}
-                  className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                  className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{role.name}</h3>
-                  <p className="text-gray-600">{role.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{role.name}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{role.description}</p>
                 </button>
               ))}
             </div>
@@ -135,7 +137,7 @@ const SignupScreen = ({ onComplete }) => {
             <div className="mt-6 text-center">
               <button
                 onClick={() => window.history.back()}
-                className="text-gray-600 hover:text-gray-800 flex items-center justify-center mx-auto"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center justify-center mx-auto"
               >
                 <ArrowLeftIcon className="w-4 h-4 mr-2" />
                 Back to Login
@@ -148,37 +150,37 @@ const SignupScreen = ({ onComplete }) => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6">
+    <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6 shadow-xl">
             <EyeIcon className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Adding new {roles.find(r => r.id === selectedRole)?.name}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
+          <p className="text-gray-600 dark:text-gray-400">Adding new {roles.find(r => r.id === selectedRole)?.name}</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
                 <input
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="First name"
                 />
                 {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
                 <input
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
                   placeholder="Last name"
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
@@ -186,35 +188,35 @@ const SignupScreen = ({ onComplete }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="email@example.com"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
               <input
                 type="tel"
                 value={formData.phoneNumber}
                 onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="+1234567890"
               />
               {errors.phoneNumber && <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gender</label>
               <select
                 value={formData.gender}
                 onChange={(e) => handleInputChange('gender', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}
               >
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -225,26 +227,44 @@ const SignupScreen = ({ onComplete }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Password"
-              />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Confirm password"
-              />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Confirm password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
             </div>
 
@@ -252,7 +272,7 @@ const SignupScreen = ({ onComplete }) => {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Back
               </button>

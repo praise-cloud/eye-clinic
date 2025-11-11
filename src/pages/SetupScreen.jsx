@@ -5,7 +5,7 @@ const SetupScreen = ({ onSelectRole }) => {
   const roles = ['Clinic Assistant', 'Doctor', 'Admin']
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen p-6 overflow-hidden">
+    <div className="relative flex items-center justify-center min-h-screen p-6 overflow-hidden bg-gray-50 dark:bg-gray-900">
 
       {/* Full background logo */}
       <div className="absolute inset-0">
@@ -32,8 +32,8 @@ const SetupScreen = ({ onSelectRole }) => {
           <div className="flex items-center justify-center">
             <img src={logo} alt="Logo" className="w-48 h-48" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Choose Your Role</h1>
-          <p className="text-gray-600">Let's set up your eye clinic management system</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Choose Your Role</h1>
+          <p className="text-gray-600 dark:text-gray-400">Let's set up your eye clinic management system</p>
         </div>
 
         {/* Role selection */}
@@ -51,7 +51,7 @@ const SetupScreen = ({ onSelectRole }) => {
 
         {/* Help Text */}
         <div className="text-center mt-6 pt-10">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Need help? Reach out to our customer care
           </p>
         </div>

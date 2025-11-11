@@ -138,6 +138,7 @@ class Database {
                 status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'maintenance', 'disposed')),
                 last_updated_by INTEGER,
                 notes TEXT,
+                image_path TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (last_updated_by) REFERENCES users (id)
@@ -181,13 +182,23 @@ class Database {
     async runMigrations() {
         try {
             // Check if attachment column exists in chat table
-            const tableInfo = await this.all("PRAGMA table_info(chat)");
-            const hasAttachmentColumn = tableInfo.some(column => column.name === 'attachment');
+            const chatTableInfo = await this.all("PRAGMA table_info(chat)");
+            const hasAttachmentColumn = chatTableInfo.some(column => column.name === 'attachment');
             
             if (!hasAttachmentColumn) {
                 console.log('Adding attachment column to chat table...');
                 await this.run('ALTER TABLE chat ADD COLUMN attachment TEXT');
                 console.log('Migration completed: Added attachment column to chat table');
+            }
+
+            // Check if image_path column exists in inventory table
+            const inventoryTableInfo = await this.all("PRAGMA table_info(inventory)");
+            const hasImagePathColumn = inventoryTableInfo.some(column => column.name === 'image_path');
+            
+            if (!hasImagePathColumn) {
+                console.log('Adding image_path column to inventory table...');
+                await this.run('ALTER TABLE inventory ADD COLUMN image_path TEXT');
+                console.log('Migration completed: Added image_path column to inventory table');
             }
         } catch (error) {
             console.error('Migration error:', error);

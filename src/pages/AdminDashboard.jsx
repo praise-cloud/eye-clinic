@@ -3,11 +3,15 @@ import { UsersIcon, ChartIcon, DocumentIcon, InventoryIcon, AdminIcon } from '..
 import Layout from '../components/layout/Layout';
 import useUser from '../hooks/useUser';
 import { useTheme } from '../context/ThemeContext';
+import { useSystemConfig } from '../context/SystemConfigContext';
 
 const AdminDashboard = () => {
   const { user, logout } = useUser();
   const { isDark, toggleTheme } = useTheme();
+  const { config, toggleConfig, updateMultipleConfig } = useSystemConfig();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [configForm, setConfigForm] = useState({});
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [users, setUsers] = useState([
     { id: 1, name: 'Dr. Sarah Johnson', role: 'doctor', email: 'sarah@clinic.com', status: 'active', created: '2024-01-15' },
@@ -300,37 +304,78 @@ const AdminDashboard = () => {
               <p className="text-sm font-medium text-gray-900 dark:text-white">Automatic Backups</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Daily system backups at 2:00 AM</p>
             </div>
-            <button className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm">Enabled</button>
+            <button
+              onClick={() => toggleConfig('autoBackups')}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                config.autoBackups ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  config.autoBackups ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
           <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Send notifications for important events</p>
             </div>
-            <button className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm">Enabled</button>
+            <button
+              onClick={() => toggleConfig('emailNotifications')}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                config.emailNotifications ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  config.emailNotifications ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
           <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Require 2FA for all admin accounts</p>
             </div>
-            <button className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm">Disabled</button>
+            <button
+              onClick={() => toggleConfig('twoFactorAuth')}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                config.twoFactorAuth ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  config.twoFactorAuth ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Database Management</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left">
-            <p className="font-medium text-gray-900 dark:text-white">Backup Database</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Create a manual backup</p>
-          </button>
-          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left">
-            <p className="font-medium text-gray-900 dark:text-white">Export Data</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Export system data</p>
-          </button>
-        </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Clinic Information</h3>
+        <button
+          onClick={() => {
+            setConfigForm({
+              clinicName: config.clinicName,
+              clinicEmail: config.clinicEmail,
+              clinicPhone: config.clinicPhone,
+              clinicAddress: config.clinicAddress,
+              appointmentDuration: config.appointmentDuration,
+              workingHoursStart: config.workingHoursStart,
+              workingHoursEnd: config.workingHoursEnd
+            });
+            setShowConfigModal(true);
+          }}
+          className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-left"
+        >
+          <p className="font-medium text-gray-900 dark:text-white">Configure Clinic Settings</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Update clinic information and working hours</p>
+        </button>
       </div>
     </div>
   );
@@ -419,6 +464,99 @@ const AdminDashboard = () => {
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Config Modal */}
+      {showConfigModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4 dark:text-white">Clinic Configuration</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Clinic Name</label>
+                <input
+                  type="text"
+                  value={configForm.clinicName}
+                  onChange={(e) => setConfigForm({ ...configForm, clinicName: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={configForm.clinicEmail}
+                  onChange={(e) => setConfigForm({ ...configForm, clinicEmail: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={configForm.clinicPhone}
+                  onChange={(e) => setConfigForm({ ...configForm, clinicPhone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
+                <textarea
+                  value={configForm.clinicAddress}
+                  onChange={(e) => setConfigForm({ ...configForm, clinicAddress: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                  rows="3"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Working Hours Start</label>
+                  <input
+                    type="time"
+                    value={configForm.workingHoursStart}
+                    onChange={(e) => setConfigForm({ ...configForm, workingHoursStart: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Working Hours End</label>
+                  <input
+                    type="time"
+                    value={configForm.workingHoursEnd}
+                    onChange={(e) => setConfigForm({ ...configForm, workingHoursEnd: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appointment Duration (minutes)</label>
+                <input
+                  type="number"
+                  value={configForm.appointmentDuration}
+                  onChange={(e) => setConfigForm({ ...configForm, appointmentDuration: parseInt(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => setShowConfigModal(false)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  updateMultipleConfig(configForm);
+                  setShowConfigModal(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Save Changes
               </button>
             </div>
           </div>

@@ -18,25 +18,26 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   const [customDate, setCustomDate] = React.useState('');
 
   useEffect(() => {
-    // Mock data - replace with actual API call
+    // Mock data - synced with TestResultsContent structure
     const mockTests = [
-      { id: 1, patient: 'John Doe', type: 'Visual Field', date: '2024-01-15', status: 'Completed' },
-      { id: 2, patient: 'Jane Smith', type: 'OCT Scan', date: '2024-01-14', status: 'In Progress' },
-      { id: 3, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' },
-      { id: 4, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' },
-      { id: 5, patient: 'Bob Johnson', type: 'Fundus Photography', date: '2024-01-13', status: 'Pending' }
+      { id: 1, patientName: 'Dr. Ammar', testType: 'Vision Test', result: 'Normal', date: '25/01/2024', notes: 'Good vision clarity' },
+      { id: 2, patientName: 'Dr. Khan', testType: 'Eye Pressure', result: 'High', date: '24/01/2024', notes: 'Requires monitoring' },
+      { id: 3, patientName: 'Dr. Abdullah', testType: 'Retinal Scan', result: 'Abnormal', date: '23/01/2024', notes: 'Follow-up needed' },
+      { id: 4, patientName: 'Dr. Alia', testType: 'Color Blindness', result: 'Normal', date: '22/01/2024', notes: 'No issues detected' },
+      { id: 5, patientName: 'Dr. Ammar', testType: 'Field Test', result: 'Normal', date: '21/01/2024', notes: 'All parameters normal' }
     ];
 
     // Merge mock tests with additional tests from TestResultsContent
     setTests([...mockTests, ...additionalTests]);
   }, [additionalTests])
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Completed': return 'text-green-600 bg-green-100'
-      case 'In Progress': return 'text-yellow-600 bg-yellow-100'
-      case 'Pending': return 'text-red-600 bg-red-100'
-      default: return 'text-gray-600 bg-gray-100'
+  const getResultColor = (result) => {
+    switch (result?.toLowerCase()) {
+      case 'normal': return 'text-green-600 bg-green-100';
+      case 'abnormal': return 'text-red-600 bg-red-100';
+      case 'high': return 'text-yellow-600 bg-yellow-100';
+      case 'low': return 'text-blue-600 bg-blue-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   }
 
@@ -106,26 +107,28 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
           <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 rounded-md">
             <thead className="bg-gray-50 py-5">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Result</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedTests
-                .filter(test => !clientName || test.patient === clientName)
+                .filter(test => !clientName || test.patientName === clientName)
                 .map((test) => (
                 <tr key={test.id}>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{test.patient}</td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{test.type}</td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-500">{test.date}</td>
-                  <td className="px-6 py-3 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(test.status)}`}>
-                      {test.status}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{test.patientName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{test.testType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getResultColor(test.result)}`}>
+                      {test.result}
                     </span>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{test.date}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">{test.notes}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex gap-2">
                       <button
@@ -138,9 +141,15 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                       <button
                         onClick={() => setShowResults(test)}
                         className="text-green-500 hover:text-green-700 p-1"
-                        title="View Results"
+                        title="Edit"
                       >
                         <EditIcon />
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-700 p-1"
+                        title="Delete"
+                      >
+                        <DeleteIcon />
                       </button>
                     </div>
                   </td>
@@ -205,12 +214,12 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Patient Name</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.patient}</p>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.patientName}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Test Type</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.type}</p>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded">{viewingTest.testType}</p>
               </div>
 
               <div>
@@ -219,10 +228,15 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
-                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(viewingTest.status)}`}>
-                  {viewingTest.status}
+                <label className="block text-sm font-medium text-gray-700">Result</label>
+                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getResultColor(viewingTest.result)}`}>
+                  {viewingTest.result}
                 </span>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Notes</label>
+                <p className="text-gray-900 bg-gray-50 p-2 rounded min-h-[60px]">{viewingTest.notes}</p>
               </div>
             </div>
 
@@ -243,7 +257,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowResults(null)}>
           <div className="bg-white rounded-lg p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Test Results - {showResults.type}</h3>
+              <h3 className="text-2xl font-semibold text-gray-800">Test Result Details</h3>
               <button
                 onClick={() => setShowResults(null)}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -255,12 +269,21 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Patient Name</label>
-                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.patient}</p>
+                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.patientName}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Test Type</label>
-                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.type}</p>
+                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.testType}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Test Result</label>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <span className={`inline-flex px-4 py-2 text-lg font-semibold rounded-full ${getResultColor(showResults.result)}`}>
+                    {showResults.result}
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -268,23 +291,10 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                 <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.date}</p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <span className={`inline-flex px-4 py-2 text-lg font-semibold rounded-full ${getStatusColor(showResults.status)}`}>
-                    {showResults.status}
-                  </span>
-                </div>
-              </div>
-
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Test Results & Findings</label>
-                <div className="text-gray-900 bg-gray-50 p-4 rounded-lg min-h-[120px]">
-                  {showResults.status === 'Completed'
-                    ? 'Test completed successfully. All parameters within normal range. No abnormalities detected.'
-                    : showResults.status === 'In Progress'
-                    ? 'Test is currently being processed. Results will be available shortly.'
-                    : 'Test is scheduled and pending completion.'}
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes & Observations</label>
+                <div className="text-gray-900 bg-gray-50 p-4 rounded-lg min-h-[120px] whitespace-pre-wrap">
+                  {showResults.notes || 'No notes or observations recorded for this test.'}
                 </div>
               </div>
             </div>

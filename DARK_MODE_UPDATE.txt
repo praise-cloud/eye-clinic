@@ -1,0 +1,14 @@
+Add dark: prefix to all className attributes in CreateInventoryItemScreen.jsx and ViewInventoryItemScreen.jsx
+
+For all elements with:
+- text-gray-900 -> add dark:text-white
+- text-gray-700 -> add dark:text-gray-300  
+- text-gray-600 -> add dark:text-gray-400
+- text-gray-500 -> add dark:text-gray-400
+- bg-white -> add dark:bg-gray-800
+- bg-gray-50 -> add dark:bg-gray-900
+- bg-blue-50 -> add dark:bg-gray-700
+- border-gray-300 -> add dark:border-gray-600
+- border-blue-300 -> add dark:border-blue-600
+- hover:text-gray-900 -> add dark:hover:text-white
+- hover:bg-gray-50 -> add dark:hover:bg-gray-700

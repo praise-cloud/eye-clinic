@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import Layout from './layout/Layout'
 import DashboardContent from './content/DashboardContent'
 import MessagesContent from './content/MessagesContent'
@@ -16,11 +17,14 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts'
 import DoctorsDashboard from '../pages/DoctorsDashboard'
 import AssistantDashboardScreen from '../pages/AssistantDashboardScreen'
 import AdminDashboard from '../pages/AdminDashboard'
+import CreateInventoryItemScreen from '../pages/CreateInventoryItemScreen'
+import ViewInventoryItemScreen from '../pages/ViewInventoryItemScreen'
 
 
 const MainApp = () => {
   const { user, logout } = useUser();
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [modals, setModals] = useState({
     addPatient: false,
@@ -28,6 +32,20 @@ const MainApp = () => {
     generateReport: false,
     newMessage: false
   });
+
+  // Determine active section from route
+  const getActiveSection = () => {
+    const path = location.pathname;
+    if (path.startsWith('/inventory')) return 'inventory';
+    if (path.startsWith('/patients')) return 'patients';
+    if (path.startsWith('/messages')) return 'messages';
+    if (path.startsWith('/tests')) return 'tests';
+    if (path.startsWith('/reports')) return 'reports';
+    if (path.startsWith('/settings')) return 'settings';
+    return 'dashboard';
+  };
+
+  const activeSection = getActiveSection();
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -44,8 +62,8 @@ const MainApp = () => {
   ]);
 
   const handleSectionClick = (section) => {
-    setActiveSection(section);
     setSearchTerm('');
+    navigate(`/${section === 'dashboard' ? '' : section}`);
   };
 
   const handleActionClick = () => {
@@ -79,71 +97,29 @@ const MainApp = () => {
   console.log('MainApp - User role:', user?.role);
 
   const renderContent = () => {
-    const contentMap = {
-      dashboard: user?.role === 'doctor' ? <DoctorsDashboard /> : <DashboardContent />,
-      messages: <MessagesContent />,
-      patients: <PatientsContent searchTerm={searchTerm} />,
-      tests: <TestsContent />,
-      reports: <ReportsContent />,
-      inventory: <InventoryContent />,
-      settings: <SettingsContent />
-    };
-    return contentMap[activeSection] || <div>Section not found</div>;
+    return (
+      <Routes>
+        <Route path="/" element={user?.role === 'doctor' ? <DoctorsDashboard /> : <DashboardContent />} />
+        <Route path="/messages" element={<MessagesContent />} />
+        <Route path="/patients" element={<PatientsContent searchTerm={searchTerm} />} />
+        <Route path="/tests" element={<TestsContent />} />
+        <Route path="/reports" element={<ReportsContent />} />
+        <Route path="/inventory" element={<InventoryContent />} />
+        <Route path="/inventory/create" element={<CreateInventoryItemScreen />} />
+        <Route path="/inventory/edit/:id" element={<CreateInventoryItemScreen />} />
+        <Route path="/inventory/view/:id" element={<ViewInventoryItemScreen />} />
+        <Route path="/settings" element={<SettingsContent />} />
+      </Routes>
+    );
   };
 
   // Conditional dashboard rendering based on user role
-  if (user?.role === 'doctor') {
-    console.log('Rendering DoctorsDashboard');
-    return (
-      <>
-        <Layout
-          activeSection={activeSection}
-          onSectionClick={handleSectionClick}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onActionClick={handleActionClick}
-        >
-          {renderContent()}
-        </Layout>
-
-        {modals.addPatient && <AddPatientModal onClose={() => closeModal('addPatient')} />}
-        {modals.uploadTest && <UploadTestModal onClose={() => closeModal('uploadTest')} />}
-        {modals.generateReport && <GenerateReportModal onClose={() => closeModal('generateReport')} />}
-        {modals.newMessage && <NewMessageModal onClose={() => closeModal('newMessage')} />}
-      </>
-    );
-  }
-
-  if (user?.role === 'assistant') {
-    console.log('Rendering AssistantDashboardScreen');
-    return (
-      <>
-        <Layout
-          activeSection={activeSection}
-          onSectionClick={handleSectionClick}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          onActionClick={handleActionClick}
-        >
-          {activeSection === 'dashboard' ? <AssistantDashboardScreen /> : renderContent()}
-        </Layout>
-
-        {modals.addPatient && <AddPatientModal onClose={() => closeModal('addPatient')} />}
-        {modals.uploadTest && <UploadTestModal onClose={() => closeModal('uploadTest')} />}
-        {modals.generateReport && <GenerateReportModal onClose={() => closeModal('generateReport')} />}
-        {modals.newMessage && <NewMessageModal onClose={() => closeModal('newMessage')} />}
-      </>
-    );
-  }
-
   if (user?.role === 'admin') {
     console.log('Rendering AdminDashboard');
     return <AdminDashboard />;
   }
 
-  console.log('Rendering default layout for role:', user?.role);
-
-  // Default layout for admin and other roles
+  // Default layout for all roles
   return (
     <>
       <Layout

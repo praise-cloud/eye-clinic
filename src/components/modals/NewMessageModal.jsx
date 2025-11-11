@@ -104,25 +104,26 @@ const NewMessageModal = ({ onClose, currentUser }) => {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content large">
-        <div className="modal-header">
-          <h2>New Message</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+    <div className="modal-overlay dark:bg-opacity-70">
+      <div className="modal-content large dark:bg-gray-800">
+        <div className="modal-header dark:border-gray-700">
+          <h2 className="dark:text-gray-100">New Message</h2>
+          <button className="close-btn dark:text-gray-400 dark:hover:text-gray-200" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message dark:bg-red-900 dark:text-red-200 dark:border-red-700">{error}</div>}
           
           <div className="form-row">
             <div className="form-group flex-2">
-              <label htmlFor="recipientId">To *</label>
+              <label htmlFor="recipientId" className="dark:text-gray-300">To *</label>
               <select
                 id="recipientId"
                 name="recipientId"
                 value={formData.recipientId}
                 onChange={handleInputChange}
                 required
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">Select recipient</option>
                 {users.map(user => (
@@ -134,12 +135,13 @@ const NewMessageModal = ({ onClose, currentUser }) => {
             </div>
             
             <div className="form-group flex-1">
-              <label htmlFor="priority">Priority</label>
+              <label htmlFor="priority" className="dark:text-gray-300">Priority</label>
               <select
                 id="priority"
                 name="priority"
                 value={formData.priority}
                 onChange={handleInputChange}
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 {priorityLevels.map(level => (
                   <option key={level.value} value={level.value}>
@@ -151,7 +153,7 @@ const NewMessageModal = ({ onClose, currentUser }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="subject">Subject *</label>
+            <label htmlFor="subject" className="dark:text-gray-300">Subject *</label>
             <input
               type="text"
               id="subject"
@@ -160,11 +162,12 @@ const NewMessageModal = ({ onClose, currentUser }) => {
               onChange={handleInputChange}
               placeholder="Enter message subject"
               required
+              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="message">Message *</label>
+            <label htmlFor="message" className="dark:text-gray-300">Message *</label>
             <textarea
               id="message"
               name="message"
@@ -173,11 +176,12 @@ const NewMessageModal = ({ onClose, currentUser }) => {
               rows="8"
               placeholder="Type your message here..."
               required
+              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="attachments">Attachments</label>
+            <label htmlFor="attachments" className="dark:text-gray-300">Attachments</label>
             <input
               type="file"
               id="attachments"
@@ -185,21 +189,22 @@ const NewMessageModal = ({ onClose, currentUser }) => {
               onChange={handleFileChange}
               multiple
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+              className="dark:text-gray-300"
             />
-            <small className="form-help">
+            <small className="form-help dark:text-gray-400">
               Max 10MB per file. Accepted formats: PDF, DOC, DOCX, JPG, PNG, TXT
             </small>
             
             {formData.attachments.length > 0 && (
-              <div className="attachments-list">
-                <h4>Selected Files:</h4>
+              <div className="attachments-list dark:bg-gray-700 dark:border-gray-600">
+                <h4 className="dark:text-gray-200">Selected Files:</h4>
                 {formData.attachments.map((file, index) => (
-                  <div key={index} className="attachment-item">
-                    <span className="attachment-name">{file.name}</span>
-                    <span className="attachment-size">({formatFileSize(file.size)})</span>
+                  <div key={index} className="attachment-item dark:bg-gray-600 dark:border-gray-500">
+                    <span className="attachment-name dark:text-gray-200">{file.name}</span>
+                    <span className="attachment-size dark:text-gray-400">({formatFileSize(file.size)})</span>
                     <button 
                       type="button" 
-                      className="remove-attachment"
+                      className="remove-attachment dark:text-red-400 dark:hover:text-red-300"
                       onClick={() => removeAttachment(index)}
                     >
                       ×

@@ -8,6 +8,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
   })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -45,22 +46,22 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-6">
+    <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6 shadow-xl">
             <EyeIcon className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your Eye Clinic account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+          <p className="text-gray-600 dark:text-gray-400">Sign in to your Eye Clinic account</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-8 animate-fade-in">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 animate-fade-in">
           <div className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               <input
@@ -68,7 +69,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`input ${errors.email ? 'input-error' : ''}`}
+                className={`input dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.email ? 'input-error' : ''}`}
                 placeholder="Enter your email"
                 disabled={isLoading}
               />
@@ -78,18 +79,27 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                className={`input ${errors.password ? 'input-error' : ''}`}
-                placeholder="Enter your password"
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className={`input pr-10 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.password ? 'input-error' : ''}`}
+                  placeholder="Enter your password"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
               )}
@@ -124,8 +134,8 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
 
         {/* Footer */}
         <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4">
-            <p className="text-sm text-gray-600 mb-3">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               Need to add a new team member?
             </p>
             <button
@@ -137,16 +147,16 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
             </button>
           </div>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Need help? Contact your system administrator
           </p>
         </div>
 
         {/* Demo Credentials (for development) */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <h4 className="text-sm font-medium text-yellow-800 mb-2">Demo Credentials</h4>
-            <div className="text-xs text-yellow-700 space-y-1">
+          <div className="mt-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-2">Demo Credentials</h4>
+            <div className="text-xs text-yellow-700 dark:text-yellow-400 space-y-1">
               <p>Doctor: doctor@clinic.com / password123</p>
               <p>Assistant: assistant@clinic.com / password123</p>
             </div>

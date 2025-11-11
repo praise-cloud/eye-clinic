@@ -207,19 +207,19 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
       <form onSubmit={handleSearch} className="flex items-center gap-2 mb-2">
         <input
           type="text"
-          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           placeholder="Search messages..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
           type="submit"
-          className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition"
+          className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
         >
           Search
         </button>
       </form>
-        <div className="flex items-center gap-6 p-6 bg-white rounded-lg shadow mb-5 w-full">
+        <div className="flex items-center gap-6 p-6 bg-white rounded-lg shadow mb-5 w-full dark:bg-gray-800">
           {/* Doctor avatar and status */}
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -229,14 +229,14 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400" title="Online"></span>
             </div>
             <div className="flex flex-col">
-              <span className="font-medium text-gray-900">{currentUser.name}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{currentUser.name}</span>
               <span className="text-xs text-green-500">Online</span>
               {unreadCount > 0 && (
                 <span className="text-xs text-red-500">Unread: {unreadCount}</span>
               )}
             </div>
           </div>
-          <span className="text-gray-300 text-2xl">|</span>
+          <span className="text-gray-300 text-2xl dark:text-gray-600">|</span>
           {/* Assistant avatar and status */}
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -246,12 +246,12 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400" title="Online"></span>
             </div>
             <div className="flex flex-col">
-              <span className="font-medium text-gray-900">{otherUser.name}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">{otherUser.name}</span>
               <span className="text-xs text-green-500">Online</span>
             </div>
           </div>
           <div className="flex-1 flex justify-center">
-            <h2 className="text-xl font-semibold text-gray-900">Doctor & Assistant Chat</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Doctor & Assistant Chat</h2>
           </div>
         </div>
       </div>
@@ -261,9 +261,9 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
           <div className="text-center text-green-600 font-semibold mb-2">{notification}</div>
         )}
         {loading ? (
-          <div className="text-center text-gray-400">Loading messages...</div>
+          <div className="text-center text-gray-400 dark:text-gray-500">Loading messages...</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-gray-400">No messages yet.</div>
+          <div className="text-center text-gray-400 dark:text-gray-500">No messages yet.</div>
         ) : (
           messages.map((msg) => (
             <div
@@ -273,8 +273,8 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               <div
                 className={`max-w-xs px-4 py-2 rounded-lg shadow text-sm relative ${
                   msg.sender_id === currentUser.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
+                    ? 'bg-blue-600 text-white dark:bg-blue-500'
+                    : 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100'
                 }`}
               >
                 <span className="block font-bold mb-1">
@@ -289,8 +289,8 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                       return (
                         <div className={`mb-2 p-2 rounded border-l-2 text-xs ${
                           msg.sender_id === currentUser.id 
-                            ? 'bg-blue-500 border-blue-300 text-blue-100' 
-                            : 'bg-gray-200 border-gray-400 text-gray-600'
+                            ? 'bg-blue-500 border-blue-300 text-blue-100 dark:bg-blue-600 dark:border-blue-400' 
+                            : 'bg-gray-200 border-gray-400 text-gray-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300'
                         }`}>
                           <div className="font-medium">
                             Replying to {referencedMsg.sender_id === currentUser.id ? currentUser.name : otherUser.name}
@@ -323,7 +323,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                                 className="max-w-48 max-h-32 rounded cursor-pointer hover:opacity-80"
                                 onClick={() => setModalContent({type: 'image', data: attachment.data, name: attachment.name})}
                               />
-                              <div className="text-xs text-blue-300 mt-1">
+                              <div className="text-xs text-blue-300 mt-1 dark:text-blue-200">
                                 🖼️ {attachment.name}
                               </div>
                             </div>
@@ -331,7 +331,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                         } else {
                           return (
                             <div
-                              className="text-xs text-blue-300 bg-blue-900 p-2 rounded cursor-pointer hover:bg-blue-800 inline-block"
+                              className="text-xs text-blue-300 bg-blue-900 p-2 rounded cursor-pointer hover:bg-blue-800 inline-block dark:bg-blue-800 dark:hover:bg-blue-700"
                               onClick={() => setModalContent({type: 'file', data: attachment.data, name: attachment.name})}
                             >
                               📄 {attachment.name}
@@ -340,7 +340,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                         }
                       } catch (e) {
                         return (
-                          <div className="text-xs text-blue-300 bg-blue-900 p-1 rounded">
+                          <div className="text-xs text-blue-300 bg-blue-900 p-1 rounded dark:bg-blue-800">
                             📎 File (error)
                           </div>
                         );
@@ -372,22 +372,22 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                     }}
                     className={`text-xs p-1 ${
                       msg.sender_id === currentUser.id 
-                        ? 'text-white hover:text-gray-600' 
-                        : 'text-gray-600 hover:text-gray-800'
+                        ? 'text-white hover:text-gray-300 dark:hover:text-gray-400' 
+                        : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}
                     title="Message options"
                   >
                     ⋯
                   </button>
                   {activeMenu === msg.id && (
-                    <div className="absolute right-0 top-6 bg-white border rounded shadow-lg py-1 z-10">
+                    <div className="absolute right-0 top-6 bg-white border rounded shadow-lg py-1 z-10 dark:bg-gray-800 dark:border-gray-600">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setReplyTo(msg);
                           setActiveMenu(null);
                         }}
-                        className="block w-full text-left px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
+                        className="block w-full text-left px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700"
                       >
                         Reply
                       </button>
@@ -398,7 +398,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
                             setDeleteConfirm(msg);
                             setActiveMenu(null);
                           }}
-                          className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                          className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-gray-700"
                         >
                           Delete
                         </button>
@@ -413,20 +413,20 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
         <div ref={chatEndRef} />
       </div>
       {replyTo && (
-        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded dark:bg-yellow-900 dark:border-yellow-700">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-yellow-700 font-medium">Replying to {replyTo.sender_id === currentUser.id ? currentUser.name : otherUser.name}</span>
-            <button onClick={() => setReplyTo(null)} className="text-yellow-600 hover:text-yellow-800 text-sm">✕</button>
+            <span className="text-xs text-yellow-700 font-medium dark:text-yellow-300">Replying to {replyTo.sender_id === currentUser.id ? currentUser.name : otherUser.name}</span>
+            <button onClick={() => setReplyTo(null)} className="text-yellow-600 hover:text-yellow-800 text-sm dark:text-yellow-400 dark:hover:text-yellow-200">✕</button>
           </div>
-          <div className="text-sm text-gray-600 truncate">{replyTo.message_text || 'File attachment'}</div>
+          <div className="text-sm text-gray-600 truncate dark:text-gray-300">{replyTo.message_text || 'File attachment'}</div>
         </div>
       )}
       {file && (
-        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center justify-between">
-          <span className="text-sm text-blue-700">📎 {file.name}</span>
+        <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center justify-between dark:bg-blue-900 dark:border-blue-700">
+          <span className="text-sm text-blue-700 dark:text-blue-300">📎 {file.name}</span>
           <button
             onClick={() => setFile(null)}
-            className="text-red-500 hover:text-red-700 text-sm"
+            className="text-red-500 hover:text-red-700 text-sm dark:text-red-400 dark:hover:text-red-300"
           >
             ✕
           </button>
@@ -435,7 +435,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
       <form onSubmit={handleSend} className="flex items-center gap-2">
         <input
           type="text"
-          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+          className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           placeholder={replyTo ? "Reply to message..." : file ? "Add a message (optional)..." : "Type your message..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -460,15 +460,15 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               e.stopPropagation();
               setShowAttachMenu(!showAttachMenu);
             }}
-            className="bg-gray-200 text-gray-700 px-3 py-2 rounded cursor-pointer hover:bg-gray-300 transition"
+            className="bg-gray-200 text-gray-700 px-3 py-2 rounded cursor-pointer hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
           >
             📎
           </button>
           {showAttachMenu && (
-            <div className="absolute bottom-12 left-0 bg-white border rounded shadow-lg py-1 z-10 min-w-32">
+            <div className="absolute bottom-12 left-0 bg-white border rounded shadow-lg py-1 z-10 min-w-32 dark:bg-gray-800 dark:border-gray-600">
               <button
                 type="button"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer dark:text-gray-300 dark:hover:bg-gray-700"
                 onClick={(e) => {
                   e.stopPropagation();
                   document.getElementById('chat-file-upload').click();
@@ -479,7 +479,7 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
               </button>
               <button
                 type="button"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer dark:text-gray-300 dark:hover:bg-gray-700"
                 onClick={(e) => {
                   e.stopPropagation();
                   document.getElementById('chat-image-upload').click();
@@ -500,10 +500,10 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
       </form>
       {modalContent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalContent(null)}>
-          <div className="bg-white rounded-lg p-6 w-[90vw] h-[90vh] flex flex-col resize overflow-hidden" onClick={(e) => e.stopPropagation()} style={{minWidth: '600px', minHeight: '400px'}}>
+          <div className="bg-white rounded-lg p-6 w-[90vw] h-[90vh] flex flex-col resize overflow-hidden dark:bg-gray-800" onClick={(e) => e.stopPropagation()} style={{minWidth: '600px', minHeight: '400px'}}>
             <div className="flex justify-between items-center mb-4 flex-shrink-0">
-              <h3 className="text-xl font-semibold truncate">{modalContent.name}</h3>
-              <button onClick={() => setModalContent(null)} className="text-gray-500 hover:text-gray-700 text-2xl ml-4">✕</button>
+              <h3 className="text-xl font-semibold truncate dark:text-gray-100">{modalContent.name}</h3>
+              <button onClick={() => setModalContent(null)} className="text-gray-500 hover:text-gray-700 text-2xl ml-4 dark:text-gray-400 dark:hover:text-gray-200">✕</button>
             </div>
             <div className="flex-1 flex items-center justify-center" style={{minHeight: '300px'}}>
               {modalContent.type === 'image' ? (
@@ -523,13 +523,13 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
       )}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-4">Delete Message</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this message? This action cannot be undone.</p>
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">Delete Message</h3>
+            <p className="text-gray-600 mb-6 dark:text-gray-300">Are you sure you want to delete this message? This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>

@@ -563,7 +563,7 @@ class DatabaseService {
             model_number, serial_number, current_quantity, minimum_quantity,
             maximum_quantity, unit_of_measure, unit_cost, supplier_name,
             supplier_contact, purchase_date, expiry_date, location,
-            status, last_updated_by, notes
+            status, last_updated_by, notes, image_path
         } = itemData;
 
         const query = `
@@ -572,9 +572,9 @@ class DatabaseService {
                 model_number, serial_number, current_quantity, minimum_quantity,
                 maximum_quantity, unit_of_measure, unit_cost, supplier_name,
                 supplier_contact, purchase_date, expiry_date, location,
-                status, last_updated_by, notes, updated_at
+                status, last_updated_by, notes, image_path, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
         const result = await db.run(query, [
@@ -582,7 +582,7 @@ class DatabaseService {
             model_number, serial_number, current_quantity || 0, minimum_quantity || 0,
             maximum_quantity || 100, unit_of_measure || 'pieces', unit_cost || 0,
             supplier_name, supplier_contact, purchase_date, expiry_date, location,
-            status || 'active', last_updated_by, notes
+            status || 'active', last_updated_by, notes, image_path
         ]);
 
         return await this.getInventoryItemById(result.lastID);
@@ -594,7 +594,7 @@ class DatabaseService {
             item_name, category, description, manufacturer, model_number,
             serial_number, current_quantity, minimum_quantity, maximum_quantity,
             unit_of_measure, unit_cost, supplier_name, supplier_contact,
-            purchase_date, expiry_date, location, status, last_updated_by, notes
+            purchase_date, expiry_date, location, status, last_updated_by, notes, image_path
         } = itemData;
 
         const query = `
@@ -604,7 +604,7 @@ class DatabaseService {
                 minimum_quantity = ?, maximum_quantity = ?, unit_of_measure = ?,
                 unit_cost = ?, supplier_name = ?, supplier_contact = ?,
                 purchase_date = ?, expiry_date = ?, location = ?, status = ?,
-                last_updated_by = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                last_updated_by = ?, notes = ?, image_path = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
 
@@ -612,7 +612,7 @@ class DatabaseService {
             item_name, category, description, manufacturer, model_number,
             serial_number, current_quantity, minimum_quantity, maximum_quantity,
             unit_of_measure, unit_cost, supplier_name, supplier_contact,
-            purchase_date, expiry_date, location, status, last_updated_by, notes, id
+            purchase_date, expiry_date, location, status, last_updated_by, notes, image_path, id
         ]);
 
         return await this.getInventoryItemById(id);
