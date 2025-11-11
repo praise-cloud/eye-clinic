@@ -1,6 +1,7 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
+import ChatInputActions from './ChatInputActions';
 
 // Use window.electronAPI for all IPC calls
 const electronAPI = window.electronAPI;
@@ -19,7 +20,6 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   const [unreadCount, setUnreadCount] = useState(0);
   const [notification, setNotification] = useState('');
   const [activeMenu, setActiveMenu] = useState(null);
-  const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
   const [clientReplies, setClientReplies] = useState({});
@@ -33,15 +33,17 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
     try {
       const res = await electronAPI.getMessages({ userId: currentUser.id, otherUserId: otherUser.id, search: searchTerm });
       if (res.success) {
-        // Notification for new incoming messages
-        if (messages.length > 0 && res.messages.length > messages.length) {
-          const newMsgs = res.messages.filter(m => m.receiver_id === currentUser.id && m.status !== 'read');
-          if (newMsgs.length > 0) {
-            setNotification('New message received!');
-            setTimeout(() => setNotification(''), 2000);
+        setMessages(prevMessages => {
+          // Notification for new incoming messages
+          if (prevMessages.length > 0 && res.messages.length > prevMessages.length) {
+            const newMsgs = res.messages.filter(m => m.receiver_id === currentUser.id && m.status !== 'read');
+            if (newMsgs.length > 0) {
+              setNotification('New message received!');
+              setTimeout(() => setNotification(''), 2000);
+            }
           }
-        }
-        setMessages(res.messages.reverse()); // Show oldest first
+          return res.messages; // Show in order from database
+        });
         // Mark unread messages as read
         const unread = res.messages.filter(m => m.receiver_id === currentUser.id && m.status !== 'read');
         for (const msg of unread) {
@@ -98,10 +100,8 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
 
   useEffect(() => {
     fetchMessages();
-    // Optionally poll for new messages every few seconds
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser.id, otherUser.id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -111,7 +111,6 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   useEffect(() => {
     const handleClickOutside = () => {
       setActiveMenu(null);
-      setShowAttachMenu(false);
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
@@ -127,10 +126,33 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
   }, []);
 
   // Handle file upload
-  const handleFileChange = (e) => {
+  const handleFileChange = (e, isImage = false) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      setFile(selectedFile);
+      if (isImage && selectedFile.type.startsWith('image/')) {
+        // Auto-send images immediately
+        if (!electronAPI) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const attachment = {
+            name: selectedFile.name,
+            type: selectedFile.type,
+            data: ev.target.result
+          };
+          try {
+            const attachmentData = JSON.stringify(attachment);
+            const res = await electronAPI.sendMessage(currentUser.id, otherUser.id, 'Image', attachmentData);
+            if (res.success) {
+              setMessages((msgs) => [...msgs, res.message]);
+            }
+          } catch (err) {
+            console.error('Send image error:', err);
+          }
+        };
+        reader.readAsDataURL(selectedFile);
+      } else {
+        setFile(selectedFile);
+      }
     }
     // Reset the input value so the same file can be selected again
     e.target.value = '';
@@ -444,59 +466,21 @@ const MessagesContent = ({ currentUser = defaultCurrentUser, otherUser = default
           type="file"
           className="hidden"
           id="chat-file-upload"
-          onChange={handleFileChange}
+          onChange={(e) => handleFileChange(e, false)}
         />
         <input
           type="file"
           className="hidden"
           id="chat-image-upload"
           accept="image/*"
-          onChange={handleFileChange}
+          onChange={(e) => handleFileChange(e, true)}
         />
-        <div className="relative">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowAttachMenu(!showAttachMenu);
-            }}
-            className="bg-gray-200 text-gray-700 px-3 py-2 rounded cursor-pointer hover:bg-gray-300 transition dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
-          >
-            📎
-          </button>
-          {showAttachMenu && (
-            <div className="absolute bottom-12 left-0 bg-white border rounded shadow-lg py-1 z-10 min-w-32 dark:bg-gray-800 dark:border-gray-600">
-              <button
-                type="button"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer dark:text-gray-300 dark:hover:bg-gray-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  document.getElementById('chat-file-upload').click();
-                  setShowAttachMenu(false);
-                }}
-              >
-                📄 File
-              </button>
-              <button
-                type="button"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer dark:text-gray-300 dark:hover:bg-gray-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  document.getElementById('chat-image-upload').click();
-                  setShowAttachMenu(false);
-                }}
-              >
-                🖼️ Image
-              </button>
-            </div>
-          )}
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Send
-        </button>
+        <ChatInputActions
+          onFileSelect={() => document.getElementById('chat-file-upload').click()}
+          onImageSelect={() => document.getElementById('chat-image-upload').click()}
+          onSend={handleSend}
+          disabled={!input.trim() && !file}
+        />
       </form>
       {modalContent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalContent(null)}>
