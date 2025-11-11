@@ -271,7 +271,7 @@ class DatabaseService {
             query += ` AND c.message_text LIKE ?`;
             params.push(`%${search}%`);
         }
-        query += ` ORDER BY c.timestamp DESC LIMIT 100`;
+        query += ` ORDER BY c.timestamp ASC LIMIT 100`;
         return await db.all(query, params);
     }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { EyeIcon, LoginIcon, UserPlusIcon } from '../components/Icons'
+import { EyeIcon, LoginIcon, UserPlusIcon, ViewIcon } from '../components/Icons'
 
 const LoginScreen = ({ onLogin, onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -97,7 +97,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  <ViewIcon className="w-5 h-5" />
                 </button>
               </div>
               {errors.password && (

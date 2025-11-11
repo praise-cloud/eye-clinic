@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EyeIcon, ArrowLeftIcon, UserPlusIcon } from '../components/Icons';
+import { EyeIcon, ArrowLeftIcon, UserPlusIcon, ViewIcon } from '../components/Icons';
 import useUser from '../hooks/useUser';
 
 const SignupScreen = ({ onComplete }) => {
@@ -241,7 +241,7 @@ const SignupScreen = ({ onComplete }) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  <ViewIcon className="w-5 h-5" />
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
@@ -262,7 +262,7 @@ const SignupScreen = ({ onComplete }) => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  <ViewIcon className="w-5 h-5" />
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}

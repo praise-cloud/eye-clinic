@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
 
 const TestsContent = ({ clientName, additionalTests = [] }) => {
+  const navigate = useNavigate()
   const [tests, setTests] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [viewingTest, setViewingTest] = useState(null);
-  const [showResults, setShowResults] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const totalPages = Math.ceil(tests.length / rowsPerPage);
   const paginatedTests = tests.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
@@ -139,13 +141,14 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                         <ViewIcon />
                       </button>
                       <button
-                        onClick={() => setShowResults(test)}
+                        onClick={() => navigate(`/tests/edit/${test.id}`)}
                         className="text-green-500 hover:text-green-700 p-1"
                         title="Edit"
                       >
                         <EditIcon />
                       </button>
                       <button
+                        onClick={() => setDeleteConfirm(test)}
                         className="text-red-500 hover:text-red-700 p-1"
                         title="Delete"
                       >
@@ -252,59 +255,39 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
         </div>
       )}
 
-      {/* Test Results Modal */}
-      {showResults && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowResults(null)}>
-          <div className="bg-white rounded-lg p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Test Result Details</h3>
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Delete Test</h3>
               <button
-                onClick={() => setShowResults(null)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                onClick={() => setDeleteConfirm(null)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
               >
                 ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Patient Name</label>
-                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.patientName}</p>
-              </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this test for <strong>{deleteConfirm.patientName}</strong>? This action cannot be undone.
+            </p>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Test Type</label>
-                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.testType}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Test Result</label>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <span className={`inline-flex px-4 py-2 text-lg font-semibold rounded-full ${getResultColor(showResults.result)}`}>
-                    {showResults.result}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Test Date</label>
-                <p className="text-lg text-gray-900 bg-gray-50 p-3 rounded-lg">{showResults.date}</p>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes & Observations</label>
-                <div className="text-gray-900 bg-gray-50 p-4 rounded-lg min-h-[120px] whitespace-pre-wrap">
-                  {showResults.notes || 'No notes or observations recorded for this test.'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-8">
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowResults(null)}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                Close
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setTests(tests.filter(t => t.id !== deleteConfirm.id));
+                  setDeleteConfirm(null);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
               </button>
             </div>
           </div>
