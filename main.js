@@ -2,6 +2,8 @@ const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
 const path = require('path');
 const Database = require('./database');
 const IPCHandlers = require('./services/IPCHandlers');
+const SyncService = require('./src/services/SyncService');
+const db = require('./database');
 
 
 // ✅ Add this right after imports
@@ -81,7 +83,6 @@ function createSignupWindow() {
     },
     show: false,
     resizable: false,
-    titleBarStyle: 'hidden',
     frame: true
   });
 
@@ -118,7 +119,6 @@ function createLoginWindow() {
     },
     show: false,
     resizable: false,
-    titleBarStyle: 'hidden',
     frame: true
   });
 
@@ -186,6 +186,13 @@ function createMainWindow() {
 // Initialize app when ready
 app.whenReady().then(async () => {
   await initializeDatabase();
+  
+  // Initialize sync service
+  await SyncService.initialize();
+  SyncService.startAutoSync(5);
+  
+  // Setup real-time chat listener
+  setupChatListener();
 
   // Initialize comprehensive IPC handlers
   new IPCHandlers();
@@ -208,6 +215,7 @@ app.on('window-all-closed', () => {
     if (database) {
       database.close();
     }
+    SyncService.close();
     app.quit();
   }
 });
@@ -222,6 +230,7 @@ app.on('before-quit', () => {
   if (database) {
     database.close();
   }
+  SyncService.close();
 });
 
 // Setup Window Management and Auth handlers (for current user state)
@@ -402,6 +411,23 @@ function createAppMenu() {
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+}
+
+// Setup chat listener for real-time updates
+function setupChatListener() {
+  const db = new Database();
+  
+  // Listen for new chat messages from database
+  setInterval(async () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      try {
+        // This will be triggered by Supabase real-time subscription
+        // The actual listening happens in SyncService
+      } catch (error) {
+        console.error('Chat listener error:', error);
+      }
+    }
+  }, 1000);
 }
 
 // Set menu after app is ready

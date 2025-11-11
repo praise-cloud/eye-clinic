@@ -153,7 +153,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
         </div>
 
         {/* Demo Credentials (for development) */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* {process.env.NODE_ENV === 'development' && (
           <div className="mt-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-300 mb-2">Demo Credentials</h4>
             <div className="text-xs text-yellow-700 dark:text-yellow-400 space-y-1">
@@ -161,7 +161,7 @@ const LoginScreen = ({ onLogin, onAddUser }) => {
               <p>Assistant: assistant@clinic.com / password123</p>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )

@@ -1,304 +1,130 @@
-import React, { useState } from 'react';
-import { EyeIcon, ArrowLeftIcon, UserPlusIcon, ViewIcon } from '../components/Icons';
-import useUser from '../hooks/useUser';
+import React, { useState, useEffect } from 'react'
+import AssistantForm from './forms/AssistantForm'
+import DoctorForm from './forms/DoctorForm'
+import AdminForm from './forms/AdminForm'
 
-const SignupScreen = ({ onComplete }) => {
-  const { login } = useUser();
-  const [step, setStep] = useState(1); // 1: Role selection, 2: Form
-  const [selectedRole, setSelectedRole] = useState('');
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phoneNumber: '',
-    gender: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const SignupScreen = ({ selectedRole, onComplete, onBack, onBackToWelcome }) => {
+  const [formData, setFormData] = useState({})
 
-  const roles = [
-    { id: 'doctor', name: 'Doctor', description: 'Medical practitioner with full access' },
-    { id: 'assistant', name: 'Clinic Assistant', description: 'Administrative and patient care support' },
-    { id: 'admin', name: 'Admin', description: 'System administrator with management access' }
-  ];
+  // Normalize role to proper title case (handles multi-word like 'clinic assistant' → 'Clinic Assistant')
+  const normalizedRole = selectedRole
+    ? selectedRole.replace(/\b\w/g, l => l.toUpperCase())
+    : 'Unknown'
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
+  // One-time log on mount/update
+  useEffect(() => {
+    console.log('Raw selectedRole:', selectedRole, 'Normalized:', normalizedRole);
+  }, [selectedRole, normalizedRole]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
 
   const validateForm = () => {
-    const newErrors = {};
+    const errors = []
 
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
-    if (!formData.gender) newErrors.gender = 'Gender is required';
+    // Always required: Name, email, password match
+    if (!formData.firstName || !formData.lastName) errors.push('First and Last Name are required')
+    if (!formData.email || !formData.email.includes('@')) errors.push('Valid Email is required')
+    if (!formData.password) errors.push('Password is required')
+    if (formData.password !== formData.confirmPassword) errors.push('Passwords do not match')
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    // Role-specific required fields (use normalizedRole safely)
+    const lowerRole = normalizedRole.toLowerCase()
+    if (lowerRole === 'doctor' || lowerRole === 'clinic assistant') {
+      // Clinical roles: Require gender, phone
+      if (!formData.gender) errors.push('Gender is required')
+      if (!formData.phoneNumber) errors.push('Phone Number is required')
+    } else if (lowerRole === 'admin') {
+      // Admin: Optional gender/phone; require permissions
+      if (!formData.permissions) errors.push('Permissions are required (e.g., users,patients)')
+    } else {
+      console.warn('Fallback validation for unknown role:', normalizedRole)
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+    if (errors.length > 0) {
+      alert(errors.join('\n'))
+      return false
+    }
+    return true
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
     if (validateForm()) {
-      setIsLoading(true);
-      try {
-        // Create user data for database
-        const userData = {
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          password: formData.password,
-          role: selectedRole,
-          phoneNumber: formData.phoneNumber,
-          gender: formData.gender
-        };
-        
-        // Try to create user via Electron API
-        if (window.electronAPI?.createUser) {
-          const result = await window.electronAPI.createUser(userData);
-          if (result.success && result.user) {
-            // Store user in localStorage
-            localStorage.setItem('currentUser', JSON.stringify(result.user));
-            // Open main window
-            await window.electronAPI.openMainWindow();
-          } else {
-            throw new Error(result.error || 'Failed to create user');
-          }
-        } else {
-          // Fallback: Just auto-login for development
-          await login({
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-            phoneNumber: userData.phoneNumber,
-            gender: userData.gender
-          });
-          console.log('User created (development mode):', userData);
-        }
-      } catch (error) {
-        console.error('Signup error:', error);
-        alert('Failed to create user: ' + error.message);
-      } finally {
-        setIsLoading(false);
-      }
+      // Pass clinic data and admin data to complete setup
+      onComplete({}, { role: normalizedRole, ...formData })
     }
-  };
+  }
 
-  if (step === 1) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6 shadow-xl">
-              <EyeIcon className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Add New User</h1>
-            <p className="text-gray-600 dark:text-gray-400">Select the role for the new team member</p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
-            <div className="grid gap-4">
-              {roles.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => {
-                    setSelectedRole(role.id);
-                    setStep(2);
-                  }}
-                  className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{role.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-400">{role.description}</p>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => window.history.back()}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center justify-center mx-auto"
-              >
-                <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                Back to Login
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const renderFormFields = () => {
+    const lowerRole = normalizedRole.toLowerCase()  // Safe use
+    switch (normalizedRole) {
+      case 'Clinic Assistant':
+        return <AssistantForm formData={formData} onChange={handleChange} />
+      case 'Doctor':
+        return <DoctorForm formData={formData} onChange={handleChange} />
+      case 'Admin':
+        return <AdminForm formData={formData} onChange={handleChange} />
+      default:
+        console.error('Render error: Unknown role', normalizedRole)  // Log for debug
+        return <p>Invalid role: {normalizedRole}. Please go back and select again.</p>
+    }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-6 shadow-xl">
-            <EyeIcon className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
-          <p className="text-gray-600 dark:text-gray-400">Adding new {roles.find(r => r.id === selectedRole)?.name}</p>
+      <div className="w-full max-w-3xl">
+        {/* Header */}
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Add {normalizedRole || 'User'}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">Create a new {normalizedRole} account</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
-                <input
-                  type="text"
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="First name"
-                />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
-                <input
-                  type="text"
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Last name"
-                />
-                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
-              </div>
-            </div>
+        {/* Form Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 animate-fade-in">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {renderFormFields()}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="email@example.com"
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
-              <input
-                type="tel"
-                value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="+1234567890"
-              />
-              {errors.phoneNumber && <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gender</label>
-              <select
-                value={formData.gender}
-                onChange={(e) => handleInputChange('gender', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.gender ? 'border-red-500' : 'border-gray-300'}`}
-              >
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  <ViewIcon className="w-5 h-5" />
-                </button>
-              </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Confirm password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  <ViewIcon className="w-5 h-5" />
-                </button>
-              </div>
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
-            </div>
-
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-4 pt-4">
               <button
                 type="button"
-                onClick={() => setStep(1)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                onClick={onBack}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Back
               </button>
               <button
                 type="submit"
-                disabled={isLoading}
-                className={`flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                {isLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <UserPlusIcon className="w-4 h-4 mr-2" />
-                    Create User
-                  </>
-                )}
+                Continue
               </button>
             </div>
           </form>
         </div>
+
+        {/* Back to Login */}
+        <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <button
+            type="button"
+            onClick={() => {
+              console.log('Back to Login clicked');
+              onBackToWelcome();
+            }}
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium"
+          >
+            ← I have an account, Login
+          </button>
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SignupScreen;
+export default SignupScreen

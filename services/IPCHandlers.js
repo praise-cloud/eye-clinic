@@ -95,7 +95,7 @@ class IPCHandlers {
             }
         });
 
-       // Safe Mapping: Complete setup handler (maps admin to doctor)
+       // Safe Mapping: Complete setup handler
         ipcMain.handle('auth:completeSetup', async (event, data = {}) => {
             const { clinicData, adminData } = data;
             try {
@@ -104,44 +104,40 @@ class IPCHandlers {
                 return { error: 'Missing core fields: admin name/email/password/role' };
                 }
 
-                // Normalize role for DB (admin → doctor to fit constraint)
+                // Normalize role for DB
                 let dbRole = adminData.role.toLowerCase();
-                if (dbRole === 'admin') {
-                dbRole = 'admin';  // Map to doctor for superuser access
-                console.log('Mapped admin role to admin for DB constraint');
-                } else if (dbRole === 'clinic assistant') {
+                if (dbRole === 'clinic assistant') {
                 dbRole = 'assistant';
                 }
 
-                // Build userData (common fields only)
+                // Build userData
                 const userData = {
-                name: `${adminData.firstName} ${adminData.lastName}`.trim(),
+                first_name: adminData.firstName,
+                last_name: adminData.lastName,
                 email: adminData.email,
-                password: adminData.password,  // Hash in DatabaseService
+                password: adminData.password,
                 role: dbRole,
-                phoneNumber: adminData.phoneNumber || null,
-                gender: adminData.gender || 'other',  // Default to 'other' if not provided
+                phone_number: adminData.phoneNumber || null,
+                gender: adminData.gender || 'other'
                 };
 
-                // Step 1: Create user
+                // Create user
                 const userResult = await DatabaseService.createUser(userData);
                 if (!userResult) {
-                return { error: 'Failed to create user—check DB schema' };
+                return { error: 'Failed to create user' };
                 }
 
-                // Step 2: Mark setup complete
+                // Mark setup complete
                 await DatabaseService.setSetting('setup_complete', 'true');
 
-                // Step 3: Log
+                // Log activity
                 try {
-                await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Setup by ${userData.name} (${dbRole})`);
+                await DatabaseService.logActivity(userResult.id, 'setup', 'system', null, `Setup by ${userData.first_name} ${userData.last_name} (${dbRole})`);
                 } catch (logErr) {
                 console.warn('Log skipped:', logErr);
                 }
 
-                console.log('Setup success:', { userId: userResult.id, role: dbRole });
-
-                return { success: true, user: userResult, message: `Setup done for ${dbRole}!` };
+                return { success: true, user: userResult };
             } catch (error) {
                 console.error('Setup handler error:', error);
                 return { error: error.message };
@@ -151,19 +147,25 @@ class IPCHandlers {
         // Create user (setup)
         ipcMain.handle('auth:createUser', async (event, userData) => {
             try {
-                const requiredFields = ['name', 'email', 'password', 'role'];
+                // Map form fields to database fields
+                const dbUserData = {
+                    first_name: userData.firstName,
+                    last_name: userData.lastName,
+                    email: userData.email,
+                    password: userData.password,
+                    role: userData.role,
+                    phone_number: userData.phoneNumber || null,
+                    gender: userData.gender || 'other'
+                };
+                
+                const requiredFields = ['first_name', 'last_name', 'email', 'password', 'role'];
                 for (const field of requiredFields) {
-                    if (!userData[field]) {
+                    if (!dbUserData[field]) {
                         return { error: `${field} is required` };
                     }
                 }
 
-                // Ensure gender field has a default value
-                if (!userData.gender) {
-                    userData.gender = 'other';
-                }
-
-                const user = await DatabaseService.createUser(userData);
+                const user = await DatabaseService.createUser(dbUserData);
                 return { success: true, user };
             } catch (error) {
                 console.error('Create user error:', error);
@@ -890,19 +892,29 @@ class IPCHandlers {
             }
         });
 
-        // Send message
+        // Send message with real-time sync
         ipcMain.handle('chat:sendMessage', async (event, data = {}) => {
             const { senderId, receiverId, messageText, attachment } = data;
             try {
                 const requiredFields = ['senderId', 'receiverId', 'messageText'];
-                const data = { senderId, receiverId, messageText };
+                const msgData = { senderId, receiverId, messageText };
                 for (const field of requiredFields) {
-                    if (!data[field]) {
+                    if (!msgData[field]) {
                         return { error: `${field} is required` };
                     }
                 }
-                const message = await DatabaseService.sendMessage(senderId, receiverId, messageText, attachment);
-                return { success: true, message };
+                
+                // Use SyncService for instant sync
+                const SyncService = require('../src/services/SyncService');
+                const result = await SyncService.sendChatMessage({
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    message_text: messageText,
+                    attachment: attachment || null,
+                    status: 'unread'
+                });
+                
+                return result;
             } catch (error) {
                 console.error('Send message error:', error);
                 return { error: error.message };

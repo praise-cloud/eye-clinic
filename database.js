@@ -2,6 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 class Database {
     constructor(dbPath = null) {
@@ -51,12 +52,14 @@ class Database {
         const queries = [
             // Users table
             `CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
+                id TEXT PRIMARY KEY,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 gender TEXT NOT NULL,
                 role TEXT NOT NULL CHECK (role IN ('admin', 'doctor', 'assistant')),
+                phone_number TEXT,
                 status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -64,7 +67,7 @@ class Database {
 
             // Patients table
             `CREATE TABLE IF NOT EXISTS patients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 patient_id TEXT UNIQUE NOT NULL,
                 first_name TEXT NOT NULL,
                 last_name TEXT NOT NULL,
@@ -77,12 +80,12 @@ class Database {
 
             // Tests table
             `CREATE TABLE IF NOT EXISTS tests (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL,
+                id TEXT PRIMARY KEY,
+                patient_id TEXT NOT NULL,
                 test_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 eye TEXT CHECK (eye IN ('left', 'right', 'both')),
                 machine_type TEXT,
-                raw_data TEXT, -- JSON string
+                raw_data TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
@@ -90,12 +93,12 @@ class Database {
 
             // Reports table
             `CREATE TABLE IF NOT EXISTS reports (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL,
+                id TEXT PRIMARY KEY,
+                patient_id TEXT NOT NULL,
                 report_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 report_type TEXT DEFAULT 'visual_field_report',
                 title TEXT,
-                report_file BLOB, -- PDF file data
+                report_file TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (patient_id) REFERENCES patients (id)
@@ -103,11 +106,11 @@ class Database {
 
             // Chat table
             `CREATE TABLE IF NOT EXISTS chat (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                sender_id INTEGER NOT NULL,
-                receiver_id INTEGER NOT NULL,
+                id TEXT PRIMARY KEY,
+                sender_id TEXT NOT NULL,
+                receiver_id TEXT NOT NULL,
                 message_text TEXT NOT NULL,
-                attachment TEXT, -- JSON string for file attachments
+                attachment TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 status TEXT DEFAULT 'unread' CHECK (status IN ('read', 'unread')),
                 FOREIGN KEY (sender_id) REFERENCES users (id),
@@ -116,7 +119,7 @@ class Database {
 
             // Inventory table for medical supplies and equipment
             `CREATE TABLE IF NOT EXISTS inventory (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 item_code TEXT UNIQUE NOT NULL,
                 item_name TEXT NOT NULL,
                 category TEXT NOT NULL CHECK (category IN ('equipment', 'supplies', 'medication', 'consumables', 'other')),
@@ -129,14 +132,13 @@ class Database {
                 maximum_quantity INTEGER DEFAULT 100,
                 unit_of_measure TEXT DEFAULT 'pieces',
                 unit_cost DECIMAL(10, 2) DEFAULT 0.00,
-                total_value DECIMAL(10, 2) GENERATED ALWAYS AS (current_quantity * unit_cost) STORED,
                 supplier_name TEXT,
                 supplier_contact TEXT,
                 purchase_date DATE,
                 expiry_date DATE,
                 location TEXT,
                 status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'maintenance', 'disposed')),
-                last_updated_by INTEGER,
+                last_updated_by TEXT,
                 notes TEXT,
                 image_path TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -146,11 +148,11 @@ class Database {
 
             // Activity logs table for tracking user actions
             `CREATE TABLE IF NOT EXISTS activity_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                action_type TEXT NOT NULL, -- 'create', 'update', 'delete', 'view', 'login', 'logout'
-                entity_type TEXT NOT NULL, -- 'patient', 'test', 'report', 'inventory', 'user', 'system'
-                entity_id INTEGER,
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                action_type TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                entity_id TEXT,
                 description TEXT NOT NULL,
                 ip_address TEXT,
                 user_agent TEXT,
@@ -160,11 +162,20 @@ class Database {
 
             // Settings table for application configuration
             `CREATE TABLE IF NOT EXISTS settings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT PRIMARY KEY,
                 key TEXT UNIQUE NOT NULL,
                 value TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+
+            // Sync metadata table
+            `CREATE TABLE IF NOT EXISTS sync_metadata (
+                id TEXT PRIMARY KEY,
+                table_name TEXT NOT NULL,
+                record_id TEXT NOT NULL,
+                last_synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(table_name, record_id)
             )`
         ];
 
@@ -200,6 +211,35 @@ class Database {
                 await this.run('ALTER TABLE inventory ADD COLUMN image_path TEXT');
                 console.log('Migration completed: Added image_path column to inventory table');
             }
+            
+            // Check if phone_number column exists in users table
+            const usersTableInfo = await this.all("PRAGMA table_info(users)");
+            const hasPhoneNumberColumn = usersTableInfo.some(column => column.name === 'phone_number');
+            
+            if (!hasPhoneNumberColumn) {
+                console.log('Adding phone_number column to users table...');
+                await this.run('ALTER TABLE users ADD COLUMN phone_number TEXT');
+                console.log('Migration completed: Added phone_number column to users table');
+            }
+            
+            // Migrate name to first_name/last_name if needed
+            const hasFirstNameColumn = usersTableInfo.some(column => column.name === 'first_name');
+            const hasNameColumn = usersTableInfo.some(column => column.name === 'name');
+            
+            if (hasNameColumn && !hasFirstNameColumn) {
+                console.log('Migrating name to first_name/last_name...');
+                await this.run('ALTER TABLE users ADD COLUMN first_name TEXT');
+                await this.run('ALTER TABLE users ADD COLUMN last_name TEXT');
+                // Split existing names
+                const users = await this.all('SELECT id, name FROM users');
+                for (const user of users) {
+                    const parts = user.name.split(' ');
+                    const firstName = parts[0] || '';
+                    const lastName = parts.slice(1).join(' ') || '';
+                    await this.run('UPDATE users SET first_name = ?, last_name = ? WHERE id = ?', [firstName, lastName, user.id]);
+                }
+                console.log('Migration completed: Split name into first_name/last_name');
+            }
         } catch (error) {
             console.error('Migration error:', error);
         }
@@ -218,7 +258,7 @@ class Database {
 
     // User Management
     async createUser(userData) {
-        const { name, email, password, role, gender } = userData;
+        const { first_name, last_name, email, password, role, gender, phone_number } = userData;
 
         // Hash password
         const saltRounds = 10;
@@ -226,16 +266,17 @@ class Database {
 
         // Default gender if not provided (required by schema)
         const userGender = gender || 'other';
+        const userId = uuidv4();
 
         const query = `
-            INSERT INTO users (name, email, password_hash, gender, role, updated_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO users (id, first_name, last_name, email, password_hash, gender, role, phone_number, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
         try {
-            const result = await this.run(query, [name, email, passwordHash, userGender, role]);
+            await this.run(query, [userId, first_name, last_name, email, passwordHash, userGender, role, phone_number || null]);
             console.log('User created successfully:', email);
-            return { id: result.lastID, name, email, role, gender: userGender };
+            return { id: userId, first_name, last_name, email, role, gender: userGender, phone_number };
         } catch (error) {
             console.error('Error creating user:', error);
             throw error;
@@ -269,7 +310,7 @@ class Database {
     }
 
     async getAllUsers() {
-        const query = 'SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC';
+        const query = 'SELECT id, first_name, last_name, email, role, phone_number, created_at FROM users ORDER BY created_at DESC';
         return await this.all(query);
     }
 
@@ -282,13 +323,13 @@ class Database {
 
     async setSetting(key, value) {
         const query = `
-            INSERT INTO settings (key, value, updated_at)
-            VALUES (?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO settings (id, key, value, updated_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
             ON CONFLICT(key) DO UPDATE SET
                 value = excluded.value,
                 updated_at = CURRENT_TIMESTAMP
         `;
-        return await this.run(query, [key, value]);
+        return await this.run(query, [uuidv4(), key, value]);
     }
 
     // Generic database operations

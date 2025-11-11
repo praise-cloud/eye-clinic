@@ -3,7 +3,7 @@ import WelcomeScreen from '../pages/WelcomeScreen'
 import SetupScreen from '../pages/SetupScreen'
 import LoginScreen from '../pages/LoginScreen'
 import LoadingScreen from './LoadingScreen'
-import SignupScreen from '../pages/SigupScreen'  // Fixed typo: SigupScreen → SignupScreen
+import SignupScreen from '../pages/SignupScreen'  // Fixed typo: SigupScreen → SignupScreen
 
 const AuthApp = () => {
   const [currentScreen, setCurrentScreen] = useState('loading')
@@ -11,6 +11,7 @@ const AuthApp = () => {
   const [loading, setLoading] = useState(true)
   const [loadingMessage, setLoadingMessage] = useState('Initializing...')
   const [selectedRole, setSelectedRole] = useState(null)
+  const [isAddingUser, setIsAddingUser] = useState(false)
 
   useEffect(() => {
     initializeApp()
@@ -121,6 +122,35 @@ const AuthApp = () => {
     }
   }
 
+  const handleAddUser = () => {
+    setIsAddingUser(true)
+    setCurrentScreen('setup')
+  }
+
+  const handleAddUserComplete = async (clinicData, adminData) => {
+    try {
+      handleScreenChange('loading', 'Creating new user...')
+
+      const result = await window.electronAPI.createUser({ role: selectedRole, ...adminData })
+
+      if (result?.success) {
+        setLoadingMessage('User created successfully!')
+        setTimeout(() => {
+          setIsAddingUser(false)
+          setSelectedRole(null)
+          setCurrentScreen('login')
+          alert('User created successfully! They can now log in.')
+        }, 1000)
+      } else {
+        throw new Error(result?.error || 'Failed to create user')
+      }
+    } catch (error) {
+      console.error('Add user error:', error)
+      alert(error.message || 'Failed to create user. Please try again.')
+      setCurrentScreen('setup')
+    }
+  }
+
   if (loading) {
     return <LoadingScreen message={loadingMessage} />
   }
@@ -135,22 +165,32 @@ const AuthApp = () => {
       {currentScreen === 'setup' && !selectedRole && (
         <SetupScreen
           onSelectRole={(role) => setSelectedRole(role)}
-          onBack={() => setCurrentScreen('welcome')}
+          onBack={() => {
+            setIsAddingUser(false)
+            setCurrentScreen(isAddingUser ? 'login' : 'welcome')
+          }}
         />
       )}
 
       {currentScreen === 'setup' && selectedRole && (
         <SignupScreen
           selectedRole={selectedRole}
-          onComplete={handleSetupComplete}
-          onBack={() => setSelectedRole(null)} // Go back to role selection
+          onComplete={isAddingUser ? handleAddUserComplete : handleSetupComplete}
+          onBack={() => setSelectedRole(null)}
+          onBackToWelcome={() => {
+            console.log('onBackToWelcome called - navigating to login screen');
+            setSelectedRole(null)
+            setIsAddingUser(false)
+            setCurrentScreen('login')
+            console.log('Current screen set to: login');
+          }}
         />
       )}
 
       {currentScreen === 'login' && (
         <LoginScreen
           onLogin={handleLogin}
-          onAddUser={() => alert('Add user functionality coming soon!')}
+          onAddUser={handleAddUser}
         />
       )}
     </div>
