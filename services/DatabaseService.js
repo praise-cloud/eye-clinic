@@ -1,4 +1,4 @@
-const Database = require('../database');
+const Database = require('../database/database.js');
 
 class DatabaseService {
     constructor() {
@@ -239,14 +239,14 @@ class DatabaseService {
         }
         query += ` ORDER BY c.timestamp DESC LIMIT ? OFFSET ?`;
         params.push(limit, offset);
-        
+
         const messages = await db.all(query, params);
         return messages.reverse(); // Return in ascending order for UI display
     }
 
     async sendMessage(senderId, receiverId, messageText, attachment = null, replyToId = null) {
         const db = await this.getDatabase();
-        
+
         const query = `
             INSERT INTO chat (sender_id, receiver_id, message_text, attachment, reply_to_id)
             VALUES (?, ?, ?, ?, ?)
@@ -786,7 +786,7 @@ class DatabaseService {
     async updateUser(userId, userData, updatedBy) {
         const db = await this.getDatabase();
         const { first_name, last_name, email, role, phone_number, gender, password } = userData;
-        
+
         const fieldsToUpdate = [];
         const params = [];
 
