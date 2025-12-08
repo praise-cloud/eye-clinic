@@ -640,7 +640,7 @@ class IPCHandlers {
         // Create inventory item
         ipcMain.handle('inventory:create', async (event, itemData) => {
             try {
-                const requiredFields = ['item_code', 'item_name', 'category'];
+                const requiredFields = ['item_code', 'item_name'];
                 for (const field of requiredFields) {
                     if (!itemData[field]) {
                         return { error: `${field} is required` };
@@ -869,27 +869,33 @@ class IPCHandlers {
         ipcMain.handle('admin:createUser', async (event, data = {}) => {
             const { userData, createdBy } = data;
             try {
+                // Map frontend field names to database field names
+                const dbUserData = {
+                    first_name: userData.firstName || userData.first_name,
+                    last_name: userData.lastName || userData.last_name,
+                    email: userData.email,
+                    password: userData.password,
+                    role: userData.role,
+                    phone_number: userData.phoneNumber || userData.phone_number || null,
+                    gender: userData.gender || 'other'
+                };
+
                 const requiredFields = ['first_name', 'last_name', 'email', 'password', 'role'];
                 for (const field of requiredFields) {
-                    if (!userData[field]) {
+                    if (!dbUserData[field]) {
                         return { error: `${field} is required` };
                     }
                 }
 
                 // Check if email already exists
                 const existingUsers = await DatabaseService.getAllUsers();
-                const emailExists = existingUsers.find(user => user.email.toLowerCase() === userData.email.toLowerCase());
+                const emailExists = existingUsers.find(user => user.email.toLowerCase() === dbUserData.email.toLowerCase());
                 if (emailExists) {
                     return { error: 'Email already exists' };
                 }
 
-                // Ensure gender field has a default value
-                if (!userData.gender) {
-                    userData.gender = 'other';
-                }
-
                 // Save to SQLite first
-                const user = await DatabaseService.createUser(userData);
+                const user = await DatabaseService.createUser(dbUserData);
 
                 // Sync to Supabase if online
                 try {

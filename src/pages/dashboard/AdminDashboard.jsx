@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { UsersIcon, ChartIcon, DocumentIcon, InventoryIcon, AdminIcon } from '../components/Icons';
-import Layout from '../components/layout/Layout';
-import useUser from '../hooks/useUser';
-import { useTheme } from '../context/ThemeContext';
-import { useSystemConfig } from '../context/SystemConfigContext';
+import { UsersIcon, ChartIcon, DocumentIcon, InventoryIcon, AdminIcon } from '../../components/Icons';
+import Layout from '../../components/layout/Layout';
+import useUser from '../../hooks/useUser';
+import { useTheme } from '../../context/ThemeContext';
+import { useSystemConfig } from '../../context/SystemConfigContext';
 
 const AdminDashboard = () => {
   const { user, logout } = useUser();
@@ -46,11 +46,12 @@ const AdminDashboard = () => {
         password: formData.password,
         role: formData.role
       }, user?.id);
+      console.log('Create user response:', res);
       if (res.success) {
+        alert('User created successfully!');
         setShowUserModal(false);
         setFormData({ firstName: '', lastName: '', email: '', password: '', role: 'doctor' });
-        fetchUsers(); // Re-fetch users to include the newly added user
-        // Log activity (optional, could be handled by backend)
+        fetchUsers();
         const newLog = {
           id: systemLogs.length + 1,
           action: 'User Created',
@@ -60,7 +61,7 @@ const AdminDashboard = () => {
         };
         setSystemLogs(prev => [newLog, ...prev].slice(0, 10));
       } else {
-        alert(res.message || 'Failed to add user.');
+        alert(res.error || res.message || 'Failed to add user.');
       }
     } catch (error) {
       console.error('Error adding user:', error);

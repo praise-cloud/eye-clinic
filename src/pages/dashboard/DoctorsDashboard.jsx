@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { CLIENT_DATA } from '../utils/constants'
-import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
-import ClientDetailContent from './ClientDetailContent';
-import AddPatientModal from '../components/modals/AddPatientModal';
-import useUser from '../hooks/useUser';
+import { CLIENT_DATA } from '../../utils/constants.js';
+import { DeleteIcon, EditIcon, ViewIcon } from '../../components/Icons';
+import ClientDetailContent from '../ClientDetailContent';
+import AddPatientModal from '../../components/modals/AddPatientModal';
+import useUser from '../../hooks/useUser';
 
 const DoctorsDashboard = ({activeSection}) => {
   const { user } = useUser();

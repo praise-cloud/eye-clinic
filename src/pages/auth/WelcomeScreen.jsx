@@ -1,6 +1,6 @@
 import React from 'react'
-import { UsersIcon, ChartIcon, DocumentIcon, ChatIcon, ArrowRightIcon } from '../components/Icons'
-import logo from '../assets/images/logo.png'
+import { UsersIcon, ChartIcon, DocumentIcon, ChatIcon, ArrowRightIcon } from '../../components/Icons'
+import logo from '../../assets/images/logo.png'
 
 const WelcomeScreen = ({ onGetStarted }) => {
   const features = [

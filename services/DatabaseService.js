@@ -89,17 +89,19 @@ class DatabaseService {
 
     async createPatient(patientData) {
         const db = await this.getDatabase();
+        const { v4: uuidv4 } = require('uuid');
         const { patient_id, first_name, last_name, dob, gender, contact } = patientData;
+        const id = uuidv4();
 
         const query = `
-            INSERT INTO patients (patient_id, first_name, last_name, dob, gender, contact, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO patients (id, patient_id, first_name, last_name, dob, gender, contact, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
-        const result = await db.run(query, [patient_id, first_name, last_name, dob, gender, contact]);
+        await db.run(query, [id, patient_id, first_name, last_name, dob, gender, contact]);
 
         // Return the created patient
-        return await this.getPatientById(result.lastID);
+        return await this.getPatientById(id);
     }
 
     async updatePatient(id, patientData) {
@@ -178,14 +180,17 @@ class DatabaseService {
 
     async createTest(testData) {
         const db = await this.getDatabase();
+        const { v4: uuidv4 } = require('uuid');
         const { patient_id, eye, machine_type, raw_data, test_date } = testData;
+        const id = uuidv4();
 
         const query = `
-            INSERT INTO tests (patient_id, eye, machine_type, raw_data, test_date, updated_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO tests (id, patient_id, eye, machine_type, raw_data, test_date, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
-        const result = await db.run(query, [
+        await db.run(query, [
+            id,
             patient_id,
             eye,
             machine_type,
@@ -193,7 +198,7 @@ class DatabaseService {
             test_date || new Date().toISOString()
         ]);
 
-        return await this.getTestById(result.lastID);
+        return await this.getTestById(id);
     }
 
     async updateTest(id, testData) {
@@ -387,14 +392,17 @@ class DatabaseService {
 
     async createReport(reportData) {
         const db = await this.getDatabase();
+        const { v4: uuidv4 } = require('uuid');
         const { patient_id, report_file, report_date, report_type, title } = reportData;
+        const id = uuidv4();
 
         const query = `
-            INSERT INTO reports (patient_id, report_file, report_date, report_type, title, created_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO reports (id, patient_id, report_file, report_date, report_type, title, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
-        const result = await db.run(query, [
+        await db.run(query, [
+            id,
             patient_id,
             report_file, // This will be binary PDF data
             report_date || new Date().toISOString(),
@@ -402,7 +410,7 @@ class DatabaseService {
             title
         ]);
 
-        return await this.getReportById(result.lastID);
+        return await this.getReportById(id);
     }
 
     async updateReport(id, reportData) {
@@ -428,59 +436,29 @@ class DatabaseService {
     // Inventory Operations
     async getAllInventoryItems(filters = {}) {
         const db = await this.getDatabase();
-        let query = `
-            SELECT i.*, (u.first_name || ' ' || u.last_name) as last_updated_by_name
-            FROM inventory i
-            LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE 1=1
-        `;
+        let query = `SELECT * FROM inventory WHERE 1=1`;
         const params = [];
 
-        // Search filter
         if (filters.search) {
-            query += ` AND (i.item_name LIKE ? OR i.item_code LIKE ? OR i.description LIKE ?)`;
+            query += ` AND (item_name LIKE ? OR item_code LIKE ?)`;
             const searchTerm = `%${filters.search}%`;
-            params.push(searchTerm, searchTerm, searchTerm);
+            params.push(searchTerm, searchTerm);
         }
 
-        // Category filter
-        if (filters.category) {
-            query += ` AND i.category = ?`;
-            params.push(filters.category);
-        }
-
-        // Status filter
         if (filters.status) {
-            query += ` AND i.status = ?`;
+            query += ` AND status = ?`;
             params.push(filters.status);
         }
 
-        // Low stock filter
         if (filters.lowStock) {
-            query += ` AND i.current_quantity <= i.minimum_quantity`;
+            query += ` AND current_quantity <= minimum_quantity`;
         }
 
-        // Expiring soon filter (within 30 days)
-        if (filters.expiringSoon) {
-            query += ` AND i.expiry_date IS NOT NULL AND i.expiry_date <= date('now', '+30 days')`;
-        }
+        query += ` ORDER BY item_name ASC`;
 
-        // Location filter
-        if (filters.location) {
-            query += ` AND i.location LIKE ?`;
-            params.push(`%${filters.location}%`);
-        }
-
-        // Sorting
-        const sortBy = filters.sortBy || 'item_name';
-        const sortOrder = filters.sortOrder || 'ASC';
-        query += ` ORDER BY i.${sortBy} ${sortOrder}`;
-
-        // Pagination
         if (filters.limit) {
             query += ` LIMIT ?`;
             params.push(parseInt(filters.limit));
-
             if (filters.offset) {
                 query += ` OFFSET ?`;
                 params.push(parseInt(filters.offset));
@@ -492,99 +470,55 @@ class DatabaseService {
 
     async getInventoryItemById(id) {
         const db = await this.getDatabase();
-        return await db.get(`
-            SELECT i.*, (u.first_name || ' ' || u.last_name) as last_updated_by_name
-            FROM inventory i
-            LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE i.id = ?
-        `, [id]);
+        return await db.get('SELECT * FROM inventory WHERE id = ?', [id]);
     }
 
     async getInventoryItemByCode(itemCode) {
         const db = await this.getDatabase();
-        return await db.get(`
-            SELECT i.*, (u.first_name || ' ' || u.last_name) as last_updated_by_name
-            FROM inventory i
-            LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE i.item_code = ?
-        `, [itemCode]);
+        return await db.get('SELECT * FROM inventory WHERE item_code = ?', [itemCode]);
     }
 
     async createInventoryItem(itemData) {
         const db = await this.getDatabase();
+        const { v4: uuidv4 } = require('uuid');
         const {
-            item_code, item_name, category, description, manufacturer,
-            model_number, serial_number, current_quantity, minimum_quantity,
-            maximum_quantity, unit_of_measure, unit_cost, supplier_name,
-            supplier_contact, purchase_date, expiry_date, location,
-            status, last_updated_by, notes, image_path
+            item_code, item_name, current_quantity, minimum_quantity, status
         } = itemData;
+        const id = uuidv4();
 
         const query = `
             INSERT INTO inventory (
-                item_code, item_name, category, description, manufacturer,
-                model_number, serial_number, current_quantity, minimum_quantity,
-                maximum_quantity, unit_of_measure, unit_cost, supplier_name,
-                supplier_contact, purchase_date, expiry_date, location,
-                status, last_updated_by, notes, image_path, updated_at
+                id, item_code, item_name, current_quantity, minimum_quantity, status, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
-        const result = await db.run(query, [
-            item_code, item_name, category, description, manufacturer,
-            model_number, serial_number, current_quantity || 0, minimum_quantity || 0,
-            maximum_quantity || 100, unit_of_measure || 'pieces', unit_cost || 0,
-            supplier_name, supplier_contact, purchase_date, expiry_date, location,
-            status || 'active', last_updated_by, notes, image_path
+        await db.run(query, [
+            id, item_code, item_name, current_quantity || 0, minimum_quantity || 0, status || 'active'
         ]);
 
-        return await this.getInventoryItemById(result.lastID);
+        return await this.getInventoryItemById(id);
     }
 
     async updateInventoryItem(id, itemData) {
         const db = await this.getDatabase();
-        const {
-            item_name, category, description, manufacturer, model_number,
-            serial_number, current_quantity, minimum_quantity, maximum_quantity,
-            unit_of_measure, unit_cost, supplier_name, supplier_contact,
-            purchase_date, expiry_date, location, status, last_updated_by, notes, image_path
-        } = itemData;
+        const { item_name, current_quantity, minimum_quantity, status } = itemData;
 
         const query = `
             UPDATE inventory SET
-                item_name = ?, category = ?, description = ?, manufacturer = ?,
-                model_number = ?, serial_number = ?, current_quantity = ?,
-                minimum_quantity = ?, maximum_quantity = ?, unit_of_measure = ?,
-                unit_cost = ?, supplier_name = ?, supplier_contact = ?,
-                purchase_date = ?, expiry_date = ?, location = ?, status = ?,
-                last_updated_by = ?, notes = ?, image_path = ?, updated_at = CURRENT_TIMESTAMP
+                item_name = ?, current_quantity = ?, minimum_quantity = ?, status = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `;
 
-        await db.run(query, [
-            item_name, category, description, manufacturer, model_number,
-            serial_number, current_quantity, minimum_quantity, maximum_quantity,
-            unit_of_measure, unit_cost, supplier_name, supplier_contact,
-            purchase_date, expiry_date, location, status, last_updated_by, notes, image_path, id
-        ]);
+        await db.run(query, [item_name, current_quantity, minimum_quantity, status, id]);
 
         return await this.getInventoryItemById(id);
     }
 
     async updateInventoryQuantity(id, newQuantity, userId, notes = null) {
         const db = await this.getDatabase();
-
-        const query = `
-            UPDATE inventory SET
-                current_quantity = ?,
-                last_updated_by = ?,
-                notes = CASE WHEN ? IS NOT NULL THEN ? ELSE notes END,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        `;
-
-        await db.run(query, [newQuantity, userId, notes, notes, id]);
+        const query = `UPDATE inventory SET current_quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        await db.run(query, [newQuantity, id]);
         return await this.getInventoryItemById(id);
     }
 
@@ -617,25 +551,15 @@ class DatabaseService {
     async getLowStockItems() {
         const db = await this.getDatabase();
         return await db.all(`
-            SELECT i.*, (u.first_name || ' ' || u.last_name) as last_updated_by_name
-            FROM inventory i
-            LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE i.status = 'active' AND i.current_quantity <= i.minimum_quantity
-            ORDER BY (i.current_quantity - i.minimum_quantity) ASC
+            SELECT * FROM inventory
+            WHERE status = 'active' AND current_quantity <= minimum_quantity
+            ORDER BY (current_quantity - minimum_quantity) ASC
         `);
     }
 
     async getExpiringItems(days = 30) {
         const db = await this.getDatabase();
-        return await db.all(`
-            SELECT i.*, (u.first_name || ' ' || u.last_name) as last_updated_by_name
-            FROM inventory i
-            LEFT JOIN users u ON i.last_updated_by = u.id
-            WHERE i.status = 'active'
-                AND i.expiry_date IS NOT NULL
-                AND i.expiry_date <= date('now', '+' || ? || ' days')
-            ORDER BY i.expiry_date ASC
-        `, [days]);
+        return await db.all('SELECT * FROM inventory WHERE status = "active" LIMIT 0');
     }
 
     // Activity Logging

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ArrowLeftIcon } from '../components/Icons';
-import logo from '../assets/images/logo.png';
+import { ArrowLeftIcon } from '../../components/Icons';
+import logo from '../../assets/images/logo.png';
 
 const SetupScreen = ({ onSelectRole, onBack }) => {
   const roles = [

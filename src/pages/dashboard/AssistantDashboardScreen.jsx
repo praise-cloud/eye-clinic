@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
-import ClientDetailContent from './ClientDetailContent';
+import { DeleteIcon, EditIcon, ViewIcon } from '../../components/Icons';
+import ClientDetailContent from '../ClientDetailContent';
 
 const getStatClasses = (color) => {
     if (color.includes('blue')) return { icon: 'text-blue-600', bg: 'bg-blue-100' };

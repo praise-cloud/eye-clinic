@@ -67,10 +67,10 @@ const useUser = () => {
 
   // Login user
   const login = useCallback(async (credentials) => {
+    setLoading(true)
+    setError(null)
+    
     try {
-      setLoading(true)
-      setError(null)
-
       let result
       if (window.electronAPI?.login) {
         result = await window.electronAPI.login(credentials.email, credentials.password)
@@ -89,10 +89,14 @@ const useUser = () => {
               status: 'success'
             }
           }));
-
+          
+          setLoading(false)
           return userData
         } else {
-          throw new Error(result?.error || 'Login failed')
+          setLoading(false)
+          const error = new Error(result?.error || 'Login failed')
+          setError(error.message)
+          throw error
         }
       } else {
         // Mock login for development
@@ -121,9 +125,8 @@ const useUser = () => {
     } catch (err) {
       console.error('Login error:', err)
       setError(err.message)
-      throw err
-    } finally {
       setLoading(false)
+      throw err
     }
   }, [])
 

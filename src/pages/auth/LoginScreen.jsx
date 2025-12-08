@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { LoginIcon, UserPlusIcon, ViewIcon } from '../components/Icons'
-import logo from '../assets/images/logo.png'
+import { LoginIcon, UserPlusIcon, ViewIcon } from '../../components/Icons'
+import logo from '../../assets/images/logo.png'
 
 const LoginScreen = ({ onLogin, onAddUser }) => {
   const [formData, setFormData] = useState({

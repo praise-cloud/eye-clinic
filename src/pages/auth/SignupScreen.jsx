@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import AssistantForm from './forms/AssistantForm'
-import DoctorForm from './forms/DoctorForm'
-import AdminForm from './forms/AdminForm'
+import AssistantForm from '../../components/forms/AssistantForm'
+import DoctorForm from '../../components/forms/DoctorForm'
+import AdminForm from '../../components/forms/AdminForm'
 
 const SignupScreen = ({ selectedRole, onComplete, onBack, onBackToWelcome }) => {
   const [formData, setFormData] = useState({
