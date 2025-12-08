@@ -1,5 +1,5 @@
 // SyncService.js — FINAL VERSION (works perfectly with the main.js above)
-const SupabaseService = require('../src/services/SupabaseService');
+const SupabaseService = require('./services/SupabaseService.js');
 const { v4: uuidv4 } = require('uuid');
 
 class SyncService {
