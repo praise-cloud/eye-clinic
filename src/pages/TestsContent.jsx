@@ -48,7 +48,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   useEffect(() => {
     // Merge database tests with additional tests from TestResultsContent
     const allTests = [...mappedDbTests, ...additionalTests];
-    setTests(allTests);
+    // setTests(allTests);
   }, [mappedDbTests, additionalTests])
 
   const getResultColor = (result) => {
@@ -64,20 +64,17 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   return (
     <div className="">
       <div className="flex my-5">
-        <div className="flex flex-col gap-4 bg-white w-full rounded-md shadow px-5 py-4">
-          <div>
-            <span className="text-xl font-semibold text-gray-600">Patient's of the day</span>
-          </div>
+        <div className="flex flex-col gap-4 bg-white  dark:bg-gray-800 w-full rounded-md shadow px-5 py-4">
           <div className="flex items-center gap-5 w-2/3">
-            <input type="text" className="border border-gray-300 rounded-md p-3 w-full" placeholder="name of case or clients name..." />
+            <input type="text" className="border border-gray-300  dark:bg-gray-700 dark:text-gray-600 rounded-md p-3 w-full" placeholder="name of case or clients name..." />
             <div className="flex items-center gap-3">
               <div className="flex">
-                <p>Filter</p>
+                <p className="dark:text-gray-600">Filter</p>
               </div>
               {/* Date filter dropdown */}
               <div className="relative">
                 <select
-                  className="border border-gray-300 rounded-md p-2"
+                  className="border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-white"
                   onChange={e => setSelectedDate(e.target.value)}
                   value={selectedDate || ''}
                 >
@@ -92,7 +89,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                 {selectedDate === 'custom' && (
                   <input
                     type="date"
-                    className="absolute top-full left-0 mt-2 border border-gray-300 rounded-md p-2 bg-white z-10"
+                    className="absolute top-full left-0 mt-2 border border-gray-300 rounded-md p-2 bg-white  z-10"
                     onChange={e => setCustomDate(e.target.value)}
                     value={customDate || ''}
                   />
@@ -124,8 +121,8 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
       </div>
       <div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 rounded-md">
-            <thead className="bg-gray-50 py-5">
+          <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 dark:border-none rounded-md">
+            <thead className="bg-gray-50 dark:bg-gray-800 py-5">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Type</th>

@@ -309,3 +309,65 @@ const MessagesContent = () => {
 };
 
 export default MessagesContent;
+
+function MessagesContent() {
+    async function fetchMessages({ isInitial = false, loadMore = false } = {}) {
+        if (!currentUser || !otherUser || !electronAPI) return;
+        setLoading(true);
+        try {
+            const res = await electronAPI.getMessages({
+                userId: currentUser.id,
+                otherUserId: otherUser.id,
+                search: searchTerm || '',
+                limit: 50,
+                offset: loadMore ? messages.length : 0
+            });
+
+            if (res?.success && Array.isArray(res.messages)) {
+                // Use ascending order from backend as-is
+                setMessages(prev => {
+                    if (loadMore) {
+                        return [...res.messages, ...prev];
+                    }
+                    return res.messages;
+                });
+                // Maintain scroll position for "load more"
+                if (loadMore && chatContainerRef.current) {
+                    chatContainerRef.current.scrollTop = 1; // small nudge to keep context
+                }
+            }
+        } catch (err) {
+            console.error('fetchMessages error:', err);
+        } finally {
+            setLoading(false);
+        }
+    }
+    useEffect(() => {
+        if (!electronAPI || !currentUser) return;
+        // Subscribe to realtime new-message events
+        const handler = async (msg) => {
+            // Only impact this chat if either matches
+            if (
+                (msg.sender_id === currentUser.id && msg.receiver_id === otherUser?.id) ||
+                (msg.receiver_id === currentUser.id && msg.sender_id === otherUser?.id)
+            ) {
+                setMessages(prev => [...prev, msg]);
+                // Mark as read if this user is the receiver
+                if (msg.receiver_id === currentUser.id) {
+                    try {
+                        await electronAPI.markMessageRead({ messageId: msg.id, userId: currentUser.id });
+                    } catch (e) {
+                        console.warn('markMessageRead failed:', e);
+                    }
+                }
+                // Scroll to bottom after receiving new message
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+        const off = electronAPI.onIpcEvent('new-message', handler);
+        return () => {
+            try { off?.(); } catch {}
+        };
+    }, [currentUser?.id, otherUser?.id]);
+    // Remove any usage of markAllAsRead since it’s not exposed in preload/handlers
+}

@@ -1184,7 +1184,13 @@ class IPCHandlers {
                 // Get current window and redirect to main app
                 const currentWindow = BrowserWindow.getFocusedWindow();
                 if (currentWindow) {
-                    await currentWindow.loadURL('http://localhost:3000/');
+                    const isDev = process.env.NODE_ENV === 'development';
+                    if (isDev) {
+                        await currentWindow.loadURL('http://localhost:3000/');
+                    } else {
+                        const indexPath = path.join(__dirname, '../dist/index.html');
+                        await currentWindow.loadFile(indexPath);
+                    }
                     console.log('Redirected to main app successfully');
                 }
 

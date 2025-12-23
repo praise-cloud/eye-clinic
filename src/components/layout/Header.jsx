@@ -21,13 +21,12 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
 
   const userMenuItems = [
     { label: 'Profile', id: 'profile' },
-    { label: 'Settings', id: 'settings' },
     { label: 'Logout', id: 'logout' }
   ];
 
   const handleUserMenuClick = (item) => {
     setShowUserDropdown(false);
-    
+
     if (item.id === 'logout') {
       setShowLogoutModal(true);
     } else if (item.id === 'settings' || item.id === 'profile') {
@@ -42,7 +41,7 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
       <div className="w-full px-6 py-4 flex items-center justify-between">
         {/* Left: Online Status */}
         <OnlineStatusIndicator />
-        
+
         {/* Right: User Menu */}
         <div className="flex items-center">
         {/* Left: Greeting and Section Title */}
@@ -105,7 +104,7 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
           </div>
         </div>
       </div>
-      
+
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

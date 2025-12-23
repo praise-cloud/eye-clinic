@@ -45,7 +45,7 @@ const AdminDashboard = () => {
         email: formData.email,
         password: formData.password,
         role: formData.role
-      }, user?.id);
+      }, user?.id); 
       console.log('Create user response:', res);
       if (res.success) {
         alert('User created successfully!');

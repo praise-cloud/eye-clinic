@@ -27,7 +27,8 @@ async function setupDatabase() {
     console.log('🏥 Eye Clinic Database Setup');
     console.log('============================\n');
 
-    const dbPath = path.join(__dirname, '..', 'eye_clinic.db');
+    // Use the same path Database will use (scripts/eye_clinic.db)
+    const dbPath = path.join(mockElectron.app.getPath('userData'), 'eye_clinic.db');
 
     // Remove existing database if it exists
     if (fs.existsSync(dbPath)) {
@@ -37,18 +38,18 @@ async function setupDatabase() {
 
     console.log('📊 Creating new database...');
 
-    // Use existing Database class
-    const db = new Database(dbPath);
+    // Instantiate Database without passing a path (constructor ignores args)
+    const db = new Database();
 
     try {
         // Initialize database (creates tables)
         await db.initialize();
         console.log('✅ Database tables created successfully');
 
-        // Create default users
+        // Create default users (duplicate-safe)
         console.log('👤 Creating default users...');
 
-        await db.createUser({
+        await ensureUser(db, {
             first_name: 'System',
             last_name: 'Administrator',
             email: 'admin@clinic.com',
@@ -57,7 +58,7 @@ async function setupDatabase() {
             gender: 'other'
         });
 
-        await db.createUser({
+        await ensureUser(db, {
             first_name: 'John',
             last_name: 'Smith',
             email: 'doctor@clinic.com',
@@ -66,7 +67,7 @@ async function setupDatabase() {
             gender: 'male'
         });
 
-        await db.createUser({
+        await ensureUser(db, {
             first_name: 'Mary',
             last_name: 'Johnson',
             email: 'assistant@clinic.com',
@@ -98,3 +99,20 @@ async function setupDatabase() {
 
 // Run setup
 setupDatabase().catch(console.error);
+
+// Safe helper to avoid UNIQUE constraint errors on repeated runs
+async function ensureUser(db, user) {
+    try {
+        const existing = await db.get('SELECT id FROM users WHERE email = ?', [user.email.toLowerCase()]);
+        if (existing?.id) {
+            console.log(`ℹ️ ${user.email} already exists, skipping create.`);
+            return existing.id;
+        }
+        const created = await db.createUser(user);
+        console.log(`✅ Created user ${user.email} (${created.id})`);
+        return created.id;
+    } catch (err) {
+        console.error('ensureUser error:', err);
+        throw err;
+    }
+}

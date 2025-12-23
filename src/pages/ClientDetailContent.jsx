@@ -104,7 +104,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:hover:text-white"
         >
           <ArrowLeftIcon className="w-5 h-5" />
           Back to Dashboard
@@ -112,7 +112,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
             <button
