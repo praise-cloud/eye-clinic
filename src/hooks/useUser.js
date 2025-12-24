@@ -7,6 +7,7 @@ const useUser = () => {
 
   // Initialize user from storage
   useEffect(() => {
+<<<<<<< HEAD
     const initializeUser = async () => {
       setLoading(true);
       let storedUser = null;
@@ -71,16 +72,49 @@ const useUser = () => {
     setError(null)
     
     try {
+=======
+    setLoading(true)
+    
+    try {
+      const storedUser = localStorage.getItem('currentUser')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      } else {
+        setUser(null)
+      }
+    } catch (err) {
+      console.error('Error loading user:', err)
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Login user
+  const login = useCallback(async (credentials) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       let result
       if (window.electronAPI?.login) {
         result = await window.electronAPI.login(credentials.email, credentials.password)
         console.log('Login result:', result)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         if (result?.success && result?.user) {
           const userData = result.user
           setUser(userData)
           localStorage.setItem('currentUser', JSON.stringify(userData))
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
           // Dispatch login event for admin dashboard
           window.dispatchEvent(new CustomEvent('userLogin', {
             detail: {
@@ -90,6 +124,7 @@ const useUser = () => {
             }
           }));
           
+<<<<<<< HEAD
           setLoading(false)
           return userData
         } else {
@@ -97,6 +132,11 @@ const useUser = () => {
           const error = new Error(result?.error || 'Login failed')
           setError(error.message)
           throw error
+=======
+          return userData
+        } else {
+          throw new Error(result?.error || 'Login failed')
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         }
       } else {
         // Mock login for development
@@ -110,7 +150,11 @@ const useUser = () => {
         }
         setUser(userData)
         localStorage.setItem('currentUser', JSON.stringify(userData))
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         // Dispatch login event for admin dashboard
         window.dispatchEvent(new CustomEvent('userLogin', {
           detail: {
@@ -119,18 +163,29 @@ const useUser = () => {
             status: 'success'
           }
         }));
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         return userData
       }
     } catch (err) {
       console.error('Login error:', err)
       setError(err.message)
+<<<<<<< HEAD
       setLoading(false)
       throw err
+=======
+      throw err
+    } finally {
+      setLoading(false)
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     }
   }, [])
 
   // Logout user
+<<<<<<< HEAD
   const logout = useCallback(async (data = {}) => {
     console.log('Logout called')
 
@@ -149,6 +204,20 @@ const useUser = () => {
     setUser(null)
 
     // Rely on router guard to redirect to login
+=======
+  const logout = useCallback(() => {
+    console.log('Logout called')
+    
+    // Clear all storage
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    // Set user to null
+    setUser(null)
+    
+    // Redirect to login immediately
+    window.location.href = '/login'
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   }, [])
 
   // Update user profile
@@ -207,4 +276,8 @@ const useUser = () => {
   }
 }
 
+<<<<<<< HEAD
 export default useUser
+=======
+export default useUser
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

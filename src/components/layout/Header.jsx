@@ -1,7 +1,10 @@
 import React, { useState, useRef } from 'react';
 import useUser from '../../hooks/useUser';
 import LogoutModal from '../modals/LogoutModal';
+<<<<<<< HEAD
 import OnlineStatusIndicator from '../OnlineStatusIndicator';
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSectionClick }) => {
   const { logout, loading } = useUser();
@@ -21,12 +24,20 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
 
   const userMenuItems = [
     { label: 'Profile', id: 'profile' },
+<<<<<<< HEAD
+=======
+    { label: 'Settings', id: 'settings' },
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     { label: 'Logout', id: 'logout' }
   ];
 
   const handleUserMenuClick = (item) => {
     setShowUserDropdown(false);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     if (item.id === 'logout') {
       setShowLogoutModal(true);
     } else if (item.id === 'settings' || item.id === 'profile') {
@@ -38,12 +49,16 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+<<<<<<< HEAD
       <div className="w-full px-6 py-4 flex items-center justify-between">
         {/* Left: Online Status */}
         <OnlineStatusIndicator />
 
         {/* Right: User Menu */}
         <div className="flex items-center">
+=======
+      <div className="w-full px-6 py-4 flex items-center justify-end">
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         {/* Left: Greeting and Section Title */}
         {/* <div className="flex flex-col">
           <span className="text-lg font-bold text-gray-900">Good day</span>
@@ -71,8 +86,13 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
           {/* </div> */}
         {/* )} */}
 
+<<<<<<< HEAD
           {/* User Info Dropdown */}
           <div className="relative" ref={userRef}>
+=======
+        {/* Right: User Info Dropdown */}
+        <div className="relative" ref={userRef}>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
           <button
             className="flex items-center space-x-2 px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => setShowUserDropdown(!showUserDropdown)}
@@ -101,10 +121,16 @@ const Header = ({ activeSection, currentUser, searchTerm, onSearchChange, onSect
               ))}
             </div>
           )}
+<<<<<<< HEAD
           </div>
         </div>
       </div>
 
+=======
+        </div>
+      </div>
+      
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

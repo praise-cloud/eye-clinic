@@ -3,7 +3,11 @@ module.exports = {
   darkMode: 'class',
   content: [
     "./src/**/*.{js,jsx,ts,tsx,html}",
+<<<<<<< HEAD
     "./src/index.html"
+=======
+    "./index.html"
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   ],
   theme: {
     extend: {
@@ -53,5 +57,9 @@ module.exports = {
       }
     },
   },
+<<<<<<< HEAD
   plugins: []
+=======
+  plugins: [],
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 }

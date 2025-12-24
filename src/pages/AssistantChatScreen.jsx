@@ -2,11 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // Main App component
 const App = () => {
+<<<<<<< HEAD
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [userName, setUserName] = useState("Dr. Emily Carter");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDoctorOnline, setIsDoctorOnline] = useState(true);
+=======
+    // Initial messages from the HTML structure
+    const initialMessages = [
+        { id: 1, text: "Good morning Sir", type: 'received', timestamp: "10:39 AM" },
+        { id: 2, text: "Good morning. Please check the patient's file for Dr. Williams.", type: 'sent', timestamp: "10:40 AM" },
+        { id: 3, text: "Checking now. The file indicates he needs a follow-up appointment for his prescription renewal.", type: 'received', timestamp: "10:41 AM" },
+    ];
+
+    const [messages, setMessages] = useState(initialMessages);
+    const [inputValue, setInputValue] = useState('');
+    const [userName, setUserName] = useState("Dr. Emily Carter"); // Dynamic name for header
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar toggle on mobile
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     
     const chatBodyRef = useRef(null);
     const nextId = useRef(4); // Simple ID generator for new messages
@@ -342,6 +356,7 @@ const App = () => {
 
                 .details .online {
                     font-size: 0.8rem;
+<<<<<<< HEAD
                     color: #27ae60;
                     margin: 0;
                 }
@@ -349,6 +364,9 @@ const App = () => {
                 .details .offline {
                     font-size: 0.8rem;
                     color: #95a5a6;
+=======
+                    color: #27ae60; /* Green for online status */
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                     margin: 0;
                 }
 
@@ -388,6 +406,7 @@ const App = () => {
                     margin: 0;
                 }
 
+<<<<<<< HEAD
                 .message-sender {
                     font-size: 0.75rem;
                     font-weight: 600;
@@ -399,6 +418,8 @@ const App = () => {
                     color: var(--secondary-color);
                 }
 
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                 .message .timestamp {
                     display: block;
                     font-size: 0.7rem;
@@ -596,9 +617,13 @@ const App = () => {
                                 <i className="fas fa-user-circle assistant-avatar"></i>
                                 <div className="details">
                                     <h2>Doctor</h2>
+<<<<<<< HEAD
                                     <p className={isDoctorOnline ? 'online' : 'offline'}>
                                         {isDoctorOnline ? 'Online' : 'Offline'}
                                     </p>
+=======
+                                    <p className="online">Online</p>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                 </div>
                             </div>
                             <i className="fas fa-search search-icon"></i>
@@ -607,9 +632,12 @@ const App = () => {
                         <div className="chat-body" ref={chatBodyRef}>
                             {messages.map((message) => (
                                 <div key={message.id} className={`message ${message.type}`}>
+<<<<<<< HEAD
                                     {message.type === 'received' && (
                                         <div className="message-sender">Doctor</div>
                                     )}
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                     <p>{message.text}</p>
                                     <span className="timestamp">{message.timestamp}</span>
                                 </div>

@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react'
+<<<<<<< HEAD
 import WelcomeScreen from '../pages/auth/WelcomeScreen'
 import SetupScreen from '../pages/auth/SetupScreen'
 import LoginScreen from '../pages/auth/LoginScreen'
 import LoadingScreen from './LoadingScreen'
 import SignupScreen from '../pages/auth/SignupScreen'
+=======
+import WelcomeScreen from '../pages/WelcomeScreen'
+import SetupScreen from '../pages/SetupScreen'
+import LoginScreen from '../pages/LoginScreen'
+import LoadingScreen from './LoadingScreen'
+import SignupScreen from '../pages/SignupScreen'  // Fixed typo: SigupScreen → SignupScreen
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 const AuthApp = () => {
   const [currentScreen, setCurrentScreen] = useState('loading')
@@ -80,9 +88,19 @@ const AuthApp = () => {
       const result = await window.electronAPI.completeSetup(clinicData, adminData);
 
       if (result?.success) {
+<<<<<<< HEAD
         setLoadingMessage('Setup completed successfully! Opening dashboard...')
         localStorage.setItem('currentUser', JSON.stringify(result.user)) // Store user
         await window.electronAPI?.openMainWindow() // Open main window directly
+=======
+        setLoadingMessage('Setup completed successfully!')
+        // Store user in localStorage for the main app
+        localStorage.setItem('currentUser', JSON.stringify(result.user))
+        // Open main window
+        setTimeout(() => {
+          window.electronAPI?.openMainWindow()
+        }, 500)
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       } else {
         throw new Error(result?.error || 'Setup failed')
       }
@@ -127,6 +145,7 @@ const AuthApp = () => {
     try {
       handleScreenChange('loading', 'Creating new user...')
 
+<<<<<<< HEAD
       // Normalize role to lowercase for database
       let dbRole = selectedRole.toLowerCase().trim()
       if (dbRole === 'clinic assistant') {
@@ -151,13 +170,29 @@ const AuthApp = () => {
         setLoadingMessage('User created successfully! Opening dashboard...')
         localStorage.setItem('currentUser', JSON.stringify(result.user)) // Store user
         await window.electronAPI?.openMainWindow() // Open main window directly
+=======
+      const result = await window.electronAPI.createUser({ role: selectedRole, ...adminData })
+
+      if (result?.success) {
+        setLoadingMessage('User created successfully!')
+        setTimeout(() => {
+          setIsAddingUser(false)
+          setSelectedRole(null)
+          setCurrentScreen('login')
+          alert('User created successfully! They can now log in.')
+        }, 1000)
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       } else {
         throw new Error(result?.error || 'Failed to create user')
       }
     } catch (error) {
       console.error('Add user error:', error)
+<<<<<<< HEAD
       const errorMessage = error?.message || error?.error || 'Failed to create user. Please try again.'
       alert(errorMessage)
+=======
+      alert(error.message || 'Failed to create user. Please try again.')
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       setCurrentScreen('setup')
     }
   }
@@ -208,4 +243,8 @@ const AuthApp = () => {
   )
 }
 
+<<<<<<< HEAD
 export default AuthApp
+=======
+export default AuthApp
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

@@ -1,14 +1,23 @@
 import React from 'react'
+<<<<<<< HEAD
 import { LoadingIcon } from './Icons'
 import logo from '../assets/images/logo.png'
+=======
+import { LoadingIcon, EyeIcon } from './Icons'
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 const LoadingScreen = ({ message = 'Loading...' }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="text-center animate-fade-in">
         {/* Logo */}
+<<<<<<< HEAD
         <div className="mb-8">
           <img src={logo} alt="Clinic Logo" className="w-20 h-20 mx-auto" />
+=======
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-8 shadow-xl">
+          <EyeIcon className="w-10 h-10 text-white" />
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         </div>
 
         {/* Loading Spinner */}

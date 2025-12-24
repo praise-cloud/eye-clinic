@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { ArrowLeftIcon } from '../components/Icons';
 import TestResultsContent from './TestResultsContent';
 import TestsContent from './TestsContent';
 import useTests from '../hooks/useTests';
+=======
+import React, { useState } from 'react';
+import { ArrowLeftIcon } from '../components/Icons';
+import TestResultsContent from './TestResultsContent';
+import TestsContent from './TestsContent';
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 const ClientDetailContent = ({ client, onBack, onSave }) => {
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const [sharedTests, setSharedTests] = useState([]);
+<<<<<<< HEAD
   const [testHistory, setTestHistory] = useState([]);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleFormData, setScheduleFormData] = useState({
@@ -18,6 +26,8 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
 
   const { tests: dbTests, fetchTests } = useTests();
 
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   const [formData, setFormData] = useState({
     name: client?.name || '',
     phone: client?.phone || '',
@@ -26,6 +36,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
     date: client?.date || ''
   });
 
+<<<<<<< HEAD
   // Load test history for this patient
   useEffect(() => {
     const loadTestHistory = async () => {
@@ -49,6 +60,14 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
 
     loadTestHistory();
   }, [client?.id]);
+=======
+  // Mock other cases for this client
+  const otherCases = [
+    { id: 1, date: '20/01/2024', case: 'Regular checkup', status: 'Completed' },
+    { id: 2, date: '15/01/2024', case: 'Eye strain consultation', status: 'Completed' },
+    { id: 3, date: '10/01/2024', case: 'Vision test', status: 'In Progress' }
+  ];
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
   const handleSave = () => {
     // Pass updated data back to parent
@@ -63,6 +82,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+<<<<<<< HEAD
   const handleScheduleInputChange = (field, value) => {
     setScheduleFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -89,6 +109,8 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
     }
   };
 
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   const getStatusColor = (status) => {
     switch (status) {
       case 'Completed': return 'text-green-600 bg-green-100';
@@ -104,7 +126,11 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
+<<<<<<< HEAD
           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:hover:text-white"
+=======
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         >
           <ArrowLeftIcon className="w-5 h-5" />
           Back to Dashboard
@@ -112,7 +138,11 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
       </div>
 
       {/* Tab Navigation */}
+<<<<<<< HEAD
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
+=======
+      <div className="bg-white rounded-lg shadow mb-6">
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
             <button
@@ -255,6 +285,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
         </div>
       </div>
 
+<<<<<<< HEAD
           {/* Case History & Schedule Test */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
@@ -269,16 +300,26 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
                 Schedule Test
               </button>
             </div>
+=======
+          {/* Other Cases */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Case History</h3>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+<<<<<<< HEAD
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Description</th>
+=======
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Case Description</th>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
+<<<<<<< HEAD
                   {testHistory.length > 0 ? testHistory.map((testItem) => (
                     <tr key={testItem.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{testItem.date}</td>
@@ -296,6 +337,19 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
                       </td>
                     </tr>
                   )}
+=======
+                  {otherCases.map((caseItem) => (
+                    <tr key={caseItem.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{caseItem.date}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{caseItem.case}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(caseItem.status)}`}>
+                          {caseItem.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                 </tbody>
               </table>
             </div>
@@ -331,6 +385,7 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
           />
         </div>
       )}
+<<<<<<< HEAD
 
       {/* Schedule Test Modal */}
       {showScheduleModal && (
@@ -398,8 +453,14 @@ const ClientDetailContent = ({ client, onBack, onSave }) => {
           </div>
         </div>
       )}
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default ClientDetailContent;
+=======
+export default ClientDetailContent;
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

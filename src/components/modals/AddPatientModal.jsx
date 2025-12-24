@@ -1,15 +1,27 @@
 import React, { useState } from 'react'
 
+<<<<<<< HEAD
 const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
+=======
+const AddPatientModal = ({ onClose, currentUser }) => {
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dateOfBirth: '',
+<<<<<<< HEAD
     gender: '',
     email: '',
     phoneNumber: '',
     address: '',
     reasonForVisit: ''
+=======
+    email: '',
+    phoneNumber: '',
+    address: '',
+    medicalHistory: '',
+    emergencyContact: ''
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   })
 
   const [loading, setLoading] = useState(false)
@@ -34,6 +46,7 @@ const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
         throw new Error('First name, last name, and date of birth are required')
       }
 
+<<<<<<< HEAD
       // Add patient via API - map form fields to database fields
       const result = await window.electronAPI.createPatient({
         patient_id: `P${Date.now()}`, // Generate a simple patient ID
@@ -45,15 +58,25 @@ const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
         email: formData.email || null,
         address: formData.address || null,
         reason_for_visit: formData.reasonForVisit || null
+=======
+      // Add patient via API
+      await window.api.addPatient({
+        ...formData,
+        createdBy: currentUser.id,
+        createdAt: new Date().toISOString()
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
       })
 
       // Close modal on success
       onClose()
+<<<<<<< HEAD
 
       // Notify parent component to refresh patient list
       if (onPatientAdded) {
         onPatientAdded()
       }
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     } catch (err) {
       setError(err.message || 'Failed to add patient')
     } finally {
@@ -62,6 +85,7 @@ const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-center p-6 border-b bg-gray-50 rounded-t-lg">
@@ -211,6 +235,119 @@ const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
               disabled={loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
             >
+=======
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Add New Patient</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="modal-form">
+          {error && <div className="error-message">{error}</div>}
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="firstName">First Name *</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="lastName">Last Name *</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="dateOfBirth">Date of Birth *</label>
+              <input
+                type="date"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="phoneNumber">Phone Number</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Address</label>
+            <textarea
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="medicalHistory">Medical History</label>
+            <textarea
+              id="medicalHistory"
+              name="medicalHistory"
+              value={formData.medicalHistory}
+              onChange={handleInputChange}
+              rows="4"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="emergencyContact">Emergency Contact</label>
+            <input
+              type="text"
+              id="emergencyContact"
+              name="emergencyContact"
+              value={formData.emergencyContact}
+              onChange={handleInputChange}
+              placeholder="Name and phone number"
+            />
+          </div>
+
+          <div className="modal-actions">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               {loading ? 'Adding...' : 'Add Patient'}
             </button>
           </div>
@@ -220,4 +357,8 @@ const AddPatientModal = ({ onClose, currentUser, onPatientAdded }) => {
   )
 }
 
+<<<<<<< HEAD
 export default AddPatientModal
+=======
+export default AddPatientModal
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

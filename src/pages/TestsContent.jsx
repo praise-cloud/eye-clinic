@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
 import useTests from '../hooks/useTests';
+=======
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { DeleteIcon, EditIcon, ViewIcon } from '../components/Icons';
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 const TestsContent = ({ clientName, additionalTests = [] }) => {
   const navigate = useNavigate()
@@ -11,6 +17,7 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   const [viewingTest, setViewingTest] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+<<<<<<< HEAD
   const { tests: dbTests, fetchTests } = useTests();
 
   useEffect(() => {
@@ -26,12 +33,15 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
     notes: `${test.eye} eye test`
   })), [dbTests]);
 
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
   const totalPages = Math.ceil(tests.length / rowsPerPage);
   const paginatedTests = tests.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [rowsPerPage]);
+<<<<<<< HEAD
 
   useEffect(() => {
     const maxPage = Math.ceil(tests.length / rowsPerPage);
@@ -50,6 +60,24 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
     const allTests = [...mappedDbTests, ...additionalTests];
     // setTests(allTests);
   }, [mappedDbTests, additionalTests])
+=======
+  const [selectedDate, setSelectedDate] = React.useState('');
+  const [customDate, setCustomDate] = React.useState('');
+
+  useEffect(() => {
+    // Mock data - synced with TestResultsContent structure
+    const mockTests = [
+      { id: 1, patientName: 'Dr. Ammar', testType: 'Vision Test', result: 'Normal', date: '25/01/2024', notes: 'Good vision clarity' },
+      { id: 2, patientName: 'Dr. Khan', testType: 'Eye Pressure', result: 'High', date: '24/01/2024', notes: 'Requires monitoring' },
+      { id: 3, patientName: 'Dr. Abdullah', testType: 'Retinal Scan', result: 'Abnormal', date: '23/01/2024', notes: 'Follow-up needed' },
+      { id: 4, patientName: 'Dr. Alia', testType: 'Color Blindness', result: 'Normal', date: '22/01/2024', notes: 'No issues detected' },
+      { id: 5, patientName: 'Dr. Ammar', testType: 'Field Test', result: 'Normal', date: '21/01/2024', notes: 'All parameters normal' }
+    ];
+
+    // Merge mock tests with additional tests from TestResultsContent
+    setTests([...mockTests, ...additionalTests]);
+  }, [additionalTests])
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
   const getResultColor = (result) => {
     switch (result?.toLowerCase()) {
@@ -64,17 +92,33 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   return (
     <div className="">
       <div className="flex my-5">
+<<<<<<< HEAD
         <div className="flex flex-col gap-4 bg-white  dark:bg-gray-800 w-full rounded-md shadow px-5 py-4">
           <div className="flex items-center gap-5 w-2/3">
             <input type="text" className="border border-gray-300  dark:bg-gray-700 dark:text-gray-600 rounded-md p-3 w-full" placeholder="name of case or clients name..." />
             <div className="flex items-center gap-3">
               <div className="flex">
                 <p className="dark:text-gray-600">Filter</p>
+=======
+        <div className="flex flex-col gap-4 bg-white w-full rounded-md shadow px-5 py-4">
+          <div>
+            <span className="text-xl font-semibold text-gray-600">Patient's of the day</span>
+          </div>
+          <div className="flex items-center gap-5 w-2/3">
+            <input type="text" className="border border-gray-300 rounded-md p-3 w-full" placeholder="name of case or clients name..." />
+            <div className="flex items-center gap-3">
+              <div className="flex">
+                <p>Filter</p>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               </div>
               {/* Date filter dropdown */}
               <div className="relative">
                 <select
+<<<<<<< HEAD
                   className="border border-gray-300 rounded-md p-2 dark:bg-gray-700 dark:text-white"
+=======
+                  className="border border-gray-300 rounded-md p-2"
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                   onChange={e => setSelectedDate(e.target.value)}
                   value={selectedDate || ''}
                 >
@@ -89,7 +133,11 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                 {selectedDate === 'custom' && (
                   <input
                     type="date"
+<<<<<<< HEAD
                     className="absolute top-full left-0 mt-2 border border-gray-300 rounded-md p-2 bg-white  z-10"
+=======
+                    className="absolute top-full left-0 mt-2 border border-gray-300 rounded-md p-2 bg-white z-10"
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                     onChange={e => setCustomDate(e.target.value)}
                     value={customDate || ''}
                   />
@@ -121,8 +169,13 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
       </div>
       <div>
         <div className="overflow-x-auto">
+<<<<<<< HEAD
           <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 dark:border-none rounded-md">
             <thead className="bg-gray-50 dark:bg-gray-800 py-5">
+=======
+          <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-200 rounded-md">
+            <thead className="bg-gray-50 py-5">
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Type</th>
@@ -194,19 +247,34 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
             {/* Pagination controls */}
             <div className="flex justify-end items-center gap-2">
               <button
+<<<<<<< HEAD
                 className={`px-3 py-1 rounded border text-sm ${currentPage === 1 || totalPages === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1 || totalPages === 0}
+=======
+                className={`px-3 py-1 rounded border text-sm ${currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               >
                 Previous
               </button>
               <span className="text-sm text-gray-600">
+<<<<<<< HEAD
                 Page {currentPage} of {totalPages || 1}
               </span>
               <button
                 className={`px-3 py-1 rounded border text-sm ${currentPage === totalPages || totalPages === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages || totalPages === 0}
+=======
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className={`px-3 py-1 rounded border text-sm ${currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               >
                 Next
               </button>
@@ -251,7 +319,11 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
                   {viewingTest.result}
                 </span>
               </div>
+<<<<<<< HEAD
 
+=======
+              
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
               <div>
                 <label className="block text-sm font-medium text-gray-700">Notes</label>
                 <p className="text-gray-900 bg-gray-50 p-2 rounded min-h-[60px]">{viewingTest.notes}</p>
@@ -312,4 +384,8 @@ const TestsContent = ({ clientName, additionalTests = [] }) => {
   );
 }
 
+<<<<<<< HEAD
 export default TestsContent
+=======
+export default TestsContent
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

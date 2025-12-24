@@ -34,7 +34,10 @@ Thumbs.db
 # Electron build outputs
 out/
 packages/
+<<<<<<< HEAD
 release/
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 # Database files (development)
 *.db
@@ -59,6 +62,7 @@ progress.md
 
 # Temporary files
 *.tmp
+<<<<<<< HEAD
 *.temp
 
 # Debug and temporary documentation
@@ -81,3 +85,6 @@ SUPABASE_RLS_FIX.sql
 # Scripts folder (if contains only debug scripts)
 scripts/auth.js
 scripts/renderer.js
+=======
+*.temp
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

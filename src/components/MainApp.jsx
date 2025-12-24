@@ -14,9 +14,15 @@ import GenerateReportModal from './modals/GenerateReportModal'
 import NewMessageModal from './modals/NewMessageModal'
 import useUser from '../hooks/useUser'
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts'
+<<<<<<< HEAD
 import DoctorsDashboard from '../pages/dashboard/DoctorsDashboard'
 import AssistantDashboardScreen from '../pages/dashboard/AssistantDashboardScreen'
 import AdminDashboard from '../pages/dashboard/AdminDashboard'
+=======
+import DoctorsDashboard from '../pages/DoctorsDashboard'
+import AssistantDashboardScreen from '../pages/AssistantDashboardScreen'
+import AdminDashboard from '../pages/AdminDashboard'
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 import CreateInventoryItemScreen from '../pages/CreateInventoryItemScreen'
 import ViewInventoryItemScreen from '../pages/ViewInventoryItemScreen'
 
@@ -53,6 +59,7 @@ const MainApp = () => {
       key: 'l',
       ctrlKey: true,
       shiftKey: true,
+<<<<<<< HEAD
       callback: async () => {
         if (window.confirm('Are you sure you want to logout?')) {
           try {
@@ -61,6 +68,11 @@ const MainApp = () => {
             console.error('Logout error:', error);
             alert('Failed to logout. Please try again.');
           }
+=======
+      callback: () => {
+        if (window.confirm('Are you sure you want to logout?')) {
+          logout();
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         }
       }
     }
@@ -146,4 +158,8 @@ const MainApp = () => {
   );
 }
 
+<<<<<<< HEAD
 export default MainApp
+=======
+export default MainApp
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9

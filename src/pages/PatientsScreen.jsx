@@ -1,6 +1,36 @@
 import React, { useState } from 'react';
 
+<<<<<<< HEAD
 const patientsData = [];
+=======
+// --- MOCK DATA ---
+const patientsData = [
+    {
+        id: 1,
+        name: 'Uzair Uzair',
+        phone: '+0123456789',
+        email: 'uzair619@gmail.com',
+        dob: '1/Jan/1999',
+        gender: 'Male',
+    },
+    {
+        id: 2,
+        name: 'Haric Haric',
+        phone: '+0123456789',
+        email: 'haric633@gmail.com',
+        dob: '1/Dec/1991',
+        gender: 'Male',
+    },
+    {
+        id: 3,
+        name: 'Hamza Hamza',
+        phone: '+0123456789',
+        email: 'hamza644@gmail.com',
+        dob: '1/Jan/2001',
+        gender: 'Male',
+    },
+];
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
 
 // --- STYLES COMPONENT (ALL CSS FROM ORIGINAL FILE) ---
 const AppStyles = () => (
@@ -475,6 +505,7 @@ const AppStyles = () => (
 
 // --- MAIN REACT COMPONENT ---
 const App = () => {
+<<<<<<< HEAD
     const [patients, setPatients] = useState([]); // State to hold patient data
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -525,6 +556,11 @@ const App = () => {
         return unsubscribe;
       }
     }, [searchQuery, genderFilter]); // Re-fetch when filters change
+=======
+    // Hardcoded active section for the Patients view
+    const [activeSection, setActiveSection] = useState('patients'); 
+
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     // Navigation Items
     const navItems = [
         { id: 'dashboard', icon: 'fas fa-th-large', label: 'Dashboard', href: '../eye-clinic/index.html' },
@@ -546,6 +582,7 @@ const App = () => {
         setActiveSection(sectionId);
     };
 
+<<<<<<< HEAD
     const handleTableAction = (action, patient) => {
         if (action === 'Edit') {
             setEditingPatient(patient);
@@ -613,6 +650,16 @@ const App = () => {
       }
     };
 
+=======
+    const handleTableAction = (action, patientId) => {
+        console.log(`${action} patient with ID: ${patientId}`);
+        // Placeholder for actual logic (e.g., open modal, delete record)
+        if (action === 'Admit') {
+            alert(`Simulating patient admission for ID: ${patientId}`);
+        }
+    };
+
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
     return (
         <>
             <AppStyles /> 
@@ -687,11 +734,15 @@ const App = () => {
                                     </div>
                                     <button 
                                         className="btn btn-primary"
+<<<<<<< HEAD
                                         onClick={() => {
                                           setEditingPatient(null);
                                           setPatientFormData({patient_id: '', first_name: '', last_name: '', dob: '', gender: '', contact: ''});
                                           setShowAddEditModal(true);
                                         }}
+=======
+                                        onClick={() => console.log('Add New Patient')}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                     >
                                         <i className="fas fa-plus"></i> Add Patient
                                     </button>
@@ -711,41 +762,66 @@ const App = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
+<<<<<<< HEAD
                                             {patients.length > 0 ? patients.map((patient) => (
                                                 <tr key={patient.id}>
                                                     <td>{patient.patient_id}</td>
                                                     <td>{`${patient.first_name} ${patient.last_name}`}</td>
                                                     <td>{patient.contact}</td>
+=======
+                                            {patientsData.map((patient) => (
+                                                <tr key={patient.id}>
+                                                    <td>{patient.id}</td>
+                                                    <td>{patient.name}</td>
+                                                    <td>{patient.phone}</td>
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                                     <td>{patient.email}</td>
                                                     <td>{patient.dob}</td>
                                                     <td>{patient.gender}</td>
                                                     <td className="action-buttons">
                                                         <button 
                                                             className="icon-btn edit" 
+<<<<<<< HEAD
                                                             onClick={() => handleTableAction('Edit', patient)}
+=======
+                                                            onClick={() => handleTableAction('Edit', patient.id)}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                                         >
                                                             <i className="fas fa-pencil-alt"></i>
                                                         </button>
                                                         <button 
                                                             className="icon-btn view"
+<<<<<<< HEAD
                                                             onClick={() => handleTableAction('View', patient)}
+=======
+                                                            onClick={() => handleTableAction('View', patient.id)}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                                         >
                                                             <i className="fas fa-eye"></i>
                                                         </button>
                                                         <button 
                                                             className="icon-btn delete"
+<<<<<<< HEAD
                                                             onClick={() => handleTableAction('Delete', patient)}
+=======
+                                                            onClick={() => handleTableAction('Delete', patient.id)}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                                         >
                                                             <i className="fas fa-trash-alt"></i>
                                                         </button>
                                                         <button 
                                                             className="btn btn-secondary"
+<<<<<<< HEAD
                                                             onClick={() => handleTableAction('Admit', patient)}
+=======
+                                                            onClick={() => handleTableAction('Admit', patient.id)}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                                         >
                                                             Admit
                                                         </button>
                                                     </td>
                                                 </tr>
+<<<<<<< HEAD
                                             )) : (
                                                 <tr>
                                                   <td colSpan="7" className="text-center text-gray-400 dark:text-gray-500 py-4">
@@ -753,6 +829,9 @@ const App = () => {
                                                   </td>
                                                 </tr>
                                             )}
+=======
+                                            ))}
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
                                         </tbody>
                                     </table>
                                 </div>
@@ -761,6 +840,7 @@ const App = () => {
                     </main>
                 </div>
             </div>
+<<<<<<< HEAD
 
             {/* Add/Edit Patient Modal */}
             {showAddEditModal && (
@@ -859,6 +939,8 @@ const App = () => {
                     </div>
                 </div>
             )}
+=======
+>>>>>>> d7adb94f093a3e0b1314671557a7ee3c3ed7e9e9
         </>
     );
 };
