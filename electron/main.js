@@ -5,8 +5,7 @@ const path = require('path');
 // Services
 const Database = require('../database/database.js');                    // ← adjust path if needed
 const IPCHandlers = require('./ipc/handlers.js');     // ← adjust if needed
-const SyncService = require('../services/SyncService.js');     // ← adjust if needed
-
+const SyncService = require('../services/SyncService.js');     // ← adju
 let mainWindow = null;
 let dbInstance = null;
 
@@ -24,18 +23,15 @@ function createWindow() {
 
   // Load URL based on environment
   const isDev = process.env.NODE_ENV === 'development';
-  
+
+  // Ensure helpful logs for production mode
   if (isDev) {
+    console.log('Running in development mode. Loading from localhost:3000');
     mainWindow.loadURL('http://localhost:3000');
-    mainWindow.webContents.openDevTools();
   } else {
-    // Production: Load from built files
     const indexPath = path.join(__dirname, '../dist/index.html');
-    console.log('Loading from:', indexPath);
+    console.log('Running in production mode. Loading from:', indexPath);
     mainWindow.loadFile(indexPath);
-    
-    // Uncomment next line to debug production builds
-    // mainWindow.webContents.openDevTools();
   }
 
   // Log any loading errors

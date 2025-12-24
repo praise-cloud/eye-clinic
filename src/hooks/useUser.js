@@ -148,8 +148,7 @@ const useUser = () => {
     localStorage.removeItem('currentUser')
     setUser(null)
 
-    // Redirect to login
-    window.location.href = '/login'
+    // Rely on router guard to redirect to login
   }, [])
 
   // Update user profile

@@ -37,7 +37,7 @@ const App = () => {
       />
       <Route
         path="/setup"
-        element={<SetupScreen onComplete={() => navigate('/login')} />}
+        element={<SetupScreen onComplete={() => navigate('/')} />}
       />
       <Route
         path="/*"

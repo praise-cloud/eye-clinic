@@ -30,7 +30,7 @@
   "type": "commonjs",
   "build": {
     "appId": "com.eyeclinic.app",
-    "productName": "Eye Clinic Management",
+    "productName": "KORENE EYE CLINIC NIG. LTD",
     "directories": {
       "output": "release"
     },
@@ -43,16 +43,14 @@
       "assets/**/*",
       "package.json"
     ],
-    "asarUnpack": [
-      "node_modules/sqlite3/**/*"
-    ],
+    "artifactName": "${productName} Setup ${version}.${ext}",
     "npmRebuild": false,
     "buildDependenciesFromSource": false,
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "assets/images/logo.png"
+      "icon": "src/assets/images/logo.png"
     },
     "nsis": {
       "oneClick": false,
@@ -64,14 +62,14 @@
       "target": [
         "dmg"
       ],
-      "icon": "assets/images/logo.png",
+      "icon": "src/assets/images/logo.png",
       "category": "public.app-category.medical"
     },
     "linux": {
       "target": [
         "AppImage"
       ],
-      "icon": "assets/images/logo.png",
+      "icon": "src/assets/images/logo.png",
       "category": "Office"
     }
   },
